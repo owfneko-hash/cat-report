@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>南大東村ネコ目撃情報アンケート</title>
   
-  <!-- PWA化のための設定 -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3498db">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -20,26 +19,37 @@
     label { font-weight: bold; display: block; margin-bottom: 8px; color: #34495e; font-size: 15px; }
     #map { height: 300px; width: 100%; border-radius: 8px; border: 1px solid #ddd; }
     .hidden { display: none; }
-    input[type="text"], input[type="file"], select, input[type="date"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+    input[type="text"], input[type="file"], select, input[type="date"], textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
     .sample-box { margin-top: 10px; margin-bottom: 12px; }
     .sample-img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ddd; display: block; margin: 0 auto; }
     .radio-group { padding: 5px 0; display: flex; flex-wrap: wrap; gap: 15px; }
     .radio-group label { display: inline-flex; align-items: center; font-weight: normal; margin-right: 0; cursor: pointer; font-size: 16px; }
     .radio-group input[type="radio"] { width: 22px; height: 22px; margin-right: 8px; cursor: pointer; }
-    .btn-location { background-color: #3498db; color: white; padding: 12px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; box-sizing: border-box; transition: background 0.2s; }
+    .btn-action { background-color: #3498db; color: white; padding: 12px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; box-sizing: border-box; transition: background 0.2s; }
+    .btn-sub { background-color: #95a5a6; margin-bottom: 5px; }
     #submitBtn { width: 100%; background-color: #2ecc71; color: white; padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold; transition: background 0.2s; }
     #output { margin-top: 20px; text-align: center; font-weight: bold; font-size: 15px; color: #e67e22; line-height: 1.5; white-space: pre-wrap; }
     .required::after { content: " *"; color: #e74c3c; }
     
-    /* アプリインストールバナーのスタイル */
+    /* アプリインストールバナー */
     #installBanner { background-color: #fff3cd; color: #856404; padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 20px; font-weight: bold; border: 1px solid #ffeeba; font-size: 14px; }
     #installBtn { display: block; width: 100%; margin-top: 10px; background-color: #e67e22; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; }
+
+    /* ネコの柄 選択UI用スタイル */
+    .pattern-menu { border: 1px solid #ccc; border-radius: 6px; overflow: hidden; background: #fff; margin-bottom: 10px; }
+    .pattern-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer; }
+    .pattern-item:active { background-color: #f0f0f0; }
+    .pattern-item:last-child { border-bottom: none; }
+    .pattern-icon { font-size: 24px; margin-right: 10px; display: inline-block; width: 30px; text-align: center; }
+    .pattern-check { width: 24px; color: #2ecc71; font-weight: bold; font-size: 18px; display: inline-block; }
+    .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .tag { background: #3498db; color: white; padding: 6px 10px; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; }
+    .tag-close { margin-left: 8px; cursor: pointer; font-weight: bold; background: rgba(0,0,0,0.2); border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- アプリインストールバナー -->
   <div id="installBanner" class="hidden">
     <span id="installText"></span>
     <button id="installBtn" class="hidden">ホーム画面に追加する</button>
@@ -56,14 +66,16 @@
     <input type="hidden" id="location" required>
     
     <div class="form-group">
-      <label class="required">目撃場所 (地図をタップ、または現在地ボタンを押してピンを立ててください)</label>
-      <button type="button" id="currentLocationBtn" class="btn-location" onclick="goToCurrentLocation()">現在地を取得する</button>
+      <label class="required">目撃場所</label>
+      <button type="button" id="currentLocationBtn" class="btn-action" onclick="goToCurrentLocation()">現在地を取得する</button>
       <div id="map"></div>
       <p id="locationDisplay" style="color: #7f8c8d; font-size: 0.9em; margin-top: 8px;">場所が選択されていません</p>
     </div>
 
+    <!-- 追加：現在日時ボタン -->
     <div class="form-group">
       <label class="required">目撃日時</label>
+      <button type="button" class="btn-action btn-sub" onclick="setNowDatetime()">現在日時をセットする</button>
       <div style="display: flex; gap: 10px;">
         <input type="date" id="dateInput" style="flex: 2;" required>
         <select id="hourInput" style="flex: 1;" required>
@@ -114,14 +126,28 @@
       </div>
     </div>
 
+    <!-- 追加：ネコの柄 階層・複数選択UI -->
     <div class="form-group">
-      <label for="catPattern">ネコの柄（わかる範囲で）</label>
-      <input type="text" id="catPattern" placeholder="例: キジトラ、白黒、三毛など">
+      <label>ネコの柄（わかる範囲で・複数選択可）</label>
+      <div id="selectedPatternTags" class="tag-container"></div>
+      
+      <div id="patternMenu" class="pattern-menu"></div>
+      
+      <div id="otherPatternContainer" class="hidden">
+        <input type="text" id="patternOtherInput" placeholder="その他の柄を具体的に入力してください" oninput="updatePatternValue()">
+      </div>
+      <input type="hidden" id="hiddenCatPattern" name="catPattern">
     </div>
 
     <div class="form-group">
       <label for="photo">目撃写真（データがあれば添付してください）</label>
       <input type="file" id="photo" accept="image/*">
+    </div>
+
+    <!-- 追加：備考欄 -->
+    <div class="form-group">
+      <label for="remarks">備考</label>
+      <textarea id="remarks" rows="3" placeholder="その他、気づいたことなどがあればご記入ください"></textarea>
     </div>
 
     <button type="submit" id="submitBtn">目撃情報を送信する</button>
@@ -132,52 +158,49 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // ==========================================
-  // PWA: Service Workerの登録
+  // PWA & 基本設定群（変更なし）
   // ==========================================
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(reg => {
-        console.log('ServiceWorker 登録完了:', reg.scope);
-      }).catch(err => {
-        console.log('ServiceWorker 登録失敗:', err);
-      });
-    });
+    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
   }
 
-  // ==========================================
-  // PWA: インストールバナーの制御
-  // ==========================================
   const installBanner = document.getElementById('installBanner');
   const installText = document.getElementById('installText');
   const installBtn = document.getElementById('installBtn');
   let deferredPrompt;
-
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
   if (!isStandalone) {
     if (isIos) {
-      installText.innerHTML = '💡 圏外でも使えるようにするには<br>Safari下部の「共有ボタン（四角から上矢印）」から<br>「ホーム画面に追加」をタップしてください。';
+      installText.innerHTML = '💡 圏外でも使えるようにするには<br>Safari下部の「共有ボタン」から<br>「ホーム画面に追加」をタップしてください。';
       installBanner.classList.remove('hidden');
     } else {
       window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
+        e.preventDefault(); deferredPrompt = e;
         installText.innerHTML = '💡 圏外でも使えるように、アプリとしてインストールできます。';
-        installBanner.classList.remove('hidden');
-        installBtn.classList.remove('hidden');
+        installBanner.classList.remove('hidden'); installBtn.classList.remove('hidden');
       });
       installBtn.addEventListener('click', async () => {
-        installBanner.classList.add('hidden');
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
+        installBanner.classList.add('hidden'); deferredPrompt.prompt();
+        await deferredPrompt.userChoice; deferredPrompt = null;
       });
     }
   }
 
   // ==========================================
-  // 地図ロジック
+  // 目撃日時の現在時刻セット機能
+  // ==========================================
+  function setNowDatetime() {
+    const now = new Date();
+    const dStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    const hStr = String(now.getHours()).padStart(2, '0');
+    document.getElementById('dateInput').value = dStr;
+    document.getElementById('hourInput').value = hStr;
+  }
+
+  // ==========================================
+  // 地図ロジック（変更なし）
   // ==========================================
   var map = L.map('map').setView([25.845, 131.23], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -221,55 +244,112 @@
   }
 
   // ==========================================
-  // IndexedDB (オフライン保存)
+  // ネコの柄 選択ロジック（新規追加）
   // ==========================================
-  const dbName = "CatReportDB";
-  const storeName = "offlineReports";
+  const patternCategories = {
+    "虎柄": [ { id: "キジトラ", icon: "🐅" }, { id: "キジ白", icon: "🐅" }, { id: "サバトラ", icon: "🐅" }, { id: "サバ白", icon: "🐅" }, { id: "茶トラ", icon: "🐅" }, { id: "茶白", icon: "🐅" } ],
+    "単色": [ { id: "黒", icon: "🐈‍⬛" }, { id: "白", icon: "🐈" }, { id: "茶", icon: "🐈" }, { id: "グレー", icon: "🐈" } ],
+    "混色": [ { id: "黒白", icon: "🐈" }, { id: "白茶", icon: "🐈" }, { id: "シャム系", icon: "🐈" } ]
+  };
+  const standalonePatterns = [ { id: "三毛", icon: "🐈" }, { id: "その他", icon: "📝" } ];
+
+  let selectedPatterns = new Set();
+  let currentPatternCategory = null;
+
+  function renderPatternMenu() {
+    const menu = document.getElementById('patternMenu');
+    menu.innerHTML = '';
+
+    if (currentPatternCategory) {
+      // サブメニュー（戻るボタンあり）
+      const backBtn = document.createElement('div');
+      backBtn.className = 'pattern-item';
+      backBtn.style.backgroundColor = '#f1f2f6';
+      backBtn.innerHTML = '<strong>◀ 戻る</strong>';
+      backBtn.onclick = () => { currentPatternCategory = null; renderPatternMenu(); };
+      menu.appendChild(backBtn);
+
+      patternCategories[currentPatternCategory].forEach(item => {
+        menu.appendChild(createPatternItem(item.id, item.icon));
+      });
+    } else {
+      // メインメニュー
+      Object.keys(patternCategories).forEach(cat => {
+        const div = document.createElement('div');
+        div.className = 'pattern-item';
+        div.innerHTML = `<span class="pattern-check"></span><span class="pattern-icon">📁</span><span>${cat}</span><span style="margin-left:auto;">▶</span>`;
+        div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); };
+        menu.appendChild(div);
+      });
+      standalonePatterns.forEach(item => {
+        menu.appendChild(createPatternItem(item.id, item.icon));
+      });
+    }
+    updatePatternTags();
+  }
+
+  function createPatternItem(id, icon) {
+    const div = document.createElement('div');
+    div.className = 'pattern-item';
+    const isSelected = selectedPatterns.has(id);
+    div.innerHTML = `<span class="pattern-check">${isSelected ? '✓' : ''}</span><span class="pattern-icon">${icon}</span><span>${id}</span>`;
+    div.onclick = () => {
+      if (isSelected) selectedPatterns.delete(id); else selectedPatterns.add(id);
+      if (id === 'その他') document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedPatterns.has('その他'));
+      renderPatternMenu();
+    };
+    return div;
+  }
+
+  function updatePatternTags() {
+    const container = document.getElementById('selectedPatternTags');
+    container.innerHTML = '';
+    selectedPatterns.forEach(id => {
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.innerHTML = `${id} <span class="tag-close" onclick="removePattern('${id}')">×</span>`;
+      container.appendChild(tag);
+    });
+    updatePatternValue();
+  }
+
+  function removePattern(id) {
+    selectedPatterns.delete(id);
+    if (id === 'その他') document.getElementById('otherPatternContainer').classList.add('hidden');
+    renderPatternMenu();
+  }
+
+  function updatePatternValue() {
+    let vals = Array.from(selectedPatterns);
+    if (vals.includes('その他')) {
+      const otherVal = document.getElementById('patternOtherInput').value;
+      vals = vals.map(v => v === 'その他' ? (otherVal ? `その他(${otherVal})` : 'その他') : v);
+    }
+    document.getElementById('hiddenCatPattern').value = vals.join(', ');
+  }
+
+  renderPatternMenu(); // 初期化実行
+
+  // ==========================================
+  // IndexedDB & 送信処理
+  // ==========================================
+  const dbName = "CatReportDB"; const storeName = "offlineReports";
 
   function openDB() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(dbName, 1);
-      request.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName, { autoIncrement: true });
-      };
-      request.onsuccess = (e) => resolve(e.target.result);
-      request.onerror = (e) => reject(e.target.error);
+      request.onupgradeneeded = (e) => { const db = e.target.result; if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName, { autoIncrement: true }); };
+      request.onsuccess = (e) => resolve(e.target.result); request.onerror = (e) => reject(e.target.error);
     });
   }
+  async function saveToIndexedDB(data) { const db = await openDB(); const tx = db.transaction(storeName, "readwrite"); tx.objectStore(storeName).add(data); return tx.complete; }
+  async function getFromIndexedDB() { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(storeName, "readonly"); const req = tx.objectStore(storeName).getAllKeys(); const valReq = tx.objectStore(storeName).getAll(); tx.oncomplete = () => resolve(req.result.map((key, i) => ({ key: key, data: valReq.result[i] }))); tx.onerror = () => reject(tx.error); }); }
+  async function deleteFromIndexedDB(key) { const db = await openDB(); const tx = db.transaction(storeName, "readwrite"); tx.objectStore(storeName).delete(key); }
 
-  async function saveToIndexedDB(data) {
-    const db = await openDB();
-    const tx = db.transaction(storeName, "readwrite");
-    tx.objectStore(storeName).add(data);
-    return tx.complete;
-  }
-
-  async function getFromIndexedDB() {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(storeName, "readonly");
-      const req = tx.objectStore(storeName).getAllKeys();
-      const valReq = tx.objectStore(storeName).getAll();
-      tx.oncomplete = () => resolve(req.result.map((key, i) => ({ key: key, data: valReq.result[i] })));
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  async function deleteFromIndexedDB(key) {
-    const db = await openDB();
-    const tx = db.transaction(storeName, "readwrite");
-    tx.objectStore(storeName).delete(key);
-  }
-
-  // ==========================================
-  // 送信処理
-  // ==========================================
   const gasURL = "https://script.google.com/macros/s/AKfycbwTHWtvb65Hh4dcGjqLlxw46capVcfXzGs3wQEtHpAapw55bgKgune_bJTkZRfemJkRQg/exec";
 
   async function sendDataToGAS(dataObj) {
-    const params = new URLSearchParams();
-    for (const key in dataObj) { params.append(key, dataObj[key]); }
+    const params = new URLSearchParams(); for (const key in dataObj) { params.append(key, dataObj[key]); }
     return await fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params });
   }
 
@@ -278,26 +358,26 @@
     if (navigator.onLine) {
       try {
         await sendDataToGAS(dataObj);
-        output.innerText = "送信完了しました！ご協力ありがとうございます。";
-        output.style.color = "#2ecc71";
-        document.getElementById("catForm").reset();
-        if(marker) map.removeLayer(marker); marker = null;
-        document.getElementById('locationDisplay').innerText = "場所が選択されていません";
+        output.innerText = "送信完了しました！ご協力ありがとうございます。"; output.style.color = "#2ecc71";
+        resetFormUI();
       } catch (error) {
         await saveToIndexedDB(dataObj);
-        output.innerText = "通信エラー。一時保存し、後で自動送信します。";
-        output.style.color = "#e67e22";
+        output.innerText = "通信エラー。一時保存し、後で自動送信します。"; output.style.color = "#e67e22";
       }
     } else {
       await saveToIndexedDB(dataObj);
-      output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。";
-      output.style.color = "#e67e22";
-      document.getElementById("catForm").reset();
-      if(marker) map.removeLayer(marker); marker = null;
-      document.getElementById('locationDisplay').innerText = "場所が選択されていません";
+      output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。"; output.style.color = "#e67e22";
+      resetFormUI();
     }
     document.getElementById('submitBtn').disabled = false;
     document.getElementById('submitBtn').innerText = "目撃情報を送信する";
+  }
+
+  function resetFormUI() {
+    document.getElementById("catForm").reset();
+    if(marker) map.removeLayer(marker); marker = null;
+    document.getElementById('locationDisplay').innerText = "場所が選択されていません";
+    selectedPatterns.clear(); renderPatternMenu(); document.getElementById('otherPatternContainer').classList.add('hidden');
   }
 
   function handleFormSubmit(e) {
@@ -313,7 +393,8 @@
       datetime: document.getElementById('dateInput').value + 'T' + document.getElementById('hourInput').value + ':00',
       catCountResult: document.getElementById('catCount').value === '3頭以上' ? document.getElementById('catCountNum').value : (document.getElementById('catCount').value === '親子' ? document.getElementById('catCountDetail').value : document.getElementById('catCount').value),
       earCut: document.querySelector('input[name="earCutRadio"]:checked')?.value === 'その他' ? document.getElementById('earCutDetail').value : (document.querySelector('input[name="earCutRadio"]:checked')?.value || ""),
-      catPattern: document.getElementById('catPattern').value,
+      catPattern: document.getElementById('hiddenCatPattern').value,
+      remarks: document.getElementById('remarks').value,  // 備考欄データを追加
       photoData: "", photoName: ""
     };
     
@@ -340,9 +421,6 @@
     } else { processSubmission(dataObj); }
   }
 
-  // ==========================================
-  // オンライン復帰時の自動同期
-  // ==========================================
   window.addEventListener('online', async () => {
     const savedData = await getFromIndexedDB();
     if (savedData.length > 0) {
