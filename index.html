@@ -172,6 +172,19 @@
   </div>
 </div>
 
+<!-- みんなのねこマップ 初回案内用ポップアップモーダル -->
+<div id="mapGuideModal" class="modal" style="z-index: 10000;">
+  <div class="modal-content" style="max-width: 400px;">
+    <h2 style="font-size:36px; margin-bottom:10px;">🗺️</h2>
+    <h3 style="color:#D35400; margin-top:0; font-size:20px;">みんなのねこマップについて</h3>
+    <p style="font-size:14px; color:#2D1E16; line-height:1.7; margin: 20px 0; text-align:left;">
+      ねこログで収集したデータが全て地図上に表示されます。<br><br>
+      データはねこログを使用している全ての人のデータが反映されます。
+    </p>
+    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
+  </div>
+</div>
+
 <div class="container">
   <div class="header-container">
     <h2>🐾 ねこログ 🐾</h2>
@@ -395,6 +408,17 @@
     }
     setTimeout(() => { aggMap.invalidateSize(); }, 200);
     loadMapMarkers();
+
+    // マップの初回案内ポップアップ判定
+    const mapGuideSeen = localStorage.getItem('nekoLogMapGuideSeen');
+    if (!mapGuideSeen) {
+      document.getElementById('mapGuideModal').style.display = 'flex';
+    }
+  }
+
+  function closeMapGuide() {
+    document.getElementById('mapGuideModal').style.display = 'none';
+    localStorage.setItem('nekoLogMapGuideSeen', 'true');
   }
 
   async function loadMapMarkers() {
@@ -476,7 +500,6 @@
     else { detailGroup.classList.add('hidden'); detailInput.required = false; detailInput.value = ''; }
   }
 
-  // ネコの柄 選択ロジック（不明・その他（記述）のアイコンを外してコンパクト化）
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
