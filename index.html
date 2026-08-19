@@ -178,12 +178,12 @@
       <textarea id="remarks" rows="3" placeholder="その他、気づいたことなどがあればご記入ください"></textarea>
     </div>
 
-    <button type="submit" id="submitBtn">送信するにゃ 🐾</button>
+    <button type="submit" id="submitBtn">送信する 🐾</button>
   </form>
   <div id="output"></div>
 </div>
 
-<!-- 【追加】みんなのねこマップ モーダル -->
+<!-- みんなのねこマップ モーダル -->
 <div id="mapModal" class="modal">
   <div class="modal-content">
     <span class="close-modal" onclick="closeModal('mapModal')">×</span>
@@ -193,7 +193,7 @@
   </div>
 </div>
 
-<!-- 【追加】自分の回答履歴 モーダル -->
+<!-- 自分の回答履歴 モーダル -->
 <div id="historyModal" class="modal">
   <div class="modal-content">
     <span class="close-modal" onclick="closeModal('historyModal')">×</span>
@@ -229,12 +229,12 @@
 
   if (!isStandalone) {
     if (isIos) {
-      installText.innerHTML = '💡 ホーム画面に追加してアプリとして使ってね🐾<br>Safari下部の「共有ボタン」から追加できます。';
+      installText.innerHTML = '💡 ホーム画面に追加してアプリとしてご利用いただけます🐾<br>Safari下部の「共有ボタン」から追加できます。';
       installBanner.classList.remove('hidden');
     } else {
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault(); deferredPrompt = e;
-        installText.innerHTML = '💡 アプリとしてインストールできるにゃ🐾';
+        installText.innerHTML = '💡 アプリとしてインストールできます🐾';
         installBanner.classList.remove('hidden'); installBtn.classList.remove('hidden');
       });
       installBtn.addEventListener('click', async () => {
@@ -461,19 +461,19 @@
     if (navigator.onLine) {
       try {
         await sendDataToGAS(dataObj);
-        output.innerText = "送信完了したにゃ🐾 協力ありがとう！"; output.style.color = "#2ecc71";
+        output.innerText = "送信完了しました！ご協力ありがとうございます。"; output.style.color = "#2ecc71";
         resetFormUI();
       } catch (error) {
         await saveToOfflineDB(dataObj);
-        output.innerText = "通信エラーにゃ💦 一時保存したから後で自動送信するね。"; output.style.color = "#FF8C66";
+        output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; output.style.color = "#FF8C66";
       }
     } else {
       await saveToOfflineDB(dataObj);
-      output.innerText = "オフラインだから端末に保存したにゃ🐾\n電波が戻ったら自動送信するね。"; output.style.color = "#FF8C66";
+      output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。"; output.style.color = "#FF8C66";
       resetFormUI();
     }
     document.getElementById('submitBtn').disabled = false;
-    document.getElementById('submitBtn').innerText = "送信するにゃ 🐾";
+    document.getElementById('submitBtn').innerText = "送信する 🐾";
   }
 
   function resetFormUI() {
@@ -487,10 +487,10 @@
 
   function handleFormSubmit(e) {
     e.preventDefault();
-    if(!document.getElementById('location').value) { alert("地図上で場所を選択してにゃ🐾"); return; }
+    if(!document.getElementById('location').value) { alert("地図上で場所を選択してください。"); return; }
     
     document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').innerText = "処理中にゃ...";
+    document.getElementById('submitBtn').innerText = "処理中...";
     document.getElementById('output').innerText = "";
     
     var dataObj = {
