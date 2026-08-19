@@ -73,7 +73,6 @@
     .history-item { background: white; padding: 15px; border-radius: 12px; border: 2px solid #A6958B; margin-bottom: 15px; text-align: left;}
     .btn-edit { background-color: #2E86C1; color: white; padding: 8px 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 3px 0 #1B4F72; margin-top: 10px; width: 100%;}
 
-    /* OS別ガイドUIスタイル */
     .os-guide-container { margin-bottom: 20px; text-align: left; }
     .os-toggle-btn { background: #D3B8A5; color: #2D1E16; border: 1px solid #A88F7C; padding: 10px 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; font-size: 14px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; margin-bottom: 8px; }
     .os-guide-content { background: white; padding: 12px 15px; border-radius: 12px; border: 1px solid #D8CCC4; font-size: 13px; line-height: 1.6; color: #2D1E16; margin-bottom: 12px; }
@@ -84,7 +83,6 @@
 
 <!-- 初回起動用 ウェルカムモーダル -->
 <div id="welcomeModal" class="modal" style="background: #F5F2EF;">
-  
   <div id="stepInstall" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px; background: transparent;">
     <h2 style="font-size:32px; margin-bottom:10px;">🐾</h2>
     <h3 style="color:#D35400; font-size: 20px; margin-bottom:10px;">ホーム画面に追加</h3>
@@ -92,7 +90,6 @@
       ショートカットを作成すると、次回からホーム画面からすぐに起動できて便利です！
     </p>
     
-    <!-- コンパクトなOS別手順案内 -->
     <div class="os-guide-container">
       <button type="button" class="os-toggle-btn" onclick="toggleGuide('welcomeIos')">
         <span>📱 iPhone (Safari) の手順</span> <span id="welcomeIosArrow">▼</span>
@@ -129,7 +126,7 @@
   </div>
 </div>
 
-<!-- 設定モーダル（名前変更 ＆ ホーム追加手順） -->
+<!-- 設定モーダル -->
 <div id="settingsModal" class="modal">
   <div class="modal-content" style="max-width: 400px;">
     <span class="close-modal" onclick="closeModal('settingsModal')">×</span>
@@ -141,10 +138,8 @@
       <button class="btn-action" onclick="saveSettingsName()">変更を保存する</button>
     </div>
 
-    <!-- ホーム画面追加手順エリア（設定内） -->
     <div style="margin-top: 25px; text-align: left; border-top: 2px dashed #A6958B; padding-top: 20px;">
       <label>📱 ホーム画面への追加方法</label>
-      
       <div class="os-guide-container" style="margin-top:10px;">
         <button type="button" class="os-toggle-btn" onclick="toggleGuide('settingsIos')">
           <span>📱 iPhone (Safari) の手順</span> <span id="settingsIosArrow">▼</span>
@@ -311,13 +306,11 @@
   window.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('nekoLogName');
     
-    // 初回起動時
     if (!savedName) {
       document.getElementById('welcomeModal').style.display = 'flex';
       
       if (!isStandalone) {
         document.getElementById('stepInstall').classList.remove('hidden');
-        // 自動で使っている端末のガイドを開いてあげる優しさ
         if (isIos) { toggleGuide('welcomeIos'); } else { toggleGuide('welcomeAndroid'); }
       } else {
         document.getElementById('stepName').classList.remove('hidden');
@@ -325,7 +318,6 @@
     }
   });
 
-  // OS別ガイドの開閉アコーディオン機能
   function toggleGuide(guideId) {
     const content = document.getElementById(guideId);
     const arrow = document.getElementById(guideId + 'Arrow');
@@ -350,9 +342,6 @@
     document.getElementById('welcomeModal').style.display = 'none';
   }
 
-  // ==========================================
-  // 設定（名前変更）ロジック
-  // ==========================================
   function openSettingsModal() {
     document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || '';
     document.getElementById('settingsModal').style.display = 'flex';
@@ -653,11 +642,26 @@
   }
 
   // ==========================================
-  // 送信処理
+  // 通信エラー対策を強化した送信処理
   // ==========================================
   async function sendDataToGAS(dataObj) {
-    const params = new URLSearchParams(); for (const key in dataObj) { params.append(key, dataObj[key]); }
-    return await fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params });
+    const params = new URLSearchParams(); 
+    for (const key in dataObj) { 
+      params.append(key, dataObj[key]); 
+    }
+    
+    // GASのリダイレクト挙動・CORSエラー対策
+    const response = await fetch(gasURL, { 
+      method: "POST", 
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
+      body: params,
+      redirect: "follow"
+    });
+
+    if (!response.ok && response.status !== 0) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+    return response;
   }
 
   async function processSubmission(dataObj) {
@@ -667,15 +671,19 @@
     if (navigator.onLine) {
       try {
         await sendDataToGAS(dataObj);
-        output.innerText = "送信完了しました！ご協力ありがとうございます。"; output.style.color = "#D35400";
+        output.innerText = "送信完了しました！ご協力ありがとうございます。"; 
+        output.style.color = "#D35400";
         resetFormUI();
       } catch (error) {
+        console.error("送信エラー詳細:", error);
         await saveToOfflineDB(dataObj);
-        output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; output.style.color = "#D35400";
+        output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; 
+        output.style.color = "#D35400";
       }
     } else {
       await saveToOfflineDB(dataObj);
-      output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。"; output.style.color = "#D35400";
+      output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。"; 
+      output.style.color = "#D35400";
       resetFormUI();
     }
     document.getElementById('submitBtn').disabled = false;
