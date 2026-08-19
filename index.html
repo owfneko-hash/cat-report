@@ -289,7 +289,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // ==========================================
-  // GASのURL（★必ず自分のURLに書き換えてください！）
+  // GASのURL
   // ==========================================
   const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
 
@@ -347,7 +347,6 @@
     closeModal('settingsModal');
   }
 
-  // モーダル制御
   var aggMap = null;
   var markersLayer = null;
 
@@ -394,7 +393,6 @@
     document.getElementById(modalId).style.display = 'none';
   }
 
-  // 入力フォーム用 地図＆機能
   var map = L.map('map').setView([25.950, 131.310], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   var marker;
@@ -443,7 +441,6 @@
     else { detailGroup.classList.add('hidden'); detailInput.required = false; detailInput.value = ''; }
   }
 
-  // ネコの柄 選択ロジック
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
@@ -496,7 +493,6 @@
   }
   renderPatternMenu();
 
-  // IndexedDB
   const dbName = "CatReportDB"; 
   const storeName = "offlineReports";
   const historyStoreName = "myHistory"; 
@@ -626,18 +622,17 @@
     } catch(e) { console.error("履歴の復元に失敗しました", e); }
   }
 
-  // 送信処理
+  // 送信処理（CORSエラー対策で mode: 'no-cors' を追加）
   async function sendDataToGAS(dataObj) {
     const params = new URLSearchParams(); 
     for (const key in dataObj) { params.append(key, dataObj[key]); }
     
-    const response = await fetch(gasURL, { 
+    return await fetch(gasURL, { 
       method: "POST", 
       headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
       body: params,
-      redirect: "follow"
+      mode: "no-cors"
     });
-    return response;
   }
 
   async function processSubmission(dataObj) {
@@ -645,12 +640,7 @@
     
     if (navigator.onLine) {
       try {
-        const response = await sendDataToGAS(dataObj);
-        const resData = await response.json();
-        
-        if (resData && resData.id) {
-          dataObj.editId = resData.id;
-        }
+        await sendDataToGAS(dataObj);
         await saveToHistoryDB(dataObj); 
 
         output.innerText = "送信完了しました！ご協力ありがとうございます。"; 
@@ -685,7 +675,6 @@
     document.getElementById('submitBtn').style.boxShadow = "0 5px 0 #9E3E00";
   }
 
-  // 画像の安全な圧縮処理（最大600px / 画質50%）
   function resizeImage(file) {
     return new Promise((resolve) => {
       const reader = new FileReader();
