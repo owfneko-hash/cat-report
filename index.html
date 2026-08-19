@@ -72,7 +72,7 @@
       <p id="locationDisplay" style="color: #7f8c8d; font-size: 0.9em; margin-top: 8px;">場所が選択されていません</p>
     </div>
 
-    <!-- 追加：現在日時ボタン -->
+    <!-- 現在日時ボタン -->
     <div class="form-group">
       <label class="required">目撃日時</label>
       <button type="button" class="btn-action btn-sub" onclick="setNowDatetime()">現在日時をセットする</button>
@@ -126,7 +126,7 @@
       </div>
     </div>
 
-    <!-- 追加：ネコの柄 階層・複数選択UI -->
+    <!-- ネコの柄 階層・複数選択UI -->
     <div class="form-group">
       <label>ネコの柄（わかる範囲で・複数選択可）</label>
       <div id="selectedPatternTags" class="tag-container"></div>
@@ -144,7 +144,7 @@
       <input type="file" id="photo" accept="image/*">
     </div>
 
-    <!-- 追加：備考欄 -->
+    <!-- 備考欄 -->
     <div class="form-group">
       <label for="remarks">備考</label>
       <textarea id="remarks" rows="3" placeholder="その他、気づいたことなどがあればご記入ください"></textarea>
@@ -158,7 +158,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // ==========================================
-  // PWA & 基本設定群（変更なし）
+  // PWA & 基本設定群
   // ==========================================
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
@@ -200,7 +200,7 @@
   }
 
   // ==========================================
-  // 地図ロジック（変更なし）
+  // 地図ロジック
   // ==========================================
   var map = L.map('map').setView([25.845, 131.23], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -244,14 +244,34 @@
   }
 
   // ==========================================
-  // ネコの柄 選択ロジック（新規追加）
+  // ネコの柄 選択ロジック（画像版）
   // ==========================================
   const patternCategories = {
-    "虎柄": [ { id: "キジトラ", icon: "🐅" }, { id: "キジ白", icon: "🐅" }, { id: "サバトラ", icon: "🐅" }, { id: "サバ白", icon: "🐅" }, { id: "茶トラ", icon: "🐅" }, { id: "茶白", icon: "🐅" } ],
-    "単色": [ { id: "黒", icon: "🐈‍⬛" }, { id: "白", icon: "🐈" }, { id: "茶", icon: "🐈" }, { id: "グレー", icon: "🐈" } ],
-    "混色": [ { id: "黒白", icon: "🐈" }, { id: "白茶", icon: "🐈" }, { id: "シャム系", icon: "🐈" } ]
+    "虎柄": [ 
+      { id: "キジトラ", icon: "<img src='kijitora.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "キジ白", icon: "<img src='kijisiro.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "サバトラ", icon: "<img src='sabatora.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "サバ白", icon: "<img src='sabasiro.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "茶トラ", icon: "<img src='tyatora.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "茶白", icon: "<img src='tyasiro.png' style='height:24px; vertical-align:middle;'>" } 
+    ],
+    "単色": [ 
+      { id: "黒", icon: "<img src='kuro.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "白", icon: "<img src='siro.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "グレー", icon: "<img src='gray.png' style='height:24px; vertical-align:middle;'>" } 
+    ],
+    "混色": [ 
+      { id: "黒白", icon: "<img src='kurosiro.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "白茶", icon: "<img src='sirotya.png' style='height:24px; vertical-align:middle;'>" }, 
+      { id: "シャム系", icon: "<img src='syamu.png' style='height:24px; vertical-align:middle;'>" },
+      { id: "グレー白", icon: "<img src='graysiro.png' style='height:24px; vertical-align:middle;'>" },
+      { id: "サビ", icon: "<img src='sabi.png' style='height:24px; vertical-align:middle;'>" }
+    ]
   };
-  const standalonePatterns = [ { id: "三毛", icon: "🐈" }, { id: "その他", icon: "📝" } ];
+  const standalonePatterns = [ 
+    { id: "三毛", icon: "<img src='mike.png' style='height:24px; vertical-align:middle;'>" }, 
+    { id: "その他", icon: "📝" } 
+  ];
 
   let selectedPatterns = new Set();
   let currentPatternCategory = null;
@@ -394,7 +414,7 @@
       catCountResult: document.getElementById('catCount').value === '3頭以上' ? document.getElementById('catCountNum').value : (document.getElementById('catCount').value === '親子' ? document.getElementById('catCountDetail').value : document.getElementById('catCount').value),
       earCut: document.querySelector('input[name="earCutRadio"]:checked')?.value === 'その他' ? document.getElementById('earCutDetail').value : (document.querySelector('input[name="earCutRadio"]:checked')?.value || ""),
       catPattern: document.getElementById('hiddenCatPattern').value,
-      remarks: document.getElementById('remarks').value,  // 備考欄データを追加
+      remarks: document.getElementById('remarks').value, 
       photoData: "", photoName: ""
     };
     
