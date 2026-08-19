@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#D35400">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <style>
@@ -17,7 +17,8 @@
     .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: 2px solid #A6958B; box-sizing: border-box; }
     
     .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    h2 { margin: 0; color: #D35400; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
+    /* タイトルの文字をより太く調整 */
+    h2 { margin: 0; color: #D35400; font-size: 28px; font-weight: 900; letter-spacing: 2px; }
     .btn-settings { background: white; border: 2px solid #A6958B; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; cursor: pointer; box-shadow: 0 4px 0 #A6958B; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0; }
     .btn-settings:active { transform: translateY(4px); box-shadow: none; }
 
@@ -29,13 +30,12 @@
     label { font-weight: bold; display: block; margin-bottom: 10px; color: #A04000; font-size: 16px; }
     .required::after { content: " *"; color: #D32F2F; }
     
-    /* 地図のサイズを拡大 (300px -> 400px) */
-    #map { height: 400px; width: 100%; border-radius: 12px; border: 2px solid #A6958B; }
+    /* 目撃場所の地図の横幅と縦幅を大きく拡大 */
+    #map { height: 450px; width: 100%; border-radius: 12px; border: 2px solid #A6958B; box-sizing: border-box; }
     .hidden { display: none !important; }
     
     input[type="text"], select, input[type="date"], textarea { width: 100%; padding: 12px; border: 2px solid #A6958B; border-radius: 12px; box-sizing: border-box; font-size: 16px; font-family: inherit; background: white; color: #2D1E16; }
     
-    /* ファイル選択のデザイン調整（文字見切れ・改行対策） */
     input[type="file"] { width: 100%; padding: 10px; border: 2px solid #A6958B; border-radius: 12px; box-sizing: border-box; font-size: 13px; font-family: inherit; background: white; color: #2D1E16; white-space: normal; word-break: break-all; }
     input[type="file"]::file-selector-button { background: #D3B8A5; color: #2D1E16; border: 1px solid #A88F7C; border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; margin-right: 10px; }
     
@@ -323,6 +323,44 @@
     }
   });
 
+  // モーダルオープン管理とブラウザ履歴（スマホ戻るジェスチャー対応）
+  let currentActiveModal = null;
+
+  function openModalWithHistory(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+    currentActiveModal = modalId;
+    history.pushState({ modalOpen: true, modalId: modalId }, "");
+  }
+
+  window.addEventListener('popstate', (e) => {
+    if (currentActiveModal) {
+      document.getElementById(currentActiveModal).style.display = 'none';
+      currentActiveModal = null;
+    }
+  });
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    if (currentActiveModal === modalId) {
+      currentActiveModal = null;
+      if (history.state && history.state.modalOpen) {
+        history.back();
+      }
+    }
+  }
+
+  function openSettingsModal() {
+    document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || '';
+    openModalWithHistory('settingsModal');
+  }
+
+  function saveSettingsName() {
+    const name = document.getElementById('settingsNameInput').value.trim();
+    if (!name) { alert('お名前を入力してください。'); return; }
+    localStorage.setItem('nekoLogName', name);
+    closeModal('settingsModal');
+  }
+
   function toggleGuide(guideId) {
     const content = document.getElementById(guideId);
     const arrow = document.getElementById(guideId + 'Arrow');
@@ -347,23 +385,11 @@
     document.getElementById('welcomeModal').style.display = 'none';
   }
 
-  function openSettingsModal() {
-    document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || '';
-    document.getElementById('settingsModal').style.display = 'flex';
-  }
-
-  function saveSettingsName() {
-    const name = document.getElementById('settingsNameInput').value.trim();
-    if (!name) { alert('お名前を入力してください。'); return; }
-    localStorage.setItem('nekoLogName', name);
-    closeModal('settingsModal');
-  }
-
   var aggMap = null;
   var markersLayer = null;
 
   async function openMapModal() {
-    document.getElementById('mapModal').style.display = 'flex';
+    openModalWithHistory('mapModal');
     if (!aggMap) {
       aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.950, 131.310], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
@@ -374,7 +400,6 @@
     loadMapMarkers();
   }
 
-  // マップ上のピンを読み込む/再読み込みする処理
   async function loadMapMarkers() {
     if(!markersLayer) return;
     try {
@@ -402,12 +427,8 @@
   }
 
   function openHistoryModal() {
-    document.getElementById('historyModal').style.display = 'flex';
+    openModalWithHistory('historyModal');
     loadHistoryList();
-  }
-  
-  function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
   }
 
   var map = L.map('map').setView([25.950, 131.310], 13);
@@ -458,7 +479,6 @@
     else { detailGroup.classList.add('hidden'); detailInput.required = false; detailInput.value = ''; }
   }
 
-  // ネコの柄 選択ロジック（「不明」をその他の上に追加）
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
@@ -692,7 +712,6 @@
     document.getElementById('submitBtn').style.boxShadow = "0 5px 0 #9E3E00";
   }
 
-  // 画像圧縮処理（長辺800px / 画質70% へ解像度アップ）
   function resizeImage(file) {
     return new Promise((resolve) => {
       const reader = new FileReader();
