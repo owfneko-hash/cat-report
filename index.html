@@ -264,11 +264,12 @@
       { id: "黒白", icon: "<img src='kurosiro.png' style='height:24px; vertical-align:middle;'>" }, 
       { id: "シャム系", icon: "<img src='syamu.png' style='height:24px; vertical-align:middle;'>" },
       { id: "グレー白", icon: "<img src='graysiro.png' style='height:24px; vertical-align:middle;'>" },
-      { id: "サビ", icon: "<img src='sabi.png' style='height:24px; vertical-align:middle;'>" }
+      { id: "サビ", icon: "<img src='sabi.png' style='height:24px; vertical-align:middle;'>" },
+      { id: "三毛", icon: "<img src='mike.png' style='height:24px; vertical-align:middle;'>" } 
     ]
   };
+  
   const standalonePatterns = [ 
-    { id: "三毛", icon: "<img src='mike.png' style='height:24px; vertical-align:middle;'>" }, 
     { id: "その他", icon: "📝" } 
   ];
 
@@ -296,7 +297,8 @@
       Object.keys(patternCategories).forEach(cat => {
         const div = document.createElement('div');
         div.className = 'pattern-item';
-        div.innerHTML = `<span class="pattern-check"></span><span class="pattern-icon">📁</span><span>${cat}</span><span style="margin-left:auto;">▶</span>`;
+        // トップカテゴリの画像(アイコン)を削除
+        div.innerHTML = `<span class="pattern-check"></span><span>${cat}</span><span style="margin-left:auto;">▶</span>`;
         div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); };
         menu.appendChild(div);
       });
