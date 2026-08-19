@@ -291,7 +291,7 @@
   // ==========================================
   // GASのURL（★必ず自分のURLに書き換えてください！）
   // ==========================================
-  const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
+  const gasURL = "https://script.google.com/macros/s/あなた専用の長い文字列/exec";
 
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
@@ -648,7 +648,6 @@
         const response = await sendDataToGAS(dataObj);
         const resData = await response.json();
         
-        // GASで確定した簡略ID（N001等）をセットして履歴保存
         if (resData && resData.id) {
           dataObj.editId = resData.id;
         }
@@ -686,6 +685,7 @@
     document.getElementById('submitBtn').style.boxShadow = "0 5px 0 #9E3E00";
   }
 
+  // 画像の安全な圧縮処理（最大600px / 画質50%）
   function resizeImage(file) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -693,13 +693,13 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          let MAX_WIDTH = 800, MAX_HEIGHT = 800;
+          let MAX_WIDTH = 600, MAX_HEIGHT = 600;
           let width = img.width, height = img.height;
           if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
           else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
           canvas.width = width; canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.6));
+          resolve(canvas.toDataURL('image/jpeg', 0.5));
         };
         img.src = e.target.result;
       };
@@ -738,7 +738,7 @@
       let photoArray = [];
       for (let i = 0; i < files.length; i++) {
         let base64 = await resizeImage(files[i]);
-        photoArray.push({ data: base64, name: files[i].name.split('.')[0] + '_' + i + '.jpg' });
+        photoArray.push({ data: base64, name: "photo_" + Date.now() + "_" + i + ".jpg" });
       }
       dataObj.photosArray = JSON.stringify(photoArray);
       document.getElementById('output').innerText = "データを送信中です...";
