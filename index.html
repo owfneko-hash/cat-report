@@ -1,212 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐾 ねこログ 🐾</title>
-  
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#FFB380">
-  <link rel="apple-touch-icon" href="icon-192.png">
-
-  <!-- 丸みのある可愛いフォント（オンライン時適用） -->
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
-  <style>
-    body { font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; margin: 0; padding: 10px; background-color: #FFF9F5; color: #5C4033; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 24px; box-shadow: 0 8px 16px rgba(255,170,119,0.15); border: 3px solid #FFE4D6; box-sizing: border-box; }
-    
-    h2 { text-align: center; color: #FF8C66; margin-bottom: 25px; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
-    
-    /* 上部のナビゲーションボタン */
-    .nav-buttons { display: flex; gap: 10px; margin-bottom: 25px; }
-    .btn-nav { flex: 1; background-color: #FFD4B2; color: #A65D37; padding: 12px 5px; border: none; border-radius: 16px; cursor: pointer; font-size: 14px; font-weight: bold; text-align: center; box-shadow: 0 4px 0 #FFB885; transition: all 0.2s; }
-    .btn-nav:active { transform: translateY(4px); box-shadow: none; }
-
-    .form-group { margin-bottom: 25px; background: #FFFDFB; padding: 15px; border-radius: 16px; border: 2px dashed #FFE4D6; }
-    label { font-weight: bold; display: block; margin-bottom: 10px; color: #D9734E; font-size: 16px; }
-    .required::after { content: " *"; color: #FF5555; }
-    
-    #map, #aggregatedMap { height: 300px; width: 100%; border-radius: 12px; border: 2px solid #FFE4D6; }
-    .hidden { display: none !important; }
-    
-    input[type="text"], input[type="file"], select, input[type="date"], textarea { width: 100%; padding: 12px; border: 2px solid #FFE4D6; border-radius: 12px; box-sizing: border-box; font-size: 16px; font-family: inherit; background: white; color: #5C4033; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: #FFB380; box-shadow: 0 0 5px rgba(255,179,128,0.5); }
-    
-    .sample-box { margin-top: 10px; margin-bottom: 12px; }
-    .sample-img { max-width: 100%; max-height: 200px; border-radius: 12px; border: 2px solid #FFE4D6; display: block; margin: 0 auto; }
-    
-    .radio-group { display: flex; flex-wrap: wrap; gap: 15px; }
-    .radio-group label { display: inline-flex; align-items: center; font-weight: normal; margin-right: 0; cursor: pointer; font-size: 16px; color: #5C4033; }
-    .radio-group input[type="radio"] { width: 22px; height: 22px; margin-right: 8px; accent-color: #FF8C66; }
-    
-    .btn-action { background-color: #FFB380; color: white; padding: 12px 16px; border: none; border-radius: 16px; cursor: pointer; font-size: 15px; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; box-sizing: border-box; box-shadow: 0 4px 0 #FF944D; transition: all 0.2s; }
-    .btn-action:active { transform: translateY(4px); box-shadow: none; }
-    .btn-sub { background-color: #FFD4B2; color: #A65D37; box-shadow: 0 4px 0 #FFB885; margin-bottom: 10px; }
-    
-    #submitBtn { width: 100%; background-color: #FF8C66; color: white; padding: 16px; border: none; border-radius: 20px; cursor: pointer; font-size: 20px; font-weight: bold; box-shadow: 0 5px 0 #E66A45; transition: all 0.2s; margin-top: 10px; }
-    #submitBtn:active { transform: translateY(5px); box-shadow: none; }
-    
-    #output { margin-top: 20px; text-align: center; font-weight: bold; font-size: 16px; color: #FF8C66; line-height: 1.5; white-space: pre-wrap; }
-    
-    /* アプリインストールバナー */
-    #installBanner { background-color: #FFF4E6; color: #D9734E; padding: 15px; text-align: center; border-radius: 16px; margin-bottom: 20px; font-weight: bold; border: 2px dashed #FFD4B2; font-size: 14px; }
-    #installBtn { display: block; width: 100%; margin-top: 10px; background-color: #FFB380; color: white; border: none; padding: 10px; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: bold; box-shadow: 0 3px 0 #FF944D; }
-
-    /* ネコの柄 選択UI */
-    .pattern-menu { border: 2px solid #FFE4D6; border-radius: 12px; overflow: hidden; background: white; margin-bottom: 10px; }
-    .pattern-item { padding: 12px 15px; border-bottom: 1px solid #FFF0E5; display: flex; align-items: center; cursor: pointer; color: #5C4033; }
-    .pattern-item:active { background-color: #FFF9F5; }
-    .pattern-item:last-child { border-bottom: none; }
-    .pattern-icon { font-size: 24px; margin-right: 10px; display: inline-block; width: 30px; text-align: center; }
-    .pattern-check { width: 24px; color: #FF8C66; font-weight: bold; font-size: 18px; display: inline-block; }
-    .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-    .tag { background: #FFD4B2; color: #A65D37; padding: 6px 12px; border-radius: 20px; font-size: 14px; display: inline-flex; align-items: center; font-weight: bold; }
-    .tag-close { margin-left: 8px; cursor: pointer; font-weight: bold; background: #FFB885; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
-
-    /* モーダル画面（マップ・履歴） */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92, 64, 51, 0.5); z-index: 9999; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; }
-    .modal-content { background: #FFF9F5; width: 100%; max-width: 600px; max-height: 90vh; border-radius: 24px; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 3px solid #FFE4D6; position: relative; }
-    .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #FF8C66; cursor: pointer; font-weight: bold; }
-    .history-item { background: white; padding: 15px; border-radius: 12px; border: 2px solid #FFE4D6; margin-bottom: 15px; }
-    .btn-edit { background-color: #66CDAA; color: white; padding: 8px 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 3px 0 #3CB371; margin-top: 10px; }
-  </style>
-</head>
-<body>
-<div class="container">
-
-  <div id="installBanner" class="hidden">
-    <span id="installText"></span>
-    <button id="installBtn" class="hidden">ホーム画面に追加する🐾</button>
-  </div>
-
-  <h2>🐾 ねこログ 🐾</h2>
-  
-  <div class="nav-buttons">
-    <button type="button" class="btn-nav" onclick="openMapModal()">🗺️ みんなの<br>ねこマップ</button>
-    <button type="button" class="btn-nav" onclick="openHistoryModal()">📝 自分の<br>回答履歴</button>
-  </div>
-
-  <form id="catForm" onsubmit="handleFormSubmit(event)">
-    <!-- 修正用の非表示ID -->
-    <input type="hidden" id="editId" name="editId" value="">
-    <input type="hidden" id="location" required>
-    
-    <div class="form-group">
-      <label class="required" for="nickname">👤 あなたのニックネーム</label>
-      <input type="text" id="nickname" placeholder="例: ねこ太郎（複数人で使う場合の確認用）" required onchange="saveNickname()">
-    </div>
-
-    <div class="form-group">
-      <label class="required">📍 目撃場所</label>
-      <button type="button" id="currentLocationBtn" class="btn-action btn-sub" onclick="goToCurrentLocation()">現在地を取得する</button>
-      <div id="map"></div>
-      <p id="locationDisplay" style="color: #A65D37; font-size: 0.9em; margin-top: 8px;">場所が選択されていません</p>
-    </div>
-
-    <div class="form-group">
-      <label class="required">🕒 目撃日時</label>
-      <button type="button" class="btn-action btn-sub" onclick="setNowDatetime()">現在日時をセット</button>
-      <div style="display: flex; gap: 10px;">
-        <input type="date" id="dateInput" style="flex: 2;" required>
-        <select id="hourInput" style="flex: 1;" required>
-          <option value="">時頃</option>
-          <option value="00">0時頃</option><option value="01">1時頃</option><option value="02">2時頃</option>
-          <option value="03">3時頃</option><option value="04">4時頃</option><option value="05">5時頃</option>
-          <option value="06">6時頃</option><option value="07">7時頃</option><option value="08">8時頃</option>
-          <option value="09">9時頃</option><option value="10">10時頃</option><option value="11">11時頃</option>
-          <option value="12">12時頃</option><option value="13">13時頃</option><option value="14">14時頃</option>
-          <option value="15">15時頃</option><option value="16">16時頃</option><option value="17">17時頃</option>
-          <option value="18">18時頃</option><option value="19">19時頃</option><option value="20">20時頃</option>
-          <option value="21">21時頃</option><option value="22">22時頃</option><option value="23">23時頃</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="catCount" class="required">🐈 ネコの頭数</label>
-      <select id="catCount" onchange="toggleCatDetail()" required>
-        <option value="">選択してください</option>
-        <option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option>
-      </select>
-      <div id="catCountNumGroup" class="hidden" style="margin-top: 15px;">
-        <label for="catCountNum" class="required">具体的な頭数</label>
-        <select id="catCountNum">
-          <option value="">選択してください</option>
-          <option value="3頭">3頭</option><option value="4頭">4頭</option><option value="5頭">5頭</option><option value="6頭以上">6頭以上</option>
-        </select>
-      </div>
-      <div id="catDetailGroup" class="hidden" style="margin-top: 15px;">
-        <label for="catCountDetail" class="required">頭数の詳細</label>
-        <input type="text" id="catCountDetail" placeholder="例: 親1頭、子3頭 など">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="required">✂️ 耳カットされている個体か</label>
-      <div class="sample-box"><img class="sample-img" src="unnamed.png" alt="耳カットサンプル"></div>
-      <div class="radio-group">
-        <label><input type="radio" name="earCutRadio" value="はい" onchange="toggleEarCutDetail()" required> はい</label>
-        <label><input type="radio" name="earCutRadio" value="いいえ" onchange="toggleEarCutDetail()"> いいえ</label>
-        <label><input type="radio" name="earCutRadio" value="わからない" onchange="toggleEarCutDetail()"> わからない</label>
-        <label><input type="radio" name="earCutRadio" value="その他" onchange="toggleEarCutDetail()"> その他</label>
-      </div>
-      <div id="earCutDetailGroup" class="hidden" style="margin-top: 15px;">
-        <label for="earCutDetail" class="required">耳カットの状況の詳細</label>
-        <input type="text" id="earCutDetail" placeholder="例: 3頭中1頭耳カットあり など">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>🎨 ネコの柄（複数選択可）</label>
-      <div id="selectedPatternTags" class="tag-container"></div>
-      <div id="patternMenu" class="pattern-menu"></div>
-      <div id="otherPatternContainer" class="hidden">
-        <input type="text" id="patternOtherInput" placeholder="その他の柄を具体的に入力" oninput="updatePatternValue()">
-      </div>
-      <input type="hidden" id="hiddenCatPattern" name="catPattern">
-    </div>
-
-    <div class="form-group">
-      <label for="photo">📸 目撃写真（あれば）</label>
-      <input type="file" id="photo" accept="image/*">
-    </div>
-
-    <div class="form-group">
-      <label for="remarks">💬 備考</label>
-      <textarea id="remarks" rows="3" placeholder="その他、気づいたことなどがあればご記入ください"></textarea>
-    </div>
-
-    <button type="submit" id="submitBtn">送信する 🐾</button>
-  </form>
-  <div id="output"></div>
-</div>
-
-<!-- みんなのねこマップ モーダル -->
-<div id="mapModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('mapModal')">×</span>
-    <h3 style="color:#FF8C66; text-align:center; margin-top:0;">🗺️ みんなのねこマップ</h3>
-    <p style="font-size:13px; color:#A65D37;">※現在GASとの連携準備中です（近日公開予定）</p>
-    <div id="aggregatedMap"></div>
-  </div>
-</div>
-
-<!-- 自分の回答履歴 モーダル -->
-<div id="historyModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('historyModal')">×</span>
-    <h3 style="color:#FF8C66; text-align:center; margin-top:0;">📝 直近3日の回答履歴</h3>
-    <div id="historyList">
-      <p style="text-align:center; color:#A65D37;">履歴を読み込んでいます...</p>
-    </div>
-  </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  // ==========================================
+// ==========================================
   // 基本設定＆PWA
   // ==========================================
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
@@ -245,22 +37,61 @@
   }
 
   // ==========================================
-  // モーダル制御（マップ・履歴）
+  // 【追加】GASのURL（必ず自分のURLに書き換えること！）
+  // ==========================================
+  const gasURL = "https://script.google.com/macros/s/あなた専用の長い文字列/exec";
+
+  // ==========================================
+  // モーダル制御（みんなのねこマップ・履歴）
   // ==========================================
   var aggMap = null;
-  function openMapModal() {
+  var markersLayer = null;
+
+  async function openMapModal() {
     document.getElementById('mapModal').style.display = 'flex';
+    
+    // 地図の初期化（初回のみ）
     if (!aggMap) {
       aggMap = L.map('aggregatedMap').setView([25.845, 131.23], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
-      // 今後ここにGASからデータを取得してピンを置く処理を追加します
+      markersLayer = L.layerGroup().addTo(aggMap);
     }
     setTimeout(() => { aggMap.invalidateSize(); }, 200);
+
+    // GASからデータを取得してピンを立てる
+    try {
+      markersLayer.clearLayers();
+      const response = await fetch(gasURL);
+      const data = await response.json();
+      
+      data.forEach(item => {
+        if (item.location) {
+          const [lat, lng] = item.location.split(',').map(Number);
+          const dateStr = new Date(item.datetime).toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
+          
+          let popupHtml = `<div style="font-size:14px; color:#5C4033; line-height:1.6;">`;
+          popupHtml += `<strong style="color:#FF8C66;">🕒 ${dateStr}</strong><br>`;
+          popupHtml += `🐈 頭数: ${item.catCount}<br>`;
+          popupHtml += `🎨 柄: ${item.pattern}<br>`;
+          popupHtml += `👤 報告: ${item.nickname}`;
+          if (item.photoUrl) {
+            popupHtml += `<br><a href="${item.photoUrl}" target="_blank" style="color:#3498db; text-decoration:none;">📸 写真を見る</a>`;
+          }
+          popupHtml += `</div>`;
+          
+          L.marker([lat, lng]).addTo(markersLayer).bindPopup(popupHtml);
+        }
+      });
+    } catch (e) {
+      console.error("マップデータの取得に失敗しました", e);
+    }
   }
+
   function openHistoryModal() {
     document.getElementById('historyModal').style.display = 'flex';
     loadHistoryList();
   }
+  
   function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
   }
@@ -373,15 +204,15 @@
   // ==========================================
   const dbName = "CatReportDB"; 
   const storeName = "offlineReports";
-  const historyStoreName = "myHistory"; // 自分の履歴用（新規）
+  const historyStoreName = "myHistory"; 
 
   function openDB() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(dbName, 2); // DBバージョンアップ
+      const request = indexedDB.open(dbName, 2); 
       request.onupgradeneeded = (e) => { 
         const db = e.target.result; 
         if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName, { autoIncrement: true }); 
-        if (!db.objectStoreNames.contains(historyStoreName)) db.createObjectStore(historyStoreName, { keyPath: "id" }); // 履歴用
+        if (!db.objectStoreNames.contains(historyStoreName)) db.createObjectStore(historyStoreName, { keyPath: "id" }); 
       };
       request.onsuccess = (e) => resolve(e.target.result); request.onerror = (e) => reject(e.target.error);
     });
@@ -392,10 +223,10 @@
   async function getFromOfflineDB() { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(storeName, "readonly"); const req = tx.objectStore(storeName).getAllKeys(); const valReq = tx.objectStore(storeName).getAll(); tx.oncomplete = () => resolve(req.result.map((key, i) => ({ key: key, data: valReq.result[i] }))); }); }
   async function deleteFromOfflineDB(key) { const db = await openDB(); const tx = db.transaction(storeName, "readwrite"); tx.objectStore(storeName).delete(key); }
 
-  // 履歴保存用（直近3日の表示用）
+  // 履歴保存用（クライアント側で生成したIDをキーにする）
   async function saveToHistoryDB(data) {
     const db = await openDB(); const tx = db.transaction(historyStoreName, "readwrite");
-    const historyData = { id: Date.now().toString(), timestamp: new Date().getTime(), data: data }; // IDと時間を付与
+    const historyData = { id: data.editId, timestamp: new Date().getTime(), data: data }; 
     tx.objectStore(historyStoreName).put(historyData);
   }
   
@@ -411,7 +242,6 @@
         const results = request.result;
         const threeDaysAgo = new Date().getTime() - (3 * 24 * 60 * 60 * 1000);
         
-        // 3日以内のデータのみ抽出し、新しい順に並び替え
         const recent = results.filter(item => item.timestamp > threeDaysAgo).sort((a,b) => b.timestamp - a.timestamp);
         
         if(recent.length === 0) {
@@ -437,17 +267,87 @@
     } catch(e) { listDiv.innerHTML = '<p>エラーが発生しました。</p>'; }
   }
 
-  // 履歴から編集フォームにセットする関数（モック）
+  // 【追加】履歴から編集フォームにセットする関数
   async function editHistory(id) {
-    alert("修正機能は現在GASとの連携準備中です！");
-    // 本来はここで DB からデータを取り出し、フォームに値をセットし、editId を付与して再送信させます。
+    try {
+      const db = await openDB();
+      const tx = db.transaction(historyStoreName, "readonly");
+      const request = tx.objectStore(historyStoreName).get(id);
+      
+      request.onsuccess = () => {
+        const record = request.result;
+        if(!record) return;
+        const d = record.data;
+
+        // フォームへの値セット
+        document.getElementById('editId').value = d.editId;
+        document.getElementById('nickname').value = d.nickname;
+        document.getElementById('location').value = d.location;
+        
+        // 地図のピン復元
+        const [lat, lng] = d.location.split(',').map(Number);
+        const latlng = L.latLng(lat, lng);
+        map.setView(latlng, 16);
+        updateMarkerAndLocation(latlng);
+
+        // 日時の復元
+        const [datePart, timePart] = d.datetime.split('T');
+        document.getElementById('dateInput').value = datePart;
+        document.getElementById('hourInput').value = timePart.split(':')[0];
+
+        // 頭数の復元
+        const countSelect = document.getElementById('catCount');
+        if (["3頭","4頭","5頭","6頭以上"].includes(d.catCountResult)) {
+          countSelect.value = "3頭以上";
+          document.getElementById('catCountNum').value = d.catCountResult;
+        } else if (d.catCountResult && !["1頭", "2頭"].includes(d.catCountResult)) {
+          countSelect.value = "親子";
+          document.getElementById('catCountDetail').value = d.catCountResult;
+        } else {
+          countSelect.value = d.catCountResult;
+        }
+        toggleCatDetail();
+
+        // 耳カットの復元
+        const radios = document.getElementsByName('earCutRadio');
+        let matched = false;
+        radios.forEach(r => { if(r.value === d.earCut) { r.checked = true; matched = true; } });
+        if(!matched && d.earCut) {
+          document.querySelector('input[name="earCutRadio"][value="その他"]').checked = true;
+          document.getElementById('earCutDetail').value = d.earCut;
+        }
+        toggleEarCutDetail();
+
+        // 柄の復元
+        selectedPatterns.clear();
+        if (d.catPattern) {
+          d.catPattern.split(', ').forEach(p => {
+            if(p.startsWith('その他(')) {
+              selectedPatterns.add('その他');
+              document.getElementById('patternOtherInput').value = p.replace('その他(','').replace(')','');
+            } else {
+              selectedPatterns.add(p);
+            }
+          });
+        }
+        renderPatternMenu();
+        document.getElementById('remarks').value = d.remarks || "";
+
+        // モーダルを閉じて上にスクロール
+        closeModal('historyModal');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // 送信ボタンのテキスト変更
+        document.getElementById('submitBtn').innerText = "修正して送信する 🐾";
+        document.getElementById('submitBtn').style.backgroundColor = "#66CDAA";
+        document.getElementById('submitBtn').style.boxShadow = "0 5px 0 #3CB371";
+      };
+    } catch(e) { console.error("履歴の復元に失敗しました", e); }
   }
 
   // ==========================================
   // 送信処理
   // ==========================================
-  const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
-
   async function sendDataToGAS(dataObj) {
     const params = new URLSearchParams(); for (const key in dataObj) { params.append(key, dataObj[key]); }
     return await fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params });
@@ -455,8 +355,8 @@
 
   async function processSubmission(dataObj) {
     var output = document.getElementById('output');
-    saveNickname(); // 送信時にニックネームを保存
-    await saveToHistoryDB(dataObj); // 自分の履歴に保存
+    saveNickname(); 
+    await saveToHistoryDB(dataObj); 
     
     if (navigator.onLine) {
       try {
@@ -473,16 +373,20 @@
       resetFormUI();
     }
     document.getElementById('submitBtn').disabled = false;
-    document.getElementById('submitBtn').innerText = "送信する 🐾";
   }
 
   function resetFormUI() {
     document.getElementById("catForm").reset();
     document.getElementById("editId").value = "";
-    document.getElementById('nickname').value = localStorage.getItem('nekoLogNickname') || ""; // ニックネームは残す
+    document.getElementById('nickname').value = localStorage.getItem('nekoLogNickname') || ""; 
     if(marker) map.removeLayer(marker); marker = null;
     document.getElementById('locationDisplay').innerText = "場所が選択されていません";
     selectedPatterns.clear(); renderPatternMenu(); document.getElementById('otherPatternContainer').classList.add('hidden');
+    
+    // ボタンのスタイルを元に戻す
+    document.getElementById('submitBtn').innerText = "送信する 🐾";
+    document.getElementById('submitBtn').style.backgroundColor = "#FF8C66";
+    document.getElementById('submitBtn').style.boxShadow = "0 5px 0 #E66A45";
   }
 
   function handleFormSubmit(e) {
@@ -493,9 +397,15 @@
     document.getElementById('submitBtn').innerText = "処理中...";
     document.getElementById('output').innerText = "";
     
+    // クライアント側で固有のIDを生成（新規の場合のみ）
+    let currentEditId = document.getElementById('editId').value;
+    if (!currentEditId) {
+      currentEditId = "req_" + Date.now();
+    }
+
     var dataObj = {
-      editId: document.getElementById('editId').value, // 修正用ID
-      nickname: document.getElementById('nickname').value, // ニックネーム
+      editId: currentEditId,
+      nickname: document.getElementById('nickname').value,
       location: document.getElementById('location').value,
       datetime: document.getElementById('dateInput').value + 'T' + document.getElementById('hourInput').value + ':00',
       catCountResult: document.getElementById('catCount').value === '3頭以上' ? document.getElementById('catCountNum').value : (document.getElementById('catCount').value === '親子' ? document.getElementById('catCountDetail').value : document.getElementById('catCount').value),
@@ -539,5 +449,3 @@
     }
   });
 </script>
-</body>
-</html>
