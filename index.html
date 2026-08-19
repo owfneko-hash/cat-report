@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <style>
-    /* 全体的に少し暗く、コントラストを強めた視認性の高い配色 */
     body { font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; margin: 0; padding: 10px; background-color: #EBE6E0; color: #2D1E16; }
     .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: 2px solid #A6958B; box-sizing: border-box; }
     
@@ -51,7 +50,7 @@
     /* ネコの柄 選択UI */
     .pattern-menu { border: 2px solid #A6958B; border-radius: 12px; overflow: hidden; background: white; margin-bottom: 10px; }
     .pattern-item { padding: 12px 15px; border-bottom: 1px solid #D8CCC4; display: flex; align-items: center; cursor: pointer; color: #2D1E16; transition: background-color 0.2s; font-weight: bold;}
-    .pattern-item.selected { background-color: #EAD2C3; } /* 選択された行はしっかり色をつける */
+    .pattern-item.selected { background-color: #EAD2C3; }
     .pattern-item:last-child { border-bottom: none; }
     .pattern-icon { font-size: 24px; margin-right: 15px; display: inline-block; width: 50px; text-align: center; }
     .pattern-check { width: 24px; color: #D35400; font-weight: bold; font-size: 18px; display: inline-block; }
@@ -79,12 +78,15 @@
 
 <!-- 初回起動用 ウェルカムモーダル -->
 <div id="welcomeModal" class="modal" style="background: #F5F2EF;">
+  
   <div id="stepInstall" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px; background: transparent;">
     <h2 style="font-size:32px; margin-bottom:10px;">🐾</h2>
-    <h3 style="color:#D35400; font-size: 22px;">アプリとして使う</h3>
-    <p id="welcomeInstallText" style="line-height:1.6; margin-bottom:25px;"></p>
-    <button id="welcomeInstallBtn" class="btn-action" style="padding:16px; font-size:18px;">ショートカットを作成する</button>
-    <button class="btn-sub" style="width:100%; padding:14px; border-radius:16px; border:none; margin-top:10px;" onclick="nextWelcomeStep()">次へすすむ</button>
+    <h3 style="color:#D35400; font-size: 22px;">アプリのように使う</h3>
+    <p style="line-height:1.6; margin-bottom:15px; font-weight:bold;">
+      ホーム画面にショートカットを作成すると、<br>次回からすぐに開けて便利です！
+    </p>
+    <div id="welcomeInstallText" style="line-height:1.6; margin-bottom:25px; background:white; padding:15px; border-radius:12px; border:2px dashed #A6958B; text-align:left; font-size:14px;"></div>
+    <button class="btn-action" style="width:100%; padding:14px; border-radius:16px; margin-top:10px;" onclick="nextWelcomeStep()">確認して次へすすむ</button>
   </div>
   
   <div id="stepName" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px; background: transparent;">
@@ -96,7 +98,7 @@
   </div>
 </div>
 
-<!-- 設定モーダル（名前変更 ＆ ホーム追加） -->
+<!-- 設定モーダル（名前変更 ＆ ホーム追加手順） -->
 <div id="settingsModal" class="modal">
   <div class="modal-content" style="max-width: 400px;">
     <span class="close-modal" onclick="closeModal('settingsModal')">×</span>
@@ -108,11 +110,10 @@
       <button class="btn-action" onclick="saveSettingsName()">変更を保存する</button>
     </div>
 
-    <!-- ホーム画面追加エリア -->
-    <div id="settingsInstallSection" class="hidden" style="margin-top: 25px; text-align: left; border-top: 2px dashed #A6958B; padding-top: 20px;">
-      <label>📱 ホーム画面にショートカットを作成</label>
-      <p id="settingsInstallText" style="font-size: 13px; color: #4A3020; margin-bottom: 10px; line-height:1.4;"></p>
-      <button id="settingsInstallBtn" class="btn-action" style="background-color: #2E86C1; box-shadow: 0 4px 0 #1B4F72;">ショートカットを作成する</button>
+    <!-- ホーム画面追加手順エリア -->
+    <div style="margin-top: 25px; text-align: left; border-top: 2px dashed #A6958B; padding-top: 20px;">
+      <label>📱 ホーム画面への追加手順</label>
+      <div id="settingsInstallText" style="font-size: 14px; color: #2D1E16; margin-bottom: 10px; line-height:1.6; background:white; padding:12px; border-radius:12px; border:1px solid #D8CCC4;"></div>
     </div>
   </div>
 </div>
@@ -250,27 +251,24 @@
   // ==========================================
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-  let deferredPrompt = null;
 
+  // キャッシュ機能のためにService Workerは登録しておく
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
   
   window.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('nekoLogName');
     
-    // アプリ化されていない（ブラウザで見ている）場合は、設定画面にインストール案内を表示
-    if (!isStandalone) {
-      document.getElementById('settingsInstallSection').classList.remove('hidden');
-    }
+    // 手動追加の案内テキスト（OS判定）
+    const iosText = '<strong>【iPhone (Safari) の場合】</strong><br>画面下部の「共有ボタン（四角から上矢印）」をタップし、「ホーム画面に追加」を選択してください。';
+    const androidText = '<strong>【Android (Chrome) の場合】</strong><br>画面右上の「︙（メニュー）」をタップし、「ホーム画面に追加」を選択してください。';
 
-    // OSごとのインストール案内テキスト
-    const iosText = 'Safari下部の「共有ボタン（四角から上矢印）」から<br>「ホーム画面に追加」をタップすると<br>ショートカットが作成されます。';
-    const androidText = '下のボタンを押してインストールするか、<br>ブラウザのメニュー（右上の︙）から<br>「ホーム画面に追加」を選択してください。';
-
-    document.getElementById('welcomeInstallText').innerHTML = isIos ? iosText : androidText;
-    document.getElementById('settingsInstallText').innerHTML = isIos ? iosText : androidText;
+    const guideText = isIos ? iosText : androidText;
+    document.getElementById('welcomeInstallText').innerHTML = guideText;
+    document.getElementById('settingsInstallText').innerHTML = guideText;
 
     if (!savedName) {
       document.getElementById('welcomeModal').style.display = 'flex';
+      // ホーム画面から開かれていない場合のみショートカット案内を出す
       if (!isStandalone) {
         document.getElementById('stepInstall').classList.remove('hidden');
       } else {
@@ -278,30 +276,6 @@
       }
     }
   });
-
-  // PWAインストール可能イベントを検知
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); 
-    deferredPrompt = e;
-  });
-
-  // インストールボタンの処理（Android向け改善版）
-  async function triggerInstall() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-    } else {
-      // プロンプトが準備できていない、または既に追加済みの場合のフォールバック
-      if (isIos) {
-        alert('Safari下部の「共有ボタン」から「ホーム画面に追加」を選んでください。');
-      } else {
-        alert('インストールの準備ができていないか、すでに追加されています。\nブラウザのメニュー（右上の︙）から「ホーム画面に追加」を選んでください。');
-      }
-    }
-  }
-  document.getElementById('welcomeInstallBtn').addEventListener('click', () => { triggerInstall(); });
-  document.getElementById('settingsInstallBtn').addEventListener('click', () => { triggerInstall(); });
 
   function nextWelcomeStep() {
     document.getElementById('stepInstall').classList.add('hidden');
@@ -339,7 +313,6 @@
   async function openMapModal() {
     document.getElementById('mapModal').style.display = 'flex';
     if (!aggMap) {
-      // 【変更】デフォルト座標を「北大東村全体」が見える位置へ変更
       aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.950, 131.310], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
       L.control.zoom({ position: 'bottomright' }).addTo(aggMap);
@@ -383,7 +356,6 @@
   // ==========================================
   // 入力フォーム用 地図＆機能
   // ==========================================
-  // 【変更】フォーム用のマップ座標も北大東村へ変更
   var map = L.map('map').setView([25.950, 131.310], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   var marker;
@@ -391,9 +363,7 @@
 
   function setNowDatetime() {
     const now = new Date();
-    // 29分を足して、31分以降は次の時間に繰り上げる
     const roundedTime = new Date(now.getTime() + 29 * 60 * 1000);
-    
     document.getElementById('dateInput').value = roundedTime.getFullYear() + '-' + String(roundedTime.getMonth()+1).padStart(2, '0') + '-' + String(roundedTime.getDate()).padStart(2, '0');
     document.getElementById('hourInput').value = String(roundedTime.getHours()).padStart(2, '0');
   }
@@ -622,7 +592,7 @@
   }
 
   // ==========================================
-  // 送信処理（写真の複数処理対応）
+  // 送信処理
   // ==========================================
   async function sendDataToGAS(dataObj) {
     const params = new URLSearchParams(); for (const key in dataObj) { params.append(key, dataObj[key]); }
