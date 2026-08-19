@@ -47,7 +47,6 @@
     #submitBtn:active { transform: translateY(5px); box-shadow: none; }
     #output { margin-top: 20px; text-align: center; font-weight: bold; font-size: 16px; color: #D35400; line-height: 1.5; white-space: pre-wrap; }
 
-    /* ネコの柄 選択UI */
     .pattern-menu { border: 2px solid #A6958B; border-radius: 12px; overflow: hidden; background: white; margin-bottom: 10px; }
     .pattern-item { padding: 12px 15px; border-bottom: 1px solid #D8CCC4; display: flex; align-items: center; cursor: pointer; color: #2D1E16; transition: background-color 0.2s; font-weight: bold;}
     .pattern-item.selected { background-color: #EAD2C3; }
@@ -58,7 +57,6 @@
     .tag { background: #D3B8A5; color: #2D1E16; padding: 6px 12px; border-radius: 20px; font-size: 14px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #A88F7C;}
     .tag-close { margin-left: 8px; cursor: pointer; font-weight: bold; background: #8B6B58; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
 
-    /* モーダル */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(45, 30, 22, 0.8); z-index: 9999; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; }
     .modal-content { background: #F5F2EF; width: 100%; max-width: 600px; max-height: 90vh; border-radius: 24px; padding: 25px 20px; box-sizing: border-box; overflow-y: auto; border: 3px solid #A6958B; position: relative; text-align: center; }
     .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #D35400; cursor: pointer; font-weight: bold; }
@@ -293,11 +291,8 @@
   // ==========================================
   // GASのURL（★必ず自分のURLに書き換えてください！）
   // ==========================================
-  const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
+  const gasURL = "https://script.google.com/macros/s/あなた専用の長い文字列/exec";
 
-  // ==========================================
-  // 基本設定＆オンボーディング制御
-  // ==========================================
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
@@ -305,10 +300,8 @@
   
   window.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('nekoLogName');
-    
     if (!savedName) {
       document.getElementById('welcomeModal').style.display = 'flex';
-      
       if (!isStandalone) {
         document.getElementById('stepInstall').classList.remove('hidden');
         if (isIos) { toggleGuide('welcomeIos'); } else { toggleGuide('welcomeAndroid'); }
@@ -354,9 +347,7 @@
     closeModal('settingsModal');
   }
 
-  // ==========================================
-  // モーダル制御（マップ・履歴）
-  // ==========================================
+  // モーダル制御
   var aggMap = null;
   var markersLayer = null;
 
@@ -403,9 +394,7 @@
     document.getElementById(modalId).style.display = 'none';
   }
 
-  // ==========================================
   // 入力フォーム用 地図＆機能
-  // ==========================================
   var map = L.map('map').setView([25.950, 131.310], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   var marker;
@@ -454,9 +443,7 @@
     else { detailGroup.classList.add('hidden'); detailInput.required = false; detailInput.value = ''; }
   }
 
-  // ==========================================
-  // ネコの柄 選択ロジック（画像版）
-  // ==========================================
+  // ネコの柄 選択ロジック
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
@@ -509,9 +496,7 @@
   }
   renderPatternMenu();
 
-  // ==========================================
-  // IndexedDB (履歴とオフライン処理)
-  // ==========================================
+  // IndexedDB
   const dbName = "CatReportDB"; 
   const storeName = "offlineReports";
   const historyStoreName = "myHistory"; 
@@ -563,7 +548,7 @@
           
           listDiv.innerHTML += `
             <div class="history-item">
-              <div style="font-weight:bold; color:#D35400;">送信日時: ${formattedDate}</div>
+              <div style="font-weight:bold; color:#D35400;">送信日時: ${formattedDate} (ID: ${item.id})</div>
               <div style="font-size:14px; margin-top:5px; color:#2D1E16;">場所: ${d.location}<br>頭数: ${d.catCountResult}<br>柄: ${d.catPattern}</div>
               <button class="btn-edit" onclick="editHistory('${item.id}')">✏️ 修正して再送信する</button>
             </div>
@@ -641,46 +626,46 @@
     } catch(e) { console.error("履歴の復元に失敗しました", e); }
   }
 
-  // ==========================================
-  // 通信エラー対策を強化した送信処理
-  // ==========================================
+  // 送信処理
   async function sendDataToGAS(dataObj) {
     const params = new URLSearchParams(); 
-    for (const key in dataObj) { 
-      params.append(key, dataObj[key]); 
-    }
+    for (const key in dataObj) { params.append(key, dataObj[key]); }
     
-    // GASのリダイレクト挙動・CORSエラー対策
     const response = await fetch(gasURL, { 
       method: "POST", 
       headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
       body: params,
       redirect: "follow"
     });
-
-    if (!response.ok && response.status !== 0) {
-      throw new Error(`HTTP Error: ${response.status}`);
-    }
     return response;
   }
 
   async function processSubmission(dataObj) {
     var output = document.getElementById('output');
-    await saveToHistoryDB(dataObj); 
     
     if (navigator.onLine) {
       try {
-        await sendDataToGAS(dataObj);
+        const response = await sendDataToGAS(dataObj);
+        const resData = await response.json();
+        
+        // GASで確定した簡略ID（N001等）をセットして履歴保存
+        if (resData && resData.id) {
+          dataObj.editId = resData.id;
+        }
+        await saveToHistoryDB(dataObj); 
+
         output.innerText = "送信完了しました！ご協力ありがとうございます。"; 
         output.style.color = "#D35400";
         resetFormUI();
       } catch (error) {
         console.error("送信エラー詳細:", error);
+        await saveToHistoryDB(dataObj);
         await saveToOfflineDB(dataObj);
         output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; 
         output.style.color = "#D35400";
       }
     } else {
+      await saveToHistoryDB(dataObj);
       await saveToOfflineDB(dataObj);
       output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。"; 
       output.style.color = "#D35400";
