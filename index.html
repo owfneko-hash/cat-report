@@ -9,7 +9,6 @@
   <meta name="theme-color" content="#FFB380">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- 丸みのある可愛いフォント -->
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
@@ -17,8 +16,12 @@
     body { font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; margin: 0; padding: 10px; background-color: #FFF9F5; color: #5C4033; }
     .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 24px; box-shadow: 0 8px 16px rgba(255,170,119,0.15); border: 3px solid #FFE4D6; box-sizing: border-box; }
     
-    h2 { text-align: center; color: #FF8C66; margin-bottom: 25px; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
-    
+    /* ヘッダー周り */
+    .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    h2 { margin: 0; color: #FF8C66; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
+    .btn-settings { background: white; border: 2px solid #FFE4D6; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; cursor: pointer; box-shadow: 0 4px 0 #FFE4D6; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0; }
+    .btn-settings:active { transform: translateY(4px); box-shadow: none; }
+
     .nav-buttons { display: flex; gap: 10px; margin-bottom: 25px; }
     .btn-nav { flex: 1; background-color: #FFD4B2; color: #A65D37; padding: 12px 5px; border: none; border-radius: 16px; cursor: pointer; font-size: 14px; font-weight: bold; text-align: center; box-shadow: 0 4px 0 #FFB885; transition: all 0.2s; }
     .btn-nav:active { transform: translateY(4px); box-shadow: none; }
@@ -27,14 +30,11 @@
     label { font-weight: bold; display: block; margin-bottom: 10px; color: #D9734E; font-size: 16px; }
     .required::after { content: " *"; color: #FF5555; }
     
-    #map, #aggregatedMap { height: 300px; width: 100%; border-radius: 12px; border: 2px solid #FFE4D6; }
+    #map { height: 300px; width: 100%; border-radius: 12px; border: 2px solid #FFE4D6; }
     .hidden { display: none !important; }
     
     input[type="text"], input[type="file"], select, input[type="date"], textarea { width: 100%; padding: 12px; border: 2px solid #FFE4D6; border-radius: 12px; box-sizing: border-box; font-size: 16px; font-family: inherit; background: white; color: #5C4033; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: #FFB380; box-shadow: 0 0 5px rgba(255,179,128,0.5); }
-    
-    .sample-box { margin-top: 10px; margin-bottom: 12px; }
-    .sample-img { max-width: 100%; max-height: 200px; border-radius: 12px; border: 2px solid #FFE4D6; display: block; margin: 0 auto; }
     
     .radio-group { display: flex; flex-wrap: wrap; gap: 15px; }
     .radio-group label { display: inline-flex; align-items: center; font-weight: normal; margin-right: 0; cursor: pointer; font-size: 16px; color: #5C4033; }
@@ -48,36 +48,78 @@
     #submitBtn:active { transform: translateY(5px); box-shadow: none; }
     
     #output { margin-top: 20px; text-align: center; font-weight: bold; font-size: 16px; color: #FF8C66; line-height: 1.5; white-space: pre-wrap; }
-    
-    #installBanner { background-color: #FFF4E6; color: #D9734E; padding: 15px; text-align: center; border-radius: 16px; margin-bottom: 20px; font-weight: bold; border: 2px dashed #FFD4B2; font-size: 14px; }
-    #installBtn { display: block; width: 100%; margin-top: 10px; background-color: #FFB380; color: white; border: none; padding: 10px; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: bold; box-shadow: 0 3px 0 #FF944D; }
 
+    /* ネコの柄 選択UI */
     .pattern-menu { border: 2px solid #FFE4D6; border-radius: 12px; overflow: hidden; background: white; margin-bottom: 10px; }
     .pattern-item { padding: 12px 15px; border-bottom: 1px solid #FFF0E5; display: flex; align-items: center; cursor: pointer; color: #5C4033; }
     .pattern-item:active { background-color: #FFF9F5; }
     .pattern-item:last-child { border-bottom: none; }
-    .pattern-icon { font-size: 24px; margin-right: 10px; display: inline-block; width: 30px; text-align: center; }
+    .pattern-icon { font-size: 24px; margin-right: 15px; display: inline-block; width: 50px; text-align: center; }
     .pattern-check { width: 24px; color: #FF8C66; font-weight: bold; font-size: 18px; display: inline-block; }
     .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
     .tag { background: #FFD4B2; color: #A65D37; padding: 6px 12px; border-radius: 20px; font-size: 14px; display: inline-flex; align-items: center; font-weight: bold; }
     .tag-close { margin-left: 8px; cursor: pointer; font-weight: bold; background: #FFB885; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92, 64, 51, 0.5); z-index: 9999; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; }
-    .modal-content { background: #FFF9F5; width: 100%; max-width: 600px; max-height: 90vh; border-radius: 24px; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 3px solid #FFE4D6; position: relative; }
+    /* モーダル全般 */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92, 64, 51, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; }
+    .modal-content { background: #FFF9F5; width: 100%; max-width: 600px; max-height: 90vh; border-radius: 24px; padding: 25px 20px; box-sizing: border-box; overflow-y: auto; border: 3px solid #FFE4D6; position: relative; text-align: center; }
     .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #FF8C66; cursor: pointer; font-weight: bold; }
-    .history-item { background: white; padding: 15px; border-radius: 12px; border: 2px solid #FFE4D6; margin-bottom: 15px; }
-    .btn-edit { background-color: #66CDAA; color: white; padding: 8px 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 3px 0 #3CB371; margin-top: 10px; }
+    
+    /* フルスクリーンマップ用 */
+    #mapModal { padding: 0; }
+    #mapModal .modal-content { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; padding: 0; border: none; display: flex; flex-direction: column; text-align: left; }
+    .map-header { position: absolute; top: 15px; left: 15px; right: 15px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.95); padding: 12px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid #FFE4D6;}
+    .map-header h3 { margin: 0; font-size: 18px; color: #FF8C66; }
+    .map-header .close-btn { font-size: 28px; color: #5C4033; cursor: pointer; font-weight: bold; line-height: 1;}
+    #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
+
+    /* 履歴画面用 */
+    .history-item { background: white; padding: 15px; border-radius: 12px; border: 2px solid #FFE4D6; margin-bottom: 15px; text-align: left;}
+    .btn-edit { background-color: #66CDAA; color: white; padding: 8px 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 3px 0 #3CB371; margin-top: 10px; width: 100%;}
   </style>
 </head>
 <body>
-<div class="container">
 
-  <div id="installBanner" class="hidden">
-    <span id="installText"></span>
-    <button id="installBtn" class="hidden">ホーム画面に追加する🐾</button>
+<!-- 初回起動用 ウェルカムモーダル -->
+<div id="welcomeModal" class="modal" style="background: #FFF9F5;">
+  <!-- Step 1: インストール案内 -->
+  <div id="stepInstall" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px;">
+    <h2 style="font-size:32px; margin-bottom:10px;">🐾</h2>
+    <h3 style="color:#FF8C66; font-size: 22px;">アプリをインストール！</h3>
+    <p id="welcomeInstallText" style="line-height:1.6; margin-bottom:25px;"></p>
+    <button id="welcomeInstallBtn" class="btn-action hidden" style="padding:16px; font-size:18px;">ホーム画面に追加する</button>
+    <button class="btn-sub" style="width:100%; padding:14px; border-radius:16px; border:none; margin-top:10px;" onclick="nextWelcomeStep()">あとで / 次へすすむ</button>
   </div>
+  
+  <!-- Step 2: 名前入力 -->
+  <div id="stepName" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px;">
+    <h2 style="font-size:32px; margin-bottom:10px;">👤</h2>
+    <h3 style="color:#FF8C66; font-size: 22px;">はじめまして！</h3>
+    <p style="line-height:1.6; margin-bottom:20px;">ねこログへようこそ。<br>まずはお名前を教えてください。</p>
+    <input type="text" id="welcomeNameInput" placeholder="例: ねこ太郎" style="margin-bottom: 25px; text-align: center; font-size:18px;">
+    <button class="btn-action" style="padding:16px; font-size:18px;" onclick="finishWelcome()">はじめる！</button>
+  </div>
+</div>
 
-  <h2>🐾 ねこログ 🐾</h2>
+<!-- 設定モーダル（名前変更） -->
+<div id="settingsModal" class="modal">
+  <div class="modal-content" style="max-width: 400px;">
+    <span class="close-modal" onclick="closeModal('settingsModal')">×</span>
+    <h3 style="color:#FF8C66; margin-top:0;">⚙️ 設定</h3>
+    <div style="text-align: left; margin-top:20px;">
+      <label>👤 お名前</label>
+      <input type="text" id="settingsNameInput" style="margin-bottom: 20px;">
+      <button class="btn-action" onclick="saveSettingsName()">変更を保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- ヘッダー -->
+  <div class="header-container">
+    <h2>🐾 ねこログ 🐾</h2>
+    <button type="button" class="btn-settings" onclick="openSettingsModal()">⚙️</button>
+  </div>
   
   <div class="nav-buttons">
     <button type="button" class="btn-nav" onclick="openMapModal()">🗺️ みんなの<br>ねこマップ</button>
@@ -88,11 +130,6 @@
     <input type="hidden" id="editId" name="editId" value="">
     <input type="hidden" id="location" required>
     
-    <div class="form-group">
-      <label class="required" for="nickname">👤 あなたのニックネーム</label>
-      <input type="text" id="nickname" placeholder="例: ねこ太郎（複数人で使う場合の確認用）" required onchange="saveNickname()">
-    </div>
-
     <div class="form-group">
       <label class="required">📍 目撃場所</label>
       <button type="button" id="currentLocationBtn" class="btn-action btn-sub" onclick="goToCurrentLocation()">現在地を取得する</button>
@@ -140,7 +177,6 @@
 
     <div class="form-group">
       <label class="required">✂️ 耳カットされている個体か</label>
-      <div class="sample-box"><img class="sample-img" src="unnamed.png" alt="耳カットサンプル"></div>
       <div class="radio-group">
         <label><input type="radio" name="earCutRadio" value="はい" onchange="toggleEarCutDetail()" required> はい</label>
         <label><input type="radio" name="earCutRadio" value="いいえ" onchange="toggleEarCutDetail()"> いいえ</label>
@@ -178,11 +214,13 @@
   <div id="output"></div>
 </div>
 
-<!-- みんなのねこマップ モーダル -->
+<!-- みんなのねこマップ モーダル (フルスクリーン) -->
 <div id="mapModal" class="modal">
   <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('mapModal')">×</span>
-    <h3 style="color:#FF8C66; text-align:center; margin-top:0;">🗺️ みんなのねこマップ</h3>
+    <div class="map-header">
+      <h3>🗺️ みんなのねこマップ</h3>
+      <span class="close-btn" onclick="closeModal('mapModal')">×</span>
+    </div>
     <div id="aggregatedMap"></div>
   </div>
 </div>
@@ -191,9 +229,9 @@
 <div id="historyModal" class="modal">
   <div class="modal-content">
     <span class="close-modal" onclick="closeModal('historyModal')">×</span>
-    <h3 style="color:#FF8C66; text-align:center; margin-top:0;">📝 直近3日の回答履歴</h3>
+    <h3 style="color:#FF8C66; margin-top:0;">📝 直近3日の回答履歴</h3>
     <div id="historyList">
-      <p style="text-align:center; color:#A65D37;">履歴を読み込んでいます...</p>
+      <p style="color:#A65D37;">履歴を読み込んでいます...</p>
     </div>
   </div>
 </div>
@@ -206,44 +244,82 @@
   const gasURL = "https://script.google.com/macros/s/あなた専用の長い文字列/exec";
 
   // ==========================================
-  // 基本設定＆PWA
+  // 基本設定＆PWA オンボーディング
   // ==========================================
-  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
-  
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedName = localStorage.getItem('nekoLogNickname');
-    if (savedName) document.getElementById('nickname').value = savedName;
-  });
-  function saveNickname() {
-    localStorage.setItem('nekoLogNickname', document.getElementById('nickname').value);
-  }
-
-  const installBanner = document.getElementById('installBanner');
-  const installText = document.getElementById('installText');
-  const installBtn = document.getElementById('installBtn');
-  let deferredPrompt;
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  let deferredPrompt;
 
-  if (!isStandalone) {
-    if (isIos) {
-      installText.innerHTML = '💡 ホーム画面に追加してアプリとしてご利用いただけます🐾<br>Safari下部の「共有ボタン」から追加できます。';
-      installBanner.classList.remove('hidden');
-    } else {
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e;
-        installText.innerHTML = '💡 アプリとしてインストールできます🐾';
-        installBanner.classList.remove('hidden'); installBtn.classList.remove('hidden');
-      });
-      installBtn.addEventListener('click', async () => {
-        installBanner.classList.add('hidden'); deferredPrompt.prompt();
-        await deferredPrompt.userChoice; deferredPrompt = null;
-      });
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
+  
+  // 初回アクセス時のフロー制御
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedName = localStorage.getItem('nekoLogName');
+    
+    if (!savedName) {
+      document.getElementById('welcomeModal').style.display = 'flex';
+      
+      // PWAとしてインストールされていない場合、インストール案内を先に出す
+      if (!isStandalone) {
+        document.getElementById('stepInstall').classList.remove('hidden');
+        if (isIos) {
+          document.getElementById('welcomeInstallText').innerHTML = 'Safari下部の「共有ボタン」から<br>「ホーム画面に追加」をタップして<br>アプリとしてご利用ください🐾';
+        } else {
+          document.getElementById('welcomeInstallText').innerHTML = 'インストールボタンを押して<br>アプリとしてご利用ください🐾';
+        }
+      } else {
+        // すでにインストール済みの場合は直接名前入力へ
+        document.getElementById('stepName').classList.remove('hidden');
+      }
     }
+  });
+
+  // Android等でのインストールボタン表示
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferredPrompt = e;
+    if (!localStorage.getItem('nekoLogName')) {
+      document.getElementById('welcomeInstallBtn').classList.remove('hidden');
+    }
+  });
+
+  document.getElementById('welcomeInstallBtn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      nextWelcomeStep(); // インストールできたら名前入力へ進む
+    }
+  });
+
+  function nextWelcomeStep() {
+    document.getElementById('stepInstall').classList.add('hidden');
+    document.getElementById('stepName').classList.remove('hidden');
+  }
+
+  function finishWelcome() {
+    const name = document.getElementById('welcomeNameInput').value.trim();
+    if (!name) { alert('お名前を入力してください。'); return; }
+    localStorage.setItem('nekoLogName', name);
+    document.getElementById('welcomeModal').style.display = 'none';
   }
 
   // ==========================================
-  // モーダル制御（みんなのねこマップ・履歴）
+  // 設定（名前変更）ロジック
+  // ==========================================
+  function openSettingsModal() {
+    document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || '';
+    document.getElementById('settingsModal').style.display = 'flex';
+  }
+
+  function saveSettingsName() {
+    const name = document.getElementById('settingsNameInput').value.trim();
+    if (!name) { alert('お名前を入力してください。'); return; }
+    localStorage.setItem('nekoLogName', name);
+    closeModal('settingsModal');
+  }
+
+  // ==========================================
+  // モーダル制御（マップ・履歴）
   // ==========================================
   var aggMap = null;
   var markersLayer = null;
@@ -251,8 +327,9 @@
   async function openMapModal() {
     document.getElementById('mapModal').style.display = 'flex';
     if (!aggMap) {
-      aggMap = L.map('aggregatedMap').setView([25.845, 131.23], 13);
+      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.845, 131.23], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
+      L.control.zoom({ position: 'bottomright' }).addTo(aggMap); // ズームボタンを右下に移動
       markersLayer = L.layerGroup().addTo(aggMap);
     }
     setTimeout(() => { aggMap.invalidateSize(); }, 200);
@@ -341,12 +418,12 @@
   }
 
   // ==========================================
-  // ネコの柄 選択ロジック（画像版）
+  // ネコの柄 選択ロジック（画像版）※サイズを44pxに拡大
   // ==========================================
   const patternCategories = {
-    "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:24px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:24px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:24px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:24px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:24px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:24px; vertical-align:middle;'>" } ],
-    "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:24px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:24px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:24px; vertical-align:middle;'>" } ],
-    "混色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:24px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:24px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:24px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:24px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:24px; vertical-align:middle;'>" } ]
+    "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
+    "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
+    "混色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:44px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:44px; vertical-align:middle;'>" } ]
   };
   const standalonePatterns = [ { id: "その他", icon: "📝" } ];
   let selectedPatterns = new Set();
@@ -360,7 +437,7 @@
       patternCategories[currentPatternCategory].forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon)); });
     } else {
       Object.keys(patternCategories).forEach(cat => {
-        const div = document.createElement('div'); div.className = 'pattern-item'; div.innerHTML = `<span class="pattern-check"></span><span>${cat}</span><span style="margin-left:auto;">▶</span>`; div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); }; menu.appendChild(div);
+        const div = document.createElement('div'); div.className = 'pattern-item'; div.innerHTML = `<span class="pattern-check"></span><span style="margin-left:5px;">${cat}</span><span style="margin-left:auto;">▶</span>`; div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); }; menu.appendChild(div);
       });
       standalonePatterns.forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon)); });
     }
@@ -469,7 +546,6 @@
         const d = record.data;
 
         document.getElementById('editId').value = d.editId;
-        document.getElementById('nickname').value = d.nickname;
         document.getElementById('location').value = d.location;
         
         const [lat, lng] = d.location.split(',').map(Number);
@@ -536,7 +612,6 @@
 
   async function processSubmission(dataObj) {
     var output = document.getElementById('output');
-    saveNickname(); 
     await saveToHistoryDB(dataObj); 
     
     if (navigator.onLine) {
@@ -559,7 +634,6 @@
   function resetFormUI() {
     document.getElementById("catForm").reset();
     document.getElementById("editId").value = "";
-    document.getElementById('nickname').value = localStorage.getItem('nekoLogNickname') || ""; 
     if(marker) map.removeLayer(marker); marker = null;
     document.getElementById('locationDisplay').innerText = "場所が選択されていません";
     selectedPatterns.clear(); renderPatternMenu(); document.getElementById('otherPatternContainer').classList.add('hidden');
@@ -584,7 +658,8 @@
 
     var dataObj = {
       editId: currentEditId,
-      nickname: document.getElementById('nickname').value,
+      // 保存してある名前をGASに送信する
+      nickname: localStorage.getItem('nekoLogName') || "名無し",
       location: document.getElementById('location').value,
       datetime: document.getElementById('dateInput').value + 'T' + document.getElementById('hourInput').value + ':00',
       catCountResult: document.getElementById('catCount').value === '3頭以上' ? document.getElementById('catCountNum').value : (document.getElementById('catCount').value === '親子' ? document.getElementById('catCountDetail').value : document.getElementById('catCount').value),
