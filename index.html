@@ -17,7 +17,6 @@
     .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: 2px solid #A6958B; box-sizing: border-box; }
     
     .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    /* タイトルの文字をより太く調整 */
     h2 { margin: 0; color: #D35400; font-size: 28px; font-weight: 900; letter-spacing: 2px; }
     .btn-settings { background: white; border: 2px solid #A6958B; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; cursor: pointer; box-shadow: 0 4px 0 #A6958B; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0; }
     .btn-settings:active { transform: translateY(4px); box-shadow: none; }
@@ -30,7 +29,6 @@
     label { font-weight: bold; display: block; margin-bottom: 10px; color: #A04000; font-size: 16px; }
     .required::after { content: " *"; color: #D32F2F; }
     
-    /* 目撃場所の地図の横幅と縦幅を大きく拡大 */
     #map { height: 450px; width: 100%; border-radius: 12px; border: 2px solid #A6958B; box-sizing: border-box; }
     .hidden { display: none !important; }
     
@@ -323,7 +321,6 @@
     }
   });
 
-  // モーダルオープン管理とブラウザ履歴（スマホ戻るジェスチャー対応）
   let currentActiveModal = null;
 
   function openModalWithHistory(modalId) {
@@ -479,12 +476,13 @@
     else { detailGroup.classList.add('hidden'); detailInput.required = false; detailInput.value = ''; }
   }
 
+  // ネコの柄 選択ロジック（不明・その他（記述）のアイコンを外してコンパクト化）
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
-    "混色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:44px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:44px; vertical-align:middle;'>" } ]
+    "複色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:44px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:44px; vertical-align:middle;'>" } ]
   };
-  const standalonePatterns = [ { id: "不明", icon: "❓" }, { id: "その他", icon: "📝" } ];
+  const standalonePatterns = [ { id: "不明", icon: "" }, { id: "その他（記述）", icon: "" } ];
   let selectedPatterns = new Set();
   let currentPatternCategory = null;
 
@@ -507,10 +505,11 @@
     const div = document.createElement('div'); 
     const isSelected = selectedPatterns.has(id);
     div.className = 'pattern-item' + (isSelected ? ' selected' : ''); 
-    div.innerHTML = `<span class="pattern-check">${isSelected ? '🐾' : ''}</span><span class="pattern-icon">${icon}</span><span>${id}</span>`;
+    const iconHtml = icon ? `<span class="pattern-icon">${icon}</span>` : '';
+    div.innerHTML = `<span class="pattern-check">${isSelected ? '🐾' : ''}</span>${iconHtml}<span>${id}</span>`;
     div.onclick = () => {
       if (isSelected) selectedPatterns.delete(id); else selectedPatterns.add(id);
-      if (id === 'その他') document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedPatterns.has('その他'));
+      if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedPatterns.has('その他（記述）'));
       renderPatternMenu();
     };
     return div;
@@ -523,10 +522,10 @@
     });
     updatePatternValue();
   }
-  function removePattern(id) { selectedPatterns.delete(id); if (id === 'その他') document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu(); }
+  function removePattern(id) { selectedPatterns.delete(id); if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu(); }
   function updatePatternValue() {
     let vals = Array.from(selectedPatterns);
-    if (vals.includes('その他')) { const otherVal = document.getElementById('patternOtherInput').value; vals = vals.map(v => v === 'その他' ? (otherVal ? `その他(${otherVal})` : 'その他') : v); }
+    if (vals.includes('その他（記述）')) { const otherVal = document.getElementById('patternOtherInput').value; vals = vals.map(v => v === 'その他（記述）' ? (otherVal ? `その他(${otherVal})` : 'その他') : v); }
     document.getElementById('hiddenCatPattern').value = vals.join(', ');
   }
   renderPatternMenu();
@@ -640,7 +639,7 @@
         if (d.catPattern) {
           d.catPattern.split(', ').forEach(p => {
             if(p.startsWith('その他(')) {
-              selectedPatterns.add('その他');
+              selectedPatterns.add('その他（記述）');
               document.getElementById('patternOtherInput').value = p.replace('その他(','').replace(')','');
             } else {
               selectedPatterns.add(p);
@@ -655,7 +654,7 @@
         
         document.getElementById('submitBtn').innerText = "修正して送信する 🐾";
         document.getElementById('submitBtn').style.backgroundColor = "#2E86C1";
-        document.getElementById('submitBtn').style.boxShadow = "0 5px 0 #1B4F72";
+        document.getElementById('submitBtn').style.boxShadow = "0 1B4F72";
       };
     } catch(e) { console.error("履歴の復元に失敗しました", e); }
   }
