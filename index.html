@@ -67,9 +67,12 @@
     
     #mapModal { padding: 0; }
     #mapModal .modal-content { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; padding: 0; border: none; display: flex; flex-direction: column; text-align: left; }
-    .map-header { position: absolute; top: 15px; left: 15px; right: 15px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid #A6958B;}
+    .map-header { position: absolute; top: 15px; left: 15px; right: 15px; z-index: 1000; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid #A6958B;}
     .map-header h3 { margin: 0; font-size: 18px; color: #D35400; }
-    .map-btn-group { display: flex; align-items: center; gap: 10px; }
+    .map-btn-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    
+    /* フィルター用セレクトボックス */
+    .map-filter-select { padding: 6px 10px; border: 1px solid #A88F7C; border-radius: 12px; font-weight: bold; font-size: 13px; background: white; color: #2D1E16; cursor: pointer; }
     .btn-reload { background: #D3B8A5; color: #2D1E16; border: 1px solid #A88F7C; padding: 6px 12px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; }
     .btn-reload:active { transform: scale(0.95); }
     .map-header .close-btn { font-size: 28px; color: #2D1E16; cursor: pointer; font-weight: bold; line-height: 1;}
@@ -290,6 +293,16 @@
     <div class="map-header">
       <h3>🗺️ みんなのねこマップ</h3>
       <div class="map-btn-group">
+        <!-- 期間フィルター選択 -->
+        <select id="mapFilterSelect" class="map-filter-select" onchange="loadMapMarkers()">
+          <option value="all">すべて表示</option>
+          <option value="1">1ヶ月以内</option>
+          <option value="2">2ヶ月以内</option>
+          <option value="3">3ヶ月以内</option>
+          <option value="4">4ヶ月以内</option>
+          <option value="5">5ヶ月以内</option>
+          <option value="6">6ヶ月以内</option>
+        </select>
         <button type="button" class="btn-reload" onclick="loadMapMarkers()">🔄 更新</button>
         <span class="close-btn" onclick="closeModal('mapModal')">×</span>
       </div>
@@ -409,7 +422,6 @@
     setTimeout(() => { aggMap.invalidateSize(); }, 200);
     loadMapMarkers();
 
-    // マップの初回案内ポップアップ判定
     const mapGuideSeen = localStorage.getItem('nekoLogMapGuideSeen');
     if (!mapGuideSeen) {
       document.getElementById('mapGuideModal').style.display = 'flex';
@@ -428,10 +440,26 @@
       const response = await fetch(gasURL);
       const data = await response.json();
       
+      const filterValue = document.getElementById('mapFilterSelect').value;
+      const now = new Date();
+
       data.forEach(item => {
-        if (item.location) {
+        if (item.location && item.datetime) {
+          const itemDate = new Date(item.datetime);
+          
+          // 期間フィルター処理
+          if (filterValue !== 'all') {
+            const monthsAgo = parseInt(filterValue, 10);
+            const cutoffDate = new Date();
+            cutoffDate.setMonth(now.getMonth() - monthsAgo);
+            
+            if (itemDate < cutoffDate) {
+              return; // 指定した月数より古いデータはスキップ
+            }
+          }
+
           const [lat, lng] = item.location.split(',').map(Number);
-          const dateStr = new Date(item.datetime).toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
+          const dateStr = itemDate.toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
           let popupHtml = `<div style="font-size:14px; color:#2D1E16; line-height:1.6;">`;
           popupHtml += `<strong style="color:#D35400;">🕒 ${dateStr}</strong><br>`;
           popupHtml += `🐈 頭数: ${item.catCount}<br>`;
