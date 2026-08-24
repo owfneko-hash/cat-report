@@ -182,9 +182,10 @@
 
     /* カウント入力用コンテナ・リスト */
     .count-list { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: var(--radius-s); border: 1.5px solid var(--border-color); }
-    .count-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid var(--bg-color); }
+    .count-row { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid var(--bg-color); cursor: pointer; user-select: none; }
     .count-row:last-child { border-bottom: none; }
-    .count-label { font-weight: bold; font-size: 15px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+    .count-row.selected { background-color: var(--accent-soft); }
+    .count-label { font-weight: bold; font-size: 15px; color: var(--text-main); display: flex; align-items: center; gap: 6px; flex-grow: 1; }
     
     /* ステッパーコントロール (ー 頭数 ＋) */
     .stepper-control { display: flex; align-items: center; gap: 6px; }
@@ -265,6 +266,7 @@
     .pattern-item:last-child { border-bottom: none; }
     .pattern-info { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
     .pattern-icon { font-size: 20px; display: inline-block; width: 36px; text-align: center; }
+    .pattern-check { width: 20px; color: var(--accent-primary); font-weight: bold; font-size: 15px; display: inline-block; }
     .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .tag { background: var(--accent-light); color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #FFCC80;}
     .tag-close { margin-left: 6px; cursor: pointer; font-weight: bold; background: #A1887F; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
@@ -498,41 +500,36 @@
       </div>
     </div>
 
-    <!-- 耳カット選択（カウント方式・縦配置） -->
+    <!-- 耳カット選択（「はい」「いいえ」はタップで＋1・「わからない」は選択トグル） -->
     <div class="form-group">
-      <label class="required">✂️ 耳カットされている個体か（頭数内訳）</label>
+      <label class="required">✂️ 耳カットされている個体か</label>
       <div class="count-list">
-        <div class="count-row">
-          <span class="count-label">はい</span>
-          <div class="stepper-control">
+        <div class="count-row" id="rowEarCut_はい" onclick="changeEarCutCount('はい', 1)">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_はい"></span>はい</span>
+          <div class="stepper-control" onclick="event.stopPropagation()">
             <button type="button" class="btn-step" onclick="changeEarCutCount('はい', -1)">ー</button>
             <span id="earCutCount_はい" class="count-num">0</span>
             <button type="button" class="btn-step add" onclick="changeEarCutCount('はい', 1)">＋</button>
           </div>
         </div>
-        <div class="count-row">
-          <span class="count-label">いいえ</span>
-          <div class="stepper-control">
+        <div class="count-row" id="rowEarCut_いいえ" onclick="changeEarCutCount('いいえ', 1)">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_いいえ"></span>いいえ</span>
+          <div class="stepper-control" onclick="event.stopPropagation()">
             <button type="button" class="btn-step" onclick="changeEarCutCount('いいえ', -1)">ー</button>
             <span id="earCutCount_いいえ" class="count-num">0</span>
             <button type="button" class="btn-step add" onclick="changeEarCutCount('いいえ', 1)">＋</button>
           </div>
         </div>
-        <div class="count-row">
-          <span class="count-label">わからない</span>
-          <div class="stepper-control">
-            <button type="button" class="btn-step" onclick="changeEarCutCount('わからない', -1)">ー</button>
-            <span id="earCutCount_わからない" class="count-num">0</span>
-            <button type="button" class="btn-step add" onclick="changeEarCutCount('わからない', 1)">＋</button>
-          </div>
+        <div class="count-row" id="rowEarCut_わからない" onclick="toggleEarCutUnknown()">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_わからない"></span>わからない</span>
         </div>
       </div>
       <input type="hidden" id="hiddenEarCut" name="earCut">
     </div>
 
-    <!-- ネコの柄選択（各柄の右側にカウント調整ボタン） -->
+    <!-- ネコの柄選択（「その他（記述）」はカウントなしの単体トグル） -->
     <div class="form-group">
-      <label>🎨 ネコの柄（複数・頭数カウント可）</label>
+      <label>🎨 ネコの柄（複数選択・カウント可）</label>
       <div id="selectedPatternTags" class="tag-container"></div>
       <div id="patternMenu" class="pattern-menu"></div>
       <div id="otherPatternContainer" class="hidden">
@@ -805,32 +802,68 @@
   }
 
   // ==========================================
-  // 耳カットのカウント管理
+  // 耳カットのカウント・選択管理
   // ==========================================
-  const earCutCounts = { "はい": 0, "いいえ": 0, "わからない": 0 };
+  const earCutCounts = { "はい": 0, "いいえ": 0 };
+  let isEarCutUnknownSelected = false;
 
   function changeEarCutCount(type, delta) {
-    earCutCounts[type] = Math.max(0, (earCutCounts[type] || 0) + delta);
-    const el = document.getElementById('earCutCount_' + type);
-    if (el) {
-      el.innerText = earCutCounts[type];
-      el.classList.toggle('active', earCutCounts[type] > 0);
+    // カウントが増えたら「わからない」は解除
+    if (delta > 0 && isEarCutUnknownSelected) {
+      isEarCutUnknownSelected = false;
     }
+
+    earCutCounts[type] = Math.max(0, (earCutCounts[type] || 0) + delta);
+    
+    updateEarCutUI();
     updateEarCutValue();
+  }
+
+  function toggleEarCutUnknown() {
+    isEarCutUnknownSelected = !isEarCutUnknownSelected;
+    if (isEarCutUnknownSelected) {
+      earCutCounts["はい"] = 0;
+      earCutCounts["いいえ"] = 0;
+    }
+    updateEarCutUI();
+    updateEarCutValue();
+  }
+
+  function updateEarCutUI() {
+    ["はい", "いいえ"].forEach(key => {
+      const numEl = document.getElementById('earCutCount_' + key);
+      const rowEl = document.getElementById('rowEarCut_' + key);
+      const checkEl = document.getElementById('checkEarCut_' + key);
+      if (numEl) {
+        numEl.innerText = earCutCounts[key];
+        numEl.classList.toggle('active', earCutCounts[key] > 0);
+      }
+      if (rowEl) rowEl.classList.toggle('selected', earCutCounts[key] > 0);
+      if (checkEl) checkEl.innerText = earCutCounts[key] > 0 ? '✓' : '';
+    });
+
+    const unkRow = document.getElementById('rowEarCut_わからない');
+    const unkCheck = document.getElementById('checkEarCut_わからない');
+    if (unkRow) unkRow.classList.toggle('selected', isEarCutUnknownSelected);
+    if (unkCheck) unkCheck.innerText = isEarCutUnknownSelected ? '✓' : '';
   }
 
   function updateEarCutValue() {
     let result = [];
-    for (const key in earCutCounts) {
-      if (earCutCounts[key] > 0) {
-        result.push(`${key} (${earCutCounts[key]}頭)`);
+    if (isEarCutUnknownSelected) {
+      result.push("わからない");
+    } else {
+      for (const key in earCutCounts) {
+        if (earCutCounts[key] > 0) {
+          result.push(`${key} (${earCutCounts[key]}頭)`);
+        }
       }
     }
     document.getElementById('hiddenEarCut').value = result.join(', ');
   }
 
   // ==========================================
-  // ネコの柄のカウント管理
+  // ネコの柄のカウント・選択管理
   // ==========================================
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
@@ -839,23 +872,32 @@
   };
   const standalonePatterns = [ { id: "不明", icon: "" }, { id: "その他（記述）", icon: "" } ];
   
-  // 各柄の頭数をマップで保持
   let patternCounts = new Map();
+  let selectedStandalonePatterns = new Set();
   let currentPatternCategory = null;
 
   function changePatternCount(id, delta, event) {
     if (event) event.stopPropagation();
-    let current = patternCounts.get(id) || 0;
-    let updated = Math.max(0, current + delta);
     
-    if (updated === 0) {
-      patternCounts.delete(id);
+    // 単体トグル選択項目（不明・その他記述）の処理
+    if (id === '不明' || id === 'その他（記述）') {
+      if (selectedStandalonePatterns.has(id)) {
+        selectedStandalonePatterns.delete(id);
+      } else {
+        selectedStandalonePatterns.add(id);
+      }
+      if (id === 'その他（記述）') {
+        document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedStandalonePatterns.has('その他（記述）'));
+      }
     } else {
-      patternCounts.set(id, updated);
-    }
-
-    if (id === 'その他（記述）') {
-      document.getElementById('otherPatternContainer').classList.toggle('hidden', !patternCounts.has('その他（記述）'));
+      // 通常の柄（カウント式）の処理
+      let current = patternCounts.get(id) || 0;
+      let updated = Math.max(0, current + delta);
+      if (updated === 0) {
+        patternCounts.delete(id);
+      } else {
+        patternCounts.set(id, updated);
+      }
     }
 
     renderPatternMenu();
@@ -874,7 +916,7 @@
       menu.appendChild(backBtn);
 
       patternCategories[currentPatternCategory].forEach(item => { 
-        menu.appendChild(createPatternItem(item.id, item.icon)); 
+        menu.appendChild(createPatternItem(item.id, item.icon, true)); 
       });
     } else {
       Object.keys(patternCategories).forEach(cat => {
@@ -885,32 +927,45 @@
         menu.appendChild(div);
       });
       standalonePatterns.forEach(item => { 
-        menu.appendChild(createPatternItem(item.id, item.icon)); 
+        menu.appendChild(createPatternItem(item.id, item.icon, false)); 
       });
     }
     updatePatternTags();
   }
 
-  function createPatternItem(id, icon) {
+  function createPatternItem(id, icon, isCountable) {
     const div = document.createElement('div'); 
-    const count = patternCounts.get(id) || 0;
-    const isSelected = count > 0;
-    div.className = 'pattern-item' + (isSelected ? ' selected' : ''); 
     
-    const iconHtml = icon ? `<span class="pattern-icon">${icon}</span>` : '';
-    
-    div.innerHTML = `
-      <div class="pattern-info" onclick="changePatternCount('${id}', 1)">
-        <span class="pattern-check">${isSelected ? '✓' : ''}</span>
-        ${iconHtml}
-        <span>${id}</span>
-      </div>
-      <div class="stepper-control">
-        <button type="button" class="btn-step" onclick="changePatternCount('${id}', -1, event)">ー</button>
-        <span class="count-num ${isSelected ? 'active' : ''}">${count}</span>
-        <button type="button" class="btn-step add" onclick="changePatternCount('${id}', 1, event)">＋</button>
-      </div>
-    `;
+    if (isCountable) {
+      const count = patternCounts.get(id) || 0;
+      const isSelected = count > 0;
+      div.className = 'pattern-item' + (isSelected ? ' selected' : ''); 
+      const iconHtml = icon ? `<span class="pattern-icon">${icon}</span>` : '';
+      
+      div.innerHTML = `
+        <div class="pattern-info" onclick="changePatternCount('${id}', 1)">
+          <span class="pattern-check">${isSelected ? '✓' : ''}</span>
+          ${iconHtml}
+          <span>${id}</span>
+        </div>
+        <div class="stepper-control">
+          <button type="button" class="btn-step" onclick="changePatternCount('${id}', -1, event)">ー</button>
+          <span class="count-num ${isSelected ? 'active' : ''}">${count}</span>
+          <button type="button" class="btn-step add" onclick="changePatternCount('${id}', 1, event)">＋</button>
+        </div>
+      `;
+    } else {
+      // 不明・その他（記述）などのカウントなし項目
+      const isSelected = selectedStandalonePatterns.has(id);
+      div.className = 'pattern-item' + (isSelected ? ' selected' : ''); 
+      div.onclick = () => changePatternCount(id, 0);
+      div.innerHTML = `
+        <div class="pattern-info">
+          <span class="pattern-check">${isSelected ? '✓' : ''}</span>
+          <span>${id}</span>
+        </div>
+      `;
+    }
     return div;
   }
 
@@ -924,11 +979,20 @@
       tag.innerHTML = `${id} (${count}頭) <span class="tag-close" onclick="removePatternTag('${id}')">×</span>`; 
       container.appendChild(tag);
     });
+
+    selectedStandalonePatterns.forEach(id => {
+      const tag = document.createElement('span'); 
+      tag.className = 'tag'; 
+      tag.innerHTML = `${id} <span class="tag-close" onclick="removePatternTag('${id}')">×</span>`; 
+      container.appendChild(tag);
+    });
+
     updatePatternValue();
   }
 
   function removePatternTag(id) { 
     patternCounts.delete(id); 
+    selectedStandalonePatterns.delete(id);
     if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.add('hidden'); 
     renderPatternMenu(); 
   }
@@ -936,14 +1000,19 @@
   function updatePatternValue() {
     let vals = [];
     patternCounts.forEach((count, id) => {
+      vals.push(`${id} (${count}頭)`);
+    });
+
+    selectedStandalonePatterns.forEach(id => {
       if (id === 'その他（記述）') {
         const otherVal = document.getElementById('patternOtherInput').value.trim();
         const label = otherVal ? `その他(${otherVal})` : 'その他';
-        vals.push(`${label} (${count}頭)`);
+        vals.push(label);
       } else {
-        vals.push(`${id} (${count}頭)`);
+        vals.push(id);
       }
     });
+
     document.getElementById('hiddenCatPattern').value = vals.join(', ');
   }
 
@@ -1046,38 +1115,39 @@
         toggleCatDetail();
 
         // 耳カット復元
-        for (const k in earCutCounts) earCutCounts[k] = 0;
+        earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0;
+        isEarCutUnknownSelected = false;
         if (d.earCut) {
-          d.earCut.split(', ').forEach(str => {
-            for (const key of ["はい", "いいえ", "わからない"]) {
-              if (str.startsWith(key)) {
-                const match = str.match(/\((\d+)頭\)/);
-                earCutCounts[key] = match ? parseInt(match[1], 10) : 1;
+          if (d.earCut === "わからない") {
+            isEarCutUnknownSelected = true;
+          } else {
+            d.earCut.split(', ').forEach(str => {
+              for (const key of ["はい", "いいえ"]) {
+                if (str.startsWith(key)) {
+                  const match = str.match(/\((\d+)頭\)/);
+                  earCutCounts[key] = match ? parseInt(match[1], 10) : 1;
+                }
               }
-            }
-          });
+            });
+          }
         }
-        for (const key in earCutCounts) {
-          const el = document.getElementById('earCutCount_' + key);
-          if (el) { el.innerText = earCutCounts[key]; el.classList.toggle('active', earCutCounts[key] > 0); }
-        }
+        updateEarCutUI();
         updateEarCutValue();
 
         // 柄復元
         patternCounts.clear();
+        selectedStandalonePatterns.clear();
         if (d.catPattern) {
           d.catPattern.split(', ').forEach(p => {
             const match = p.match(/(.+?)\s*\((\d+)頭\)/);
             if (match) {
-              let pName = match[1];
-              let pCount = parseInt(match[2], 10);
-              if (pName.startsWith('その他(')) {
-                patternCounts.set('その他（記述）', pCount);
-                document.getElementById('patternOtherInput').value = pName.replace('その他(','').replace(')','');
-                document.getElementById('otherPatternContainer').classList.remove('hidden');
-              } else {
-                patternCounts.set(pName, pCount);
-              }
+              patternCounts.set(match[1], parseInt(match[2], 10));
+            } else if (p.startsWith('その他(')) {
+              selectedStandalonePatterns.add('その他（記述）');
+              document.getElementById('patternOtherInput').value = p.replace('その他(','').replace(')','');
+              document.getElementById('otherPatternContainer').classList.remove('hidden');
+            } else {
+              selectedStandalonePatterns.add(p);
             }
           });
         }
@@ -1140,15 +1210,14 @@
     document.getElementById('locationDisplay').innerText = "場所が選択されていません";
     
     // 耳カットリセット
-    for (const key in earCutCounts) {
-      earCutCounts[key] = 0;
-      const el = document.getElementById('earCutCount_' + key);
-      if (el) { el.innerText = 0; el.classList.remove('active'); }
-    }
+    earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0;
+    isEarCutUnknownSelected = false;
+    updateEarCutUI();
     updateEarCutValue();
 
     // 柄リセット
     patternCounts.clear(); 
+    selectedStandalonePatterns.clear();
     currentPatternCategory = null; 
     document.getElementById('patternOtherInput').value = "";
     document.getElementById('otherPatternContainer').classList.add('hidden');
