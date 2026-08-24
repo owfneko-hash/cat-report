@@ -21,7 +21,7 @@
       --accent-hover: #F4511E;
       --accent-light: #FFE0B2;
       --accent-soft: #FFF3E0;
-      --btn-sub-bg: #E65100; /* 濃いめのオレンジ */
+      --btn-sub-bg: #E65100;
       --btn-sub-hover: #BF360C;
       --text-main: #3E2723;
       --text-sub: #8D6E63;
@@ -202,7 +202,7 @@
     }
     .btn-action:active { transform: translateY(2px); box-shadow: none; }
     
-    /* 濃いめオレンジのアシストボタン（現在地・現在日時取得） */
+    /* 濃いめオレンジのアシストボタン */
     .btn-sub { 
       background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); 
       color: white; 
@@ -292,6 +292,14 @@
     .os-toggle-btn { background: var(--accent-soft); color: var(--text-main); border: 1px solid #FFCC80; padding: 10px 12px; border-radius: var(--radius-s); width: 100%; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; margin-bottom: 6px; }
     .os-guide-content { background: white; padding: 12px 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); font-size: 13px; line-height: 1.6; color: var(--text-main); margin-bottom: 10px; }
     .os-guide-content ol { margin: 0; padding-left: 18px; }
+
+    /* Leafletのカスタムアイコンで縦横比を維持させるCSS */
+    .custom-neko-icon {
+      width: auto !important;
+      height: 38px !important;
+      object-fit: contain;
+      filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
+    }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes modalPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
@@ -547,13 +555,17 @@
   // ==========================================
   const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
 
-  // カスタムマップピンアイコンの設定（画像下部中央が指定位置を指すようアンカー設定）
-  const nekoIcon = L.icon({
-    iconUrl: 'icon-neko.png',
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],  // [横の中央, 縦の一番下]
-    popupAnchor: [0, -36]  // ポップアップを画像の上に表示
-  });
+  // アスペクト比（縦横比）を崩さず、画像の【下部中央】が地点にぴったり合わさるカスタムアイコン生成処理
+  function createDynamicNekoIcon() {
+    return L.icon({
+      iconUrl: 'icon-neko.png',
+      className: 'custom-neko-icon',
+      iconAnchor: [19, 38],   // 画像下部中央の座標点
+      popupAnchor: [0, -38]   // ポップアップの展開位置
+    });
+  }
+
+  const nekoIcon = createDynamicNekoIcon();
 
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
@@ -694,7 +706,6 @@
           if (item.photoUrl) popupHtml += `<br><a href="${item.photoUrl}" target="_blank" style="color:#0288D1; text-decoration:none;">📸 写真を見る</a>`;
           popupHtml += `</div>`;
           
-          // カスタムピン画像 nekoIcon を適用
           L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
         }
       });
@@ -737,7 +748,6 @@
 
   function updateMarkerAndLocation(latlng) {
     var lat = latlng.lat.toFixed(6); var lng = latlng.lng.toFixed(6);
-    // カスタムピン画像 nekoIcon を適用
     if (marker) { marker.setLatLng(latlng); } else { marker = L.marker(latlng, { icon: nekoIcon }).addTo(map); }
     document.getElementById('location').value = lat + ", " + lng;
     document.getElementById('locationDisplay').innerText = "緯度 " + lat + " / 経度 " + lng;
