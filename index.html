@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> ねこログ </title>
+  <title>🐾 ねこログ 🐾</title>
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#D35400">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+  <!-- おしゃれなフォント Fredoka と M PLUS Rounded 1c を読み込み -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <style>
@@ -17,10 +18,31 @@
     .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: 2px solid #A6958B; box-sizing: border-box; }
     
     .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    /* タイトルとアイコンの位置揃え */
-    .title-group { display: flex; align-items: center; gap: 8px; }
-    .title-icon { height: 32px; width: auto; vertical-align: middle; }
-    h2 { margin: 0; color: #D35400; font-size: 28px; font-weight: 900; letter-spacing: 2px; }
+    
+    /* タイトルとアイコンの位置・高画質化・おしゃれデザイン調整 */
+    .title-group { display: flex; align-items: center; gap: 10px; }
+    .title-icon { 
+      height: 38px; 
+      width: auto; 
+      vertical-align: middle; 
+      image-rendering: -webkit-optimize-contrast; 
+      image-rendering: crisp-edges; 
+      filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.15));
+    }
+    
+    /* おしゃれな「ねこログ」ロゴデザイン */
+    h2 { 
+      margin: 0; 
+      color: #D35400; 
+      font-size: 26px; 
+      font-weight: 900; 
+      letter-spacing: 2.5px; 
+      text-shadow: 1px 2px 0px #FADBD8, 2px 3px 0px rgba(166, 149, 139, 0.3);
+      display: flex;
+      align-items: center;
+    }
+    h2 .paw { font-size: 20px; opacity: 0.85; margin: 0 2px; }
+
     .btn-settings { background: white; border: 2px solid #A6958B; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; cursor: pointer; box-shadow: 0 4px 0 #A6958B; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0; }
     .btn-settings:active { transform: translateY(4px); box-shadow: none; }
 
@@ -71,7 +93,6 @@
     #mapModal { padding: 0; }
     #mapModal .modal-content { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; padding: 0; border: none; display: flex; flex-direction: column; text-align: left; }
     
-    /* スマホ対応マップヘッダー */
     .map-header { 
       position: absolute; 
       top: 10px; 
@@ -181,10 +202,10 @@
 <!-- 初回起動用 ウェルカムモーダル -->
 <div id="welcomeModal" class="modal" style="background: #F5F2EF;">
   <div id="stepInstall" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px; background: transparent;">
-    <h2 style="font-size:32px; margin-bottom:10px;">🐾</h2>
+    <h2 style="font-size:32px; margin-bottom:10px; text-shadow:none;">🐾</h2>
     <h3 style="color:#D35400; font-size: 20px; margin-bottom:10px;">ホーム画面に追加</h3>
     <p style="font-size:13px; color:#4A3020; line-height:1.5; margin-bottom:20px;">
-      ショートカットを作成すると、ホーム画面からすぐに起動できます
+      ショートカットを作成すると、次回からホーム画面からすぐに起動できて便利です！
     </p>
     
     <div class="os-guide-container">
@@ -215,9 +236,9 @@
   </div>
   
   <div id="stepName" class="modal-content hidden" style="border:none; box-shadow:none; max-width: 400px; background: transparent;">
-    <h2 style="font-size:32px; margin-bottom:10px;">👤</h2>
+    <h2 style="font-size:32px; margin-bottom:10px; text-shadow:none;">👤</h2>
     <h3 style="color:#D35400; font-size: 22px;">はじめまして！</h3>
-    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br>データの仕分けに使用します。</p>
+    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br>データ仕分け用のためニックネームでも可。</p>
     <input type="text" id="welcomeNameInput" placeholder="例: 大東 太郎" style="margin-bottom: 25px; text-align: center; font-size:18px;">
     <button class="btn-action" style="padding:16px; font-size:18px;" onclick="finishWelcome()">はじめる！</button>
   </div>
@@ -267,13 +288,13 @@
 <!-- みんなのねこマップ 初回案内用ポップアップモーダル -->
 <div id="mapGuideModal" class="modal" style="z-index: 10000;">
   <div class="modal-content" style="max-width: 400px;">
-    <h2 style="font-size:36px; margin-bottom:10px;">🗺️</h2>
+    <h2 style="font-size:36px; margin-bottom:10px; text-shadow:none;">🗺️</h2>
     <h3 style="color:#D35400; margin-top:0; font-size:20px;">みんなのねこマップについて</h3>
     <p style="font-size:14px; color:#2D1E16; line-height:1.7; margin: 20px 0; text-align:left;">
       ねこログで収集したデータが全て地図上に表示されます。<br><br>
       データはねこログを使用している全ての人のデータが反映されます。
     </p>
-    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">OK！</button>
+    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
   </div>
 </div>
 
@@ -281,7 +302,7 @@
   <div class="header-container">
     <div class="title-group">
       <img src="icon-neko.png" alt="ネコアイコン" class="title-icon">
-      <h2> ねこログ </h2>
+      <h2><span class="paw">🐾</span>ねこログ<span class="paw">🐾</span></h2>
     </div>
     <button type="button" class="btn-settings" onclick="openSettingsModal()">⚙️</button>
   </div>
@@ -383,13 +404,11 @@
 <div id="mapModal" class="modal">
   <div class="modal-content">
     <div class="map-header">
-      <!-- 左側：タイトルと丸囲み×ボタン -->
       <div class="map-title-group">
         <h3>🗺️ みんなのねこマップ</h3>
         <button type="button" class="map-close-circle" onclick="closeModal('mapModal')">×</button>
       </div>
       
-      <!-- 右側：フィルターとアイコンのみの更新ボタン -->
       <div class="map-controls-group">
         <select id="mapFilterSelect" class="map-filter-select" onchange="loadMapMarkers()">
           <option value="all">すべて表示</option>
@@ -852,7 +871,6 @@
     if(marker) map.removeLayer(marker); marker = null;
     document.getElementById('locationDisplay').innerText = "場所が選択されていません";
     
-    // ネコの柄の選択状態をクリアしカテゴリ初期画面にリセット
     selectedPatterns.clear(); 
     currentPatternCategory = null; 
     document.getElementById('patternOtherInput').value = "";
