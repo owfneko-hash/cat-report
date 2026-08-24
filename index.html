@@ -56,29 +56,42 @@
 
     /* ヘッダー＆タイトル */
     .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .title-group { display: flex; align-items: center; gap: 8px; }
+    .title-group { display: flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0; }
     .title-icon { 
       height: 34px; 
       width: auto; 
       vertical-align: middle; 
       filter: drop-shadow(0px 2px 3px rgba(255, 112, 67, 0.2));
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      flex-shrink: 0;
     }
     .title-group:hover .title-icon { transform: rotate(-8deg) scale(1.1); }
 
     h2 { 
       margin: 0; 
       color: var(--accent-primary); 
-      font-size: 24px; 
+      font-size: 22px; 
       font-weight: 900; 
-      letter-spacing: 1.5px; 
+      letter-spacing: 1px; 
       text-shadow: 2px 2px 0px var(--accent-soft);
       display: flex;
       align-items: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* タイトル横のサブテキスト（ネコ目撃情報 記録webアプリ） */
+    .title-sub-text {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-sub);
+      line-height: 1.2;
+      margin-left: 2px;
+      letter-spacing: 0.5px;
     }
 
     /* ヘッダー右側の丸ボタン群 */
-    .header-buttons { display: flex; gap: 8px; align-items: center; }
+    .header-buttons { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
     .btn-circle-icon { 
       background: var(--accent-soft); 
       border: 1px solid var(--border-color); 
@@ -436,6 +449,7 @@
     <div class="title-group">
       <img src="icon-neko.png" alt="ネコアイコン" class="title-icon">
       <h2>ねこログ</h2>
+      <span class="title-sub-text">ネコ目撃情報<br>記録webアプリ</span>
     </div>
     <!-- 右側に送信履歴ボタンと設定ボタンを丸で配置 -->
     <div class="header-buttons">
