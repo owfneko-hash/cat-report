@@ -340,7 +340,7 @@
   <div id="stepInstall" class="modal-content hidden" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); font-size: 20px; margin-bottom:10px;">ホーム画面に追加</h3>
     <p style="font-size:13px; color:var(--text-sub); line-height:1.5; margin-bottom:20px;">
-      ショートカットを作成すると、次回からホーム画面からすぐに起動できて便利です！
+      ショートカットを作成すると、ホーム画面からすぐに起動できます。
     </p>
     
     <div class="os-guide-container">
@@ -372,8 +372,8 @@
   
   <div id="stepName" class="modal-content hidden" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); font-size: 22px;">はじめまして！</h3>
-    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br><span style="font-size:12px; color:var(--text-sub);">※データ仕分け用のためニックネームでも可。</span></p>
-    <input type="text" id="welcomeNameInput" placeholder="例: 大東 太郎" style="margin-bottom: 25px; text-align: center; font-size:18px;">
+    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br><span style="font-size:12px; color:var(--text-sub);">※データの仕分けに使用します。</span></p>
+    <input type="text" id="welcomeNameInput" placeholder="例: 猫 太郎" style="margin-bottom: 25px; text-align: center; font-size:18px;">
     <button class="btn-action" style="padding:16px; font-size:18px;" onclick="finishWelcome()">はじめる！</button>
   </div>
 </div>
@@ -424,7 +424,7 @@
   <div class="modal-content" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); margin-top:0; font-size:20px;">🗺️ みんなのねこマップについて</h3>
     <p style="font-size:14px; color:var(--text-main); line-height:1.7; margin: 20px 0; text-align:left;">
-      ねこログで収集したデータが全て地図上に表示されます。<br><br>
+      ねこログで収集したデータが全て地図上に表示されます。<br>
       データはねこログを使用している全ての人のデータが反映されます。
     </p>
     <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
@@ -786,7 +786,7 @@
           popupHtml += `🐈 頭数: ${item.catCount}<br>`;
           popupHtml += `✂️ 耳カット: ${item.earCut || 'なし/不明'}<br>`;
           popupHtml += `🎨 柄: ${item.pattern}<br>`;
-          popupHtml += `👤 報告: ${item.nickname}`;
+          popupHtml += `👤 報告者: ${item.nickname}`;
           if (item.photoUrl) popupHtml += `<br><a href="${item.photoUrl}" target="_blank" style="color:#0288D1; text-decoration:none;">📸 写真を見る</a>`;
           popupHtml += `</div>`;
           
@@ -1293,7 +1293,7 @@
     } else {
       await saveToHistoryDB(dataObj);
       await saveToOfflineDB(dataObj);
-      output.innerText = "オフラインのため端末に保存しました。\n電波回復時に自動送信されます。"; 
+      output.innerText = "オフラインのため端末に保存しました。\nオンライン復帰時に自動送信されます。"; 
       output.style.color = "var(--accent-primary)";
       resetFormUI();
     }
