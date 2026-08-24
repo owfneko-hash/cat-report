@@ -1,11 +1,10 @@
 {
-  "name": "南大東村ネコ目撃情報アンケート",
-  "short_name": "ネコ調査",
+  "name": "ねこログ",
+  "short_name": "ねこログ",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f4f7f6",
-  "theme_color": "#3498db",
-  "description": "オフラインでも記録可能なネコ目撃情報収集アプリです。",
+  "background_color": "#FAF6F0",
+  "theme_color": "#FF8A65",
   "icons": [
     {
       "src": "icon-192.png",
@@ -13,7 +12,7 @@
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-neko.png",
       "sizes": "512x512",
       "type": "image/png"
     }
