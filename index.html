@@ -180,10 +180,37 @@
       transition: background 0.2s ease;
     }
 
-    .radio-group { display: flex; flex-wrap: wrap; gap: 12px; }
-    .radio-group label { display: inline-flex; align-items: center; font-weight: bold; margin-right: 0; cursor: pointer; font-size: 15px; color: var(--text-main); }
-    .radio-group input[type="radio"] { width: 20px; height: 20px; margin-right: 5px; accent-color: var(--accent-primary); }
+    /* カウント入力用コンテナ・リスト */
+    .count-list { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: var(--radius-s); border: 1.5px solid var(--border-color); }
+    .count-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid var(--bg-color); }
+    .count-row:last-child { border-bottom: none; }
+    .count-label { font-weight: bold; font-size: 15px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
     
+    /* ステッパーコントロール (ー 頭数 ＋) */
+    .stepper-control { display: flex; align-items: center; gap: 6px; }
+    .btn-step { 
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      border: 1.5px solid var(--border-color); 
+      background: var(--accent-soft); 
+      color: var(--accent-primary); 
+      font-size: 18px; 
+      font-weight: 900; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      padding: 0; 
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .btn-step:active { transform: scale(0.88); background: var(--accent-light); }
+    .btn-step.add { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+    .btn-step.add:active { background: var(--accent-hover); }
+    .count-num { font-weight: 900; font-size: 16px; min-width: 24px; text-align: center; color: var(--text-main); }
+    .count-num.active { color: var(--accent-primary); }
+
     .btn-action { 
       background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); 
       color: white; 
@@ -233,11 +260,11 @@
 
     /* パターンメニュー */
     .pattern-menu { border: 1.5px solid var(--border-color); border-radius: var(--radius-s); overflow: hidden; background: white; margin-bottom: 10px; }
-    .pattern-item { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; cursor: pointer; color: var(--text-main); transition: background-color 0.2s; font-weight: bold;}
+    .pattern-item { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; color: var(--text-main); font-weight: bold;}
     .pattern-item.selected { background-color: var(--accent-soft); }
     .pattern-item:last-child { border-bottom: none; }
-    .pattern-icon { font-size: 20px; margin-right: 10px; display: inline-block; width: 40px; text-align: center; }
-    .pattern-check { width: 20px; color: var(--accent-primary); font-weight: bold; font-size: 15px; display: inline-block; }
+    .pattern-info { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
+    .pattern-icon { font-size: 20px; display: inline-block; width: 36px; text-align: center; }
     .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .tag { background: var(--accent-light); color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #FFCC80;}
     .tag-close { margin-left: 6px; cursor: pointer; font-weight: bold; background: #A1887F; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
@@ -293,7 +320,6 @@
     .os-guide-content { background: white; padding: 12px 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); font-size: 13px; line-height: 1.6; color: var(--text-main); margin-bottom: 10px; }
     .os-guide-content ol { margin: 0; padding-left: 18px; }
 
-    /* Leafletのカスタムアイコンで縦横比を維持させるCSS */
     .custom-neko-icon {
       width: auto !important;
       height: 38px !important;
@@ -312,7 +338,7 @@
   <div id="stepInstall" class="modal-content hidden" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); font-size: 20px; margin-bottom:10px;">ホーム画面に追加</h3>
     <p style="font-size:13px; color:var(--text-sub); line-height:1.5; margin-bottom:20px;">
-      ショートカットを作成すると、ホーム画面からすぐに起動できます
+      ショートカットを作成すると、次回からホーム画面からすぐに起動できて便利です！
     </p>
     
     <div class="os-guide-container">
@@ -344,7 +370,7 @@
   
   <div id="stepName" class="modal-content hidden" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); font-size: 22px;">はじめまして！</h3>
-    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br><span style="font-size:12px; color:var(--text-sub);">※データの仕分けに使用します。</span></p>
+    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br><span style="font-size:12px; color:var(--text-sub);">※データ仕分け用のためニックネームでも可。</span></p>
     <input type="text" id="welcomeNameInput" placeholder="例: 大東 太郎" style="margin-bottom: 25px; text-align: center; font-size:18px;">
     <button class="btn-action" style="padding:16px; font-size:18px;" onclick="finishWelcome()">はじめる！</button>
   </div>
@@ -357,7 +383,7 @@
     <h3 style="color:var(--accent-primary); margin-top:0;">⚙️ 設定</h3>
     
     <div style="text-align: left; margin-top:20px;">
-      <label>👤 名前</label>
+      <label>👤 お名前</label>
       <input type="text" id="settingsNameInput" style="margin-bottom: 20px;">
       <button class="btn-action" onclick="saveSettingsName()">変更を保存する</button>
     </div>
@@ -419,7 +445,7 @@
   <!-- 薄くて横に伸びた「みんなのねこマップ」ボタン -->
   <div class="map-nav-container">
     <button type="button" class="btn-map-wide" onclick="openMapModal()">
-      <span>🗺️</span> <span>みんなのねこマップ</span>
+      <span>🗺️</span> <span>みんなのねこマップを開く</span>
     </button>
   </div>
 
@@ -472,22 +498,41 @@
       </div>
     </div>
 
+    <!-- 耳カット選択（カウント方式・縦配置） -->
     <div class="form-group">
-      <label class="required">✂️ 耳カットされている個体か</label>
-      <div class="radio-group">
-        <label><input type="radio" name="earCutRadio" value="はい" onchange="toggleEarCutDetail()" required> はい</label>
-        <label><input type="radio" name="earCutRadio" value="いいえ" onchange="toggleEarCutDetail()"> いいえ</label>
-        <label><input type="radio" name="earCutRadio" value="わからない" onchange="toggleEarCutDetail()"> わからない</label>
-        <label><input type="radio" name="earCutRadio" value="その他" onchange="toggleEarCutDetail()"> その他</label>
+      <label class="required">✂️ 耳カットされている個体か（頭数内訳）</label>
+      <div class="count-list">
+        <div class="count-row">
+          <span class="count-label">はい</span>
+          <div class="stepper-control">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('はい', -1)">ー</button>
+            <span id="earCutCount_はい" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('はい', 1)">＋</button>
+          </div>
+        </div>
+        <div class="count-row">
+          <span class="count-label">いいえ</span>
+          <div class="stepper-control">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('いいえ', -1)">ー</button>
+            <span id="earCutCount_いいえ" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('いいえ', 1)">＋</button>
+          </div>
+        </div>
+        <div class="count-row">
+          <span class="count-label">わからない</span>
+          <div class="stepper-control">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('わからない', -1)">ー</button>
+            <span id="earCutCount_わからない" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('わからない', 1)">＋</button>
+          </div>
+        </div>
       </div>
-      <div id="earCutDetailGroup" class="hidden" style="margin-top: 12px;">
-        <label for="earCutDetail" class="required">耳カットの状況の詳細</label>
-        <input type="text" id="earCutDetail" placeholder="例: 3頭中1頭耳カットあり など">
-      </div>
+      <input type="hidden" id="hiddenEarCut" name="earCut">
     </div>
 
+    <!-- ネコの柄選択（各柄の右側にカウント調整ボタン） -->
     <div class="form-group">
-      <label>🎨 ネコの柄（複数選択可）</label>
+      <label>🎨 ネコの柄（複数・頭数カウント可）</label>
       <div id="selectedPatternTags" class="tag-container"></div>
       <div id="patternMenu" class="pattern-menu"></div>
       <div id="otherPatternContainer" class="hidden">
@@ -555,7 +600,7 @@
   // ==========================================
   const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
 
-  // アスペクト比（縦横比）を崩さず、画像の【下部中央】が地点にぴったり合わさるカスタムアイコン生成処理
+  // カスタムマップピンアイコン生成処理
   function createDynamicNekoIcon() {
     return L.icon({
       iconUrl: 'icon-neko.png',
@@ -759,65 +804,149 @@
     document.getElementById('catDetailGroup').classList.toggle('hidden', val !== '親子');
   }
 
-  function toggleEarCutDetail() {
-    var val = document.querySelector('input[name="earCutRadio"]:checked')?.value;
-    var detailGroup = document.getElementById('earCutDetailGroup');
-    var detailInput = document.getElementById('earCutDetail');
-    if (val === 'その他') { detailGroup.classList.remove('hidden'); detailInput.required = true; } 
-    else { detailGroup.classList.add('hidden'); detailInput.required = false; detailInput.value = ''; }
+  // ==========================================
+  // 耳カットのカウント管理
+  // ==========================================
+  const earCutCounts = { "はい": 0, "いいえ": 0, "わからない": 0 };
+
+  function changeEarCutCount(type, delta) {
+    earCutCounts[type] = Math.max(0, (earCutCounts[type] || 0) + delta);
+    const el = document.getElementById('earCutCount_' + type);
+    if (el) {
+      el.innerText = earCutCounts[type];
+      el.classList.toggle('active', earCutCounts[type] > 0);
+    }
+    updateEarCutValue();
   }
 
+  function updateEarCutValue() {
+    let result = [];
+    for (const key in earCutCounts) {
+      if (earCutCounts[key] > 0) {
+        result.push(`${key} (${earCutCounts[key]}頭)`);
+      }
+    }
+    document.getElementById('hiddenEarCut').value = result.join(', ');
+  }
+
+  // ==========================================
+  // ネコの柄のカウント管理
+  // ==========================================
   const patternCategories = {
     "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
     "複色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:44px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:44px; vertical-align:middle;'>" } ]
   };
   const standalonePatterns = [ { id: "不明", icon: "" }, { id: "その他（記述）", icon: "" } ];
-  let selectedPatterns = new Set();
+  
+  // 各柄の頭数をマップで保持
+  let patternCounts = new Map();
   let currentPatternCategory = null;
+
+  function changePatternCount(id, delta, event) {
+    if (event) event.stopPropagation();
+    let current = patternCounts.get(id) || 0;
+    let updated = Math.max(0, current + delta);
+    
+    if (updated === 0) {
+      patternCounts.delete(id);
+    } else {
+      patternCounts.set(id, updated);
+    }
+
+    if (id === 'その他（記述）') {
+      document.getElementById('otherPatternContainer').classList.toggle('hidden', !patternCounts.has('その他（記述）'));
+    }
+
+    renderPatternMenu();
+  }
 
   function renderPatternMenu() {
     const menu = document.getElementById('patternMenu');
     menu.innerHTML = '';
+    
     if (currentPatternCategory) {
-      const backBtn = document.createElement('div'); backBtn.className = 'pattern-item'; backBtn.style.backgroundColor = 'var(--accent-soft)'; backBtn.innerHTML = '<strong>◀ 戻る</strong>'; backBtn.onclick = () => { currentPatternCategory = null; renderPatternMenu(); }; menu.appendChild(backBtn);
-      patternCategories[currentPatternCategory].forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon)); });
+      const backBtn = document.createElement('div'); 
+      backBtn.className = 'pattern-item'; 
+      backBtn.style.backgroundColor = 'var(--accent-soft)'; 
+      backBtn.innerHTML = '<strong>◀ 戻る</strong>'; 
+      backBtn.onclick = () => { currentPatternCategory = null; renderPatternMenu(); }; 
+      menu.appendChild(backBtn);
+
+      patternCategories[currentPatternCategory].forEach(item => { 
+        menu.appendChild(createPatternItem(item.id, item.icon)); 
+      });
     } else {
       Object.keys(patternCategories).forEach(cat => {
-        const div = document.createElement('div'); div.className = 'pattern-item'; div.innerHTML = `<span class="pattern-check"></span><span style="margin-left:5px;">${cat}</span><span style="margin-left:auto;">▶</span>`; div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); }; menu.appendChild(div);
+        const div = document.createElement('div'); 
+        div.className = 'pattern-item'; 
+        div.innerHTML = `<span class="pattern-info"><span class="pattern-check"></span><span>${cat}</span></span><span style="color:var(--text-sub);">▶</span>`; 
+        div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); }; 
+        menu.appendChild(div);
       });
-      standalonePatterns.forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon)); });
+      standalonePatterns.forEach(item => { 
+        menu.appendChild(createPatternItem(item.id, item.icon)); 
+      });
     }
     updatePatternTags();
   }
 
   function createPatternItem(id, icon) {
     const div = document.createElement('div'); 
-    const isSelected = selectedPatterns.has(id);
+    const count = patternCounts.get(id) || 0;
+    const isSelected = count > 0;
     div.className = 'pattern-item' + (isSelected ? ' selected' : ''); 
+    
     const iconHtml = icon ? `<span class="pattern-icon">${icon}</span>` : '';
-    div.innerHTML = `<span class="pattern-check">${isSelected ? '✓' : ''}</span>${iconHtml}<span>${id}</span>`;
-    div.onclick = () => {
-      if (isSelected) selectedPatterns.delete(id); else selectedPatterns.add(id);
-      if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedPatterns.has('その他（記述）'));
-      renderPatternMenu();
-    };
+    
+    div.innerHTML = `
+      <div class="pattern-info" onclick="changePatternCount('${id}', 1)">
+        <span class="pattern-check">${isSelected ? '✓' : ''}</span>
+        ${iconHtml}
+        <span>${id}</span>
+      </div>
+      <div class="stepper-control">
+        <button type="button" class="btn-step" onclick="changePatternCount('${id}', -1, event)">ー</button>
+        <span class="count-num ${isSelected ? 'active' : ''}">${count}</span>
+        <button type="button" class="btn-step add" onclick="changePatternCount('${id}', 1, event)">＋</button>
+      </div>
+    `;
     return div;
   }
 
   function updatePatternTags() {
-    const container = document.getElementById('selectedPatternTags'); container.innerHTML = '';
-    selectedPatterns.forEach(id => {
-      const tag = document.createElement('span'); tag.className = 'tag'; tag.innerHTML = `${id} <span class="tag-close" onclick="removePattern('${id}')">×</span>`; container.appendChild(tag);
+    const container = document.getElementById('selectedPatternTags'); 
+    container.innerHTML = '';
+    
+    patternCounts.forEach((count, id) => {
+      const tag = document.createElement('span'); 
+      tag.className = 'tag'; 
+      tag.innerHTML = `${id} (${count}頭) <span class="tag-close" onclick="removePatternTag('${id}')">×</span>`; 
+      container.appendChild(tag);
     });
     updatePatternValue();
   }
-  function removePattern(id) { selectedPatterns.delete(id); if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu(); }
+
+  function removePatternTag(id) { 
+    patternCounts.delete(id); 
+    if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.add('hidden'); 
+    renderPatternMenu(); 
+  }
+
   function updatePatternValue() {
-    let vals = Array.from(selectedPatterns);
-    if (vals.includes('その他（記述）')) { const otherVal = document.getElementById('patternOtherInput').value; vals = vals.map(v => v === 'その他（記述）' ? (otherVal ? `その他(${otherVal})` : 'その他') : v); }
+    let vals = [];
+    patternCounts.forEach((count, id) => {
+      if (id === 'その他（記述）') {
+        const otherVal = document.getElementById('patternOtherInput').value.trim();
+        const label = otherVal ? `その他(${otherVal})` : 'その他';
+        vals.push(`${label} (${count}頭)`);
+      } else {
+        vals.push(`${id} (${count}頭)`);
+      }
+    });
     document.getElementById('hiddenCatPattern').value = vals.join(', ');
   }
+
   renderPatternMenu();
 
   const dbName = "CatReportDB"; 
@@ -872,7 +1001,7 @@
           listDiv.innerHTML += `
             <div class="history-item">
               <div style="font-weight:bold; color:var(--accent-primary);">送信日時: ${formattedDate}</div>
-              <div style="font-size:14px; margin-top:5px; color:var(--text-main);">場所: ${d.location}<br>頭数: ${d.catCountResult}<br>柄: ${d.catPattern}</div>
+              <div style="font-size:14px; margin-top:5px; color:var(--text-main);">場所: ${d.location}<br>頭数: ${d.catCountResult}<br>耳カット: ${d.earCut || '未選択'}<br>柄: ${d.catPattern}</div>
               <button class="btn-edit" onclick="editHistory('${item.id}')">✏️ 修正して再送信する</button>
             </div>
           `;
@@ -916,23 +1045,39 @@
         }
         toggleCatDetail();
 
-        const radios = document.getElementsByName('earCutRadio');
-        let matched = false;
-        radios.forEach(r => { if(r.value === d.earCut) { r.checked = true; matched = true; } });
-        if(!matched && d.earCut) {
-          document.querySelector('input[name="earCutRadio"][value="その他"]').checked = true;
-          document.getElementById('earCutDetail').value = d.earCut;
+        // 耳カット復元
+        for (const k in earCutCounts) earCutCounts[k] = 0;
+        if (d.earCut) {
+          d.earCut.split(', ').forEach(str => {
+            for (const key of ["はい", "いいえ", "わからない"]) {
+              if (str.startsWith(key)) {
+                const match = str.match(/\((\d+)頭\)/);
+                earCutCounts[key] = match ? parseInt(match[1], 10) : 1;
+              }
+            }
+          });
         }
-        toggleEarCutDetail();
+        for (const key in earCutCounts) {
+          const el = document.getElementById('earCutCount_' + key);
+          if (el) { el.innerText = earCutCounts[key]; el.classList.toggle('active', earCutCounts[key] > 0); }
+        }
+        updateEarCutValue();
 
-        selectedPatterns.clear();
+        // 柄復元
+        patternCounts.clear();
         if (d.catPattern) {
           d.catPattern.split(', ').forEach(p => {
-            if(p.startsWith('その他(')) {
-              selectedPatterns.add('その他（記述）');
-              document.getElementById('patternOtherInput').value = p.replace('その他(','').replace(')','');
-            } else {
-              selectedPatterns.add(p);
+            const match = p.match(/(.+?)\s*\((\d+)頭\)/);
+            if (match) {
+              let pName = match[1];
+              let pCount = parseInt(match[2], 10);
+              if (pName.startsWith('その他(')) {
+                patternCounts.set('その他（記述）', pCount);
+                document.getElementById('patternOtherInput').value = pName.replace('その他(','').replace(')','');
+                document.getElementById('otherPatternContainer').classList.remove('hidden');
+              } else {
+                patternCounts.set(pName, pCount);
+              }
             }
           });
         }
@@ -994,7 +1139,16 @@
     if(marker) map.removeLayer(marker); marker = null;
     document.getElementById('locationDisplay').innerText = "場所が選択されていません";
     
-    selectedPatterns.clear(); 
+    // 耳カットリセット
+    for (const key in earCutCounts) {
+      earCutCounts[key] = 0;
+      const el = document.getElementById('earCutCount_' + key);
+      if (el) { el.innerText = 0; el.classList.remove('active'); }
+    }
+    updateEarCutValue();
+
+    // 柄リセット
+    patternCounts.clear(); 
     currentPatternCategory = null; 
     document.getElementById('patternOtherInput').value = "";
     document.getElementById('otherPatternContainer').classList.add('hidden');
@@ -1044,7 +1198,7 @@
       location: document.getElementById('location').value,
       datetime: document.getElementById('dateInput').value + 'T' + document.getElementById('hourInput').value + ':00',
       catCountResult: document.getElementById('catCount').value === '3頭以上' ? document.getElementById('catCountNum').value : (document.getElementById('catCount').value === '親子' ? document.getElementById('catCountDetail').value : document.getElementById('catCount').value),
-      earCut: document.querySelector('input[name="earCutRadio"]:checked')?.value === 'その他' ? document.getElementById('earCutDetail').value : (document.querySelector('input[name="earCutRadio"]:checked')?.value || ""),
+      earCut: document.getElementById('hiddenEarCut').value,
       catPattern: document.getElementById('hiddenCatPattern').value,
       remarks: document.getElementById('remarks').value,
       photosArray: "[]"
