@@ -464,7 +464,7 @@
 
     <div class="form-group">
       <label class="required">🕒 目撃日時</label>
-      <button type="button" class="btn-action btn-sub" onclick="setNowDatetime()">現在日時をセット</button>
+      <button type="button" id="setNowBtn" class="btn-action btn-sub" onclick="setNowDatetime()">現在日時をセット</button>
       <div style="display: flex; gap: 8px;">
         <input type="date" id="dateInput" style="flex: 2;" required>
         <select id="hourInput" style="flex: 1;" required>
@@ -481,28 +481,47 @@
       </div>
     </div>
 
+    <!-- ネコの頭数（30頭まで・親子選択のダイヤル化） -->
     <div class="form-group">
       <label for="catCount" class="required">🐈 ネコの頭数</label>
       <select id="catCount" onchange="toggleCatDetail()" required>
         <option value="">選択してください</option>
-        <option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option>
+        <option value="1頭">1頭</option>
+        <option value="2頭">2頭</option>
+        <option value="3頭以上">3頭以上</option>
+        <option value="親子">親子</option>
       </select>
+      
+      <!-- 3頭以上選択時：最大30頭選択 -->
       <div id="catCountNumGroup" class="hidden" style="margin-top: 12px;">
         <label for="catCountNum" class="required">具体的な頭数</label>
-        <select id="catCountNum">
+        <select id="catCountNum" onchange="updateTotalCatCount()">
           <option value="">選択してください</option>
-          <option value="3頭">3頭</option><option value="4頭">4頭</option><option value="5頭">5頭</option><option value="6頭以上">6頭以上</option>
         </select>
       </div>
+      
+      <!-- 親子選択時：親と子のダイヤル式選択 -->
       <div id="catDetailGroup" class="hidden" style="margin-top: 12px;">
-        <label for="catCountDetail" class="required">頭数の詳細</label>
-        <input type="text" id="catCountDetail" placeholder="例: 親1頭、子3頭 など">
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="catCountParent" class="required" style="font-size: 13px;">親の頭数</label>
+            <select id="catCountParent" onchange="updateTotalCatCount()">
+              <option value="">親</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label for="catCountChild" class="required" style="font-size: 13px;">子の頭数</label>
+            <select id="catCountChild" onchange="updateTotalCatCount()">
+              <option value="">子</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 耳カット選択（「はい」「いいえ」はタップで＋1・「わからない」は選択トグル） -->
+    <!-- 耳カット選択 -->
     <div class="form-group">
-      <label class="required">✂️ 耳カットされている個体か</label>
+      <label class="required">✂️ 耳カットされている個体か（頭数内訳）</label>
       <div class="count-list">
         <div class="count-row" id="rowEarCut_はい" onclick="changeEarCutCount('はい', 1)">
           <span class="count-label"><span class="pattern-check" id="checkEarCut_はい"></span>はい</span>
@@ -527,7 +546,7 @@
       <input type="hidden" id="hiddenEarCut" name="earCut">
     </div>
 
-    <!-- ネコの柄選択（「その他（記述）」はカウントなしの単体トグル） -->
+    <!-- ネコの柄選択 -->
     <div class="form-group">
       <label>🎨 ネコの柄（複数選択・カウント可）</label>
       <div id="selectedPatternTags" class="tag-container"></div>
@@ -615,6 +634,8 @@
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
   
   window.addEventListener('DOMContentLoaded', () => {
+    initCatCountOptions(); // 頭数ドロップダウンの動的初期化
+
     const savedName = localStorage.getItem('nekoLogName');
     if (!savedName) {
       document.getElementById('welcomeModal').style.display = 'flex';
@@ -626,6 +647,27 @@
       }
     }
   });
+
+  // セレクトボックスの選択肢（3〜30頭、親1〜10頭、子1〜20頭）初期生成
+  function initCatCountOptions() {
+    const numSelect = document.getElementById('catCountNum');
+    numSelect.innerHTML = '<option value="">選択してください</option>';
+    for (let i = 3; i <= 30; i++) {
+      numSelect.innerHTML += `<option value="${i}頭">${i}頭</option>`;
+    }
+
+    const parentSelect = document.getElementById('catCountParent');
+    parentSelect.innerHTML = '<option value="">親</option>';
+    for (let i = 1; i <= 10; i++) {
+      parentSelect.innerHTML += `<option value="${i}頭">親 ${i}頭</option>`;
+    }
+
+    const childSelect = document.getElementById('catCountChild');
+    childSelect.innerHTML = '<option value="">子</option>';
+    for (let i = 0; i <= 20; i++) {
+      childSelect.innerHTML += `<option value="${i}頭">子 ${i}頭</option>`;
+    }
+  }
 
   let currentActiveModal = null;
 
@@ -795,10 +837,51 @@
     document.getElementById('locationDisplay').innerText = "緯度 " + lat + " / 経度 " + lng;
   }
 
+  // 頭数切り替え処理
   function toggleCatDetail() {
     var val = document.getElementById('catCount').value;
     document.getElementById('catCountNumGroup').classList.toggle('hidden', val !== '3頭以上');
     document.getElementById('catDetailGroup').classList.toggle('hidden', val !== '親子');
+    updateTotalCatCount();
+  }
+
+  // 現在選択されている総合頭数を計算取得
+  function getSelectedTotalCatCount() {
+    const mainVal = document.getElementById('catCount').value;
+    if (!mainVal) return 0;
+    if (mainVal === '1頭') return 1;
+    if (mainVal === '2頭') return 2;
+    if (mainVal === '3頭以上') {
+      const numVal = document.getElementById('catCountNum').value;
+      return numVal ? parseInt(numVal.replace('頭', ''), 10) : 0;
+    }
+    if (mainVal === '親子') {
+      const pVal = document.getElementById('catCountParent').value;
+      const cVal = document.getElementById('catCountChild').value;
+      const pNum = pVal ? parseInt(pVal.replace('頭', '').replace('親', '').trim(), 10) : 0;
+      const cNum = cVal ? parseInt(cVal.replace('頭', '').replace('子', '').trim(), 10) : 0;
+      return pNum + cNum;
+    }
+    return 0;
+  }
+
+  function updateTotalCatCount() {
+    // 頭数が変更された場合のチェック
+  }
+
+  // 現在選択されている耳カットの総カウントを取得
+  function getEarCutTotalCount() {
+    if (isEarCutUnknownSelected) return 0;
+    return (earCutCounts["はい"] || 0) + (earCutCounts["いいえ"] || 0);
+  }
+
+  // 現在選択されているネコの柄の総カウントを取得（不明・その他記述は頭数カウント外）
+  function getPatternTotalCount() {
+    let total = 0;
+    patternCounts.forEach((count) => {
+      total += count;
+    });
+    return total;
   }
 
   // ==========================================
@@ -808,9 +891,15 @@
   let isEarCutUnknownSelected = false;
 
   function changeEarCutCount(type, delta) {
-    // カウントが増えたら「わからない」は解除
-    if (delta > 0 && isEarCutUnknownSelected) {
-      isEarCutUnknownSelected = false;
+    const maxAllowed = getSelectedTotalCatCount();
+
+    if (delta > 0) {
+      if (maxAllowed > 0 && getEarCutTotalCount() >= maxAllowed) {
+        return; // 上限超過のため無効化
+      }
+      if (isEarCutUnknownSelected) {
+        isEarCutUnknownSelected = false;
+      }
     }
 
     earCutCounts[type] = Math.max(0, (earCutCounts[type] || 0) + delta);
@@ -891,6 +980,11 @@
       }
     } else {
       // 通常の柄（カウント式）の処理
+      const maxAllowed = getSelectedTotalCatCount();
+      if (delta > 0 && maxAllowed > 0 && getPatternTotalCount() >= maxAllowed) {
+        return; // 上限超過のため無効化
+      }
+
       let current = patternCounts.get(id) || 0;
       let updated = Math.max(0, current + delta);
       if (updated === 0) {
@@ -1103,14 +1197,17 @@
         document.getElementById('hourInput').value = timePart.split(':')[0];
 
         const countSelect = document.getElementById('catCount');
-        if (["3頭","4頭","5頭","6頭以上"].includes(d.catCountResult)) {
+        if (d.catCountResult.includes('親') || d.catCountResult.includes('子')) {
+          countSelect.value = "親子";
+          const pMatch = d.catCountResult.match(/親\s*(\d+)頭/);
+          const cMatch = d.catCountResult.match(/子\s*(\d+)頭/);
+          if (pMatch) document.getElementById('catCountParent').value = `${pMatch[1]}頭`;
+          if (cMatch) document.getElementById('catCountChild').value = `${cMatch[1]}頭`;
+        } else if (["1頭","2頭"].includes(d.catCountResult)) {
+          countSelect.value = d.catCountResult;
+        } else {
           countSelect.value = "3頭以上";
           document.getElementById('catCountNum').value = d.catCountResult;
-        } else if (d.catCountResult && !["1頭", "2頭"].includes(d.catCountResult)) {
-          countSelect.value = "親子";
-          document.getElementById('catCountDetail').value = d.catCountResult;
-        } else {
-          countSelect.value = d.catCountResult;
         }
         toggleCatDetail();
 
@@ -1251,6 +1348,25 @@
   async function handleFormSubmit(e) {
     e.preventDefault();
     if(!document.getElementById('location').value) { alert("地図上で場所を選択してください。"); return; }
+
+    const targetTotalCount = getSelectedTotalCatCount();
+    
+    if (targetTotalCount <= 0) {
+      alert("ネコの頭数を選択してください。");
+      return;
+    }
+
+    // 耳カット・柄の頭数バリデーション（わからない・不明・その他（記述）がある場合はスキップ可能）
+    const earCutTotal = getEarCutTotalCount();
+    const patternTotal = getPatternTotalCount();
+
+    const isEarCutValid = isEarCutUnknownSelected || (earCutTotal === targetTotalCount);
+    const isPatternValid = selectedStandalonePatterns.size > 0 || (patternTotal === targetTotalCount);
+
+    if (!isEarCutValid || !isPatternValid) {
+      alert("ネコの頭数と耳カットの有無、もしくはネコの柄の頭数が合致しません");
+      return;
+    }
     
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('submitBtn').innerText = "処理中...";
@@ -1261,12 +1377,25 @@
       currentEditId = "req_" + Date.now();
     }
 
+    // 頭数テキストの生成（親子の場合など）
+    let catCountResultText = "";
+    const mainCountVal = document.getElementById('catCount').value;
+    if (mainCountVal === '3頭以上') {
+      catCountResultText = document.getElementById('catCountNum').value;
+    } else if (mainCountVal === '親子') {
+      const pVal = document.getElementById('catCountParent').value || "親0頭";
+      const cVal = document.getElementById('catCountChild').value || "子0頭";
+      catCountResultText = `${pVal}, ${cVal}`;
+    } else {
+      catCountResultText = mainCountVal;
+    }
+
     var dataObj = {
       editId: currentEditId,
       nickname: localStorage.getItem('nekoLogName') || "名無し",
       location: document.getElementById('location').value,
       datetime: document.getElementById('dateInput').value + 'T' + document.getElementById('hourInput').value + ':00',
-      catCountResult: document.getElementById('catCount').value === '3頭以上' ? document.getElementById('catCountNum').value : (document.getElementById('catCount').value === '親子' ? document.getElementById('catCountDetail').value : document.getElementById('catCount').value),
+      catCountResult: catCountResultText,
       earCut: document.getElementById('hiddenEarCut').value,
       catPattern: document.getElementById('hiddenCatPattern').value,
       remarks: document.getElementById('remarks').value,
