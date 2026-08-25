@@ -274,23 +274,61 @@
     }
     .map-title-group { display: flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0; }
     .map-header h3 { margin: 0; font-size: 15px; color: var(--accent-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:flex; align-items:center; gap:6px; }
-    .map-count-badge { background: var(--accent-primary); color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
     
     .map-close-circle { width: 28px; height: 28px; min-width: 28px; border-radius: 50%; border: 1px solid var(--border-color); background: white; color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0; flex-shrink: 0; }
     .map-close-circle:active { transform: scale(0.9); }
     
     .map-controls-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    
-    /* フィルターボタン群 */
-    .btn-filter-icon { background: var(--accent-soft); color: var(--accent-primary); border: 1px solid #FFCC80; width: 32px; height: 32px; min-width: 32px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; }
-    .btn-filter-icon:active { transform: scale(0.9); }
+    .btn-reload-icon { background: var(--accent-soft); color: var(--text-main); border: 1px solid #FFCC80; width: 32px; height: 32px; min-width: 32px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; transition: all 0.2s; }
+    .btn-reload-icon:active { transform: scale(0.9); }
+
+    /* サブヘッダー（件数＆フィルター） */
+    .map-sub-header {
+      position: absolute;
+      top: 62px;
+      left: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+    .map-count-badge {
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--accent-primary);
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: var(--radius-s);
+      font-weight: bold;
+      pointer-events: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border: 1px solid var(--border-color);
+    }
+    .btn-filter-wrap {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--accent-soft);
+      color: var(--accent-primary);
+      border: 1px solid #FFCC80;
+      padding: 6px 10px;
+      border-radius: var(--radius-s);
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+    }
+    .btn-filter-wrap:active { transform: scale(0.95); }
 
     /* マップ詳細フィルターパネル */
     #mapFilterPanel { 
-      display: none; position: absolute; top: 56px; left: 10px; right: 10px; 
+      display: none; position: absolute; top: 110px; left: 10px; right: 10px; 
       background: white; padding: 15px; border-radius: var(--radius-m); 
       box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 2px solid var(--accent-primary); 
       z-index: 1001; animation: fadeIn 0.2s ease-out;
+      max-height: calc(100vh - 130px); overflow-y: auto;
     }
     .filter-item { margin-bottom: 12px; }
     .filter-item label { font-size: 13px; margin-bottom: 4px; color: var(--text-main); }
@@ -409,7 +447,7 @@
       ねこログで収集したデータが全て地図上に表示されます。<br>
       データはねこログを使用している全ての人のデータが反映されます。
     </p>
-    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">OK！</button>
+    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
   </div>
 </div>
 
@@ -557,23 +595,32 @@
 
 <!-- みんなのねこマップ モーダル -->
 <div id="mapModal" class="modal">
-  <div class="modal-content" style="position:relative;">
+  <div class="modal-content" style="position:relative; overflow:hidden;">
+    <!-- マップヘッダー -->
     <div class="map-header">
       <div class="map-title-group">
-        <h3>🗺️ みんなのねこマップ <span id="mapCountBadge" class="map-count-badge">📍 0件</span></h3>
+        <h3>🗺️ みんなのねこマップ</h3>
       </div>
-      
       <div class="map-controls-group">
-        <!-- フィルターボタン -->
-        <button type="button" class="btn-filter-icon" onclick="toggleFilterPanel()" title="フィルター">🔍</button>
         <button type="button" class="btn-reload-icon" onclick="loadMapMarkers()" title="更新">🔄</button>
         <button type="button" class="map-close-circle" onclick="closeModal('mapModal')">×</button>
       </div>
     </div>
     
+    <!-- マップサブヘッダー（件数＆フィルターボタン） -->
+    <div class="map-sub-header">
+      <div id="mapCountBadge" class="map-count-badge">0件</div>
+      <button type="button" class="btn-filter-wrap" onclick="toggleFilterPanel()">
+        <span style="font-size:16px;">🔍</span><span style="font-size:11px;">フィルター</span>
+      </button>
+    </div>
+    
     <!-- 拡張フィルター設定パネル -->
     <div id="mapFilterPanel">
-      <h4 style="margin-top:0; margin-bottom:12px; color:var(--accent-primary); font-size:15px; border-bottom:1px solid #eee; padding-bottom:6px;">詳細フィルター設定</h4>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:6px; margin-bottom:12px;">
+        <h4 style="margin:0; color:var(--accent-primary); font-size:15px;">詳細フィルター設定</h4>
+        <button type="button" style="background:#8D6E63; color:white; border:none; padding:4px 8px; border-radius:8px; font-size:11px; cursor:pointer;" onclick="resetAndApplyFilters()">全て表示</button>
+      </div>
       
       <div class="filter-item">
         <label>📅 いつ以降のデータ？</label>
@@ -603,11 +650,12 @@
       
       <div class="filter-item">
         <label>👤 報告者名</label>
-        <input type="text" id="filterName" placeholder="名前で検索" style="width:100%;">
+        <select id="filterName" style="width:100%;">
+          <option value="">すべて</option>
+        </select>
       </div>
       
       <div style="display:flex; gap:10px; margin-top:15px;">
-        <button type="button" class="btn-action" style="margin-bottom:0; background:gray; box-shadow:none;" onclick="resetFilters()">リセット</button>
         <button type="button" class="btn-action" style="margin-bottom:0;" onclick="applyFilters()">適用する</button>
       </div>
     </div>
@@ -664,11 +712,6 @@
         document.getElementById('stepName').classList.remove('hidden');
       }
     }
-    
-    // フィルターの初期日付を1ヶ月前に設定
-    const d = new Date();
-    d.setMonth(d.getMonth() - 1);
-    document.getElementById('filterDate').value = d.toISOString().split('T')[0];
   });
 
   // セレクトボックスの選択肢初期生成
@@ -784,13 +827,13 @@
     panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
   }
 
-  function resetFilters() {
-    const d = new Date();
-    d.setMonth(d.getMonth() - 1);
-    document.getElementById('filterDate').value = d.toISOString().split('T')[0];
+  // 全て表示（リセットして適用）
+  function resetAndApplyFilters() {
+    document.getElementById('filterDate').value = "";
     document.getElementById('filterCount').value = "";
     document.getElementById('filterEarCut').value = "";
     document.getElementById('filterName').value = "";
+    applyFilters();
   }
 
   function applyFilters() {
@@ -817,8 +860,24 @@
       const fDate = document.getElementById('filterDate').value;
       const fCount = document.getElementById('filterCount').value;
       const fEarCut = document.getElementById('filterEarCut').value;
-      const fName = document.getElementById('filterName').value.trim().toLowerCase();
+      const filterNameSelect = document.getElementById('filterName');
+      const fName = filterNameSelect.value;
       
+      // 報告者プルダウンの更新（既存の選択状態は保持）
+      const namesSet = new Set();
+      data.forEach(item => {
+        if (item.nickname) namesSet.add(item.nickname);
+      });
+      const namesList = Array.from(namesSet).sort();
+      filterNameSelect.innerHTML = '<option value="">すべて</option>';
+      namesList.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.innerText = name;
+        if (name === fName) opt.selected = true;
+        filterNameSelect.appendChild(opt);
+      });
+
       let cutoffDate = fDate ? new Date(fDate) : null;
       let displayCount = 0;
 
@@ -827,7 +886,7 @@
         
         const itemDate = new Date(item.datetime);
         
-        // 1. 日付フィルター
+        // 1. 日付フィルター（指定日以降）
         if (cutoffDate && itemDate < cutoffDate) return;
         
         // 2. 頭数フィルター
@@ -844,10 +903,9 @@
           if (fEarCut !== 'わからない') return; // 未記載は不明扱い
         }
 
-        // 4. 報告者名フィルター
-        if (fName && (!item.nickname || !item.nickname.toLowerCase().includes(fName))) return;
+        // 4. 報告者名フィルター (完全一致)
+        if (fName && item.nickname !== fName) return;
 
-        // すべてのフィルターを通過したらピンを立てる
         displayCount++;
         const [lat, lng] = item.location.split(',').map(Number);
         const dateStr = itemDate.toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
@@ -864,8 +922,8 @@
         L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
       });
 
-      // 表示件数を更新
-      document.getElementById('mapCountBadge').innerText = `📍 ${displayCount}件`;
+      // 表示件数を更新（ピンマーク削除）
+      document.getElementById('mapCountBadge').innerText = `${displayCount}件`;
       
     } catch (e) {
       console.error("マップデータの取得に失敗しました", e);
