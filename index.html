@@ -349,6 +349,44 @@
     }
     .btn-show-all:active { transform: translateY(2px); box-shadow: none; }
 
+    /* ロード画面用CSS（追加） */
+    .loading-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(250, 246, 240, 0.85); /* やさしい背景色＋半透明 */
+      backdrop-filter: blur(4px); /* すりガラス効果 */
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--accent-light);
+      border-top: 4px solid var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .loading-text {
+      color: var(--accent-primary);
+      font-weight: bold;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
 
     .history-item { background: white; padding: 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); margin-bottom: 12px; text-align: left; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
@@ -518,7 +556,7 @@
       </div>
     </div>
 
-    <!-- ネコの頭数（30頭まで・親子選択のダイヤル化） -->
+    <!-- ネコの頭数 -->
     <div class="form-group">
       <label for="catCount" class="required">🐈 ネコの頭数</label>
       <select id="catCount" onchange="toggleCatDetail()" required>
@@ -612,6 +650,13 @@
 <!-- みんなのねこマップ モーダル -->
 <div id="mapModal" class="modal">
   <div class="modal-content" style="position:relative; overflow:hidden;">
+    
+    <!-- 読み込み中オーバーレイ -->
+    <div id="mapLoadingOverlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading...</div>
+    </div>
+
     <!-- マップヘッダー -->
     <div class="map-header">
       <div class="map-title-group">
@@ -817,6 +862,11 @@
 
   async function openMapModal() {
     openModalWithHistory('mapModal');
+    
+    // 開いた瞬間にロード画面を表示する
+    const loader = document.getElementById('mapLoadingOverlay');
+    if (loader) loader.classList.remove('hidden');
+    
     if (!aggMap) {
       aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.950, 131.310], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
@@ -824,11 +874,14 @@
       markersLayer = L.layerGroup().addTo(aggMap);
     }
     setTimeout(() => { aggMap.invalidateSize(); }, 200);
+    
     // 開いた時は「全件表示」状態
     document.getElementById('filterDate').value = "";
     document.getElementById('filterCount').value = "";
     document.getElementById('filterEarCut').value = "";
     document.getElementById('filterName').value = "";
+    
+    // データ取得関数呼び出し
     loadMapMarkers();
 
     const mapGuideSeen = localStorage.getItem('nekoLogMapGuideSeen');
@@ -873,6 +926,10 @@
 
   async function loadMapMarkers() {
     if(!markersLayer) return;
+    
+    const loader = document.getElementById('mapLoadingOverlay');
+    if (loader) loader.classList.remove('hidden');
+
     try {
       markersLayer.clearLayers();
       const response = await fetch(gasURL);
@@ -943,11 +1000,14 @@
         L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
       });
 
-      // 表示件数を更新
+      // 表示件数を更新（ピンマーク削除）
       document.getElementById('mapCountBadge').innerText = `${displayCount}件`;
       
     } catch (e) {
       console.error("マップデータの取得に失敗しました", e);
+    } finally {
+      // 通信成功・失敗に関わらず、ロード画面を隠す
+      if (loader) loader.classList.add('hidden');
     }
   }
 
