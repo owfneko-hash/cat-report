@@ -349,12 +349,12 @@
     }
     .btn-show-all:active { transform: translateY(2px); box-shadow: none; }
 
-    /* ロード画面用CSS（追加） */
+    /* ロード画面用CSS */
     .loading-overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(250, 246, 240, 0.85); /* やさしい背景色＋半透明 */
-      backdrop-filter: blur(4px); /* すりガラス効果 */
+      background: rgba(250, 246, 240, 0.85); 
+      backdrop-filter: blur(4px); 
       z-index: 2000;
       display: flex;
       flex-direction: column;
@@ -459,7 +459,7 @@
     <h3 style="color:var(--accent-primary); margin-top:0;">⚙️ 設定</h3>
     
     <div style="text-align: left; margin-top:20px;">
-      <label>👤 名前</label>
+      <label>👤 お名前</label>
       <input type="text" id="settingsNameInput" style="margin-bottom: 20px;">
       <button class="btn-action" onclick="saveSettingsName()">変更を保存する</button>
     </div>
@@ -498,10 +498,10 @@
   <div class="modal-content" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); margin-top:0; font-size:20px;">🗺️ みんなのねこマップについて</h3>
     <p style="font-size:14px; color:var(--text-main); line-height:1.7; margin: 20px 0; text-align:left;">
-      ねこログを使用している全ての人のデータが地図上に表示されます。<br>
-      フィルター機能を使って最新のネコ情報のみを見ることも！
+      ねこログで収集したデータが全て地図上に表示されます。<br>
+      データはねこログを使用している全ての人のデータが反映されます。
     </p>
-    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">OK！</button>
+    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
   </div>
 </div>
 
@@ -594,7 +594,7 @@
       </div>
     </div>
 
-    <!-- 耳カット選択 -->
+    <!-- 耳カット選択（カウント方式） -->
     <div class="form-group">
       <label class="required">✂️ 耳カットされている個体か（頭数内訳）</label>
       <div class="count-list">
@@ -614,8 +614,13 @@
             <button type="button" class="btn-step add" onclick="changeEarCutCount('いいえ', 1)">＋</button>
           </div>
         </div>
-        <div class="count-row" id="rowEarCut_わからない" onclick="toggleEarCutUnknown()">
-          <span class="count-label"><span class="pattern-check" id="checkEarCut_わからない"></span>わからない</span>
+        <div class="count-row" id="rowEarCut_不明" onclick="changeEarCutCount('不明', 1)">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_不明"></span>不明</span>
+          <div class="stepper-control" onclick="event.stopPropagation()">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('不明', -1)">ー</button>
+            <span id="earCutCount_不明" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('不明', 1)">＋</button>
+          </div>
         </div>
       </div>
       <input type="hidden" id="hiddenEarCut" name="earCut">
@@ -705,7 +710,7 @@
           <option value="">すべて</option>
           <option value="はい">あり</option>
           <option value="いいえ">なし</option>
-          <option value="わからない">不明</option>
+          <option value="不明">不明</option>
         </select>
       </div>
       
@@ -976,9 +981,13 @@
 
         // 3. 耳カットフィルター
         if (fEarCut && item.earCut) {
-          if (!item.earCut.includes(fEarCut)) return;
+          if (fEarCut === '不明' && (item.earCut.includes('不明') || item.earCut.includes('わからない'))) {
+            // 通過
+          } else if (!item.earCut.includes(fEarCut)) {
+            return;
+          }
         } else if (fEarCut && !item.earCut) {
-          if (fEarCut !== 'わからない') return; // 未記載は不明扱い
+          if (fEarCut !== '不明') return; // 未記載は不明扱い
         }
 
         // 4. 報告者名フィルター (完全一致)
@@ -1000,7 +1009,7 @@
         L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
       });
 
-      // 表示件数を更新（ピンマーク削除）
+      // 表示件数を更新
       document.getElementById('mapCountBadge').innerText = `${displayCount}件`;
       
     } catch (e) {
@@ -1079,8 +1088,7 @@
   function updateTotalCatCount() { }
 
   function getEarCutTotalCount() {
-    if (isEarCutUnknownSelected) return 0;
-    return (earCutCounts["はい"] || 0) + (earCutCounts["いいえ"] || 0);
+    return (earCutCounts["はい"] || 0) + (earCutCounts["いいえ"] || 0) + (earCutCounts["不明"] || 0);
   }
 
   function getPatternTotalCount() {
@@ -1092,29 +1100,20 @@
   // ==========================================
   // 耳カットのカウント・選択管理
   // ==========================================
-  const earCutCounts = { "はい": 0, "いいえ": 0 };
-  let isEarCutUnknownSelected = false;
+  const earCutCounts = { "はい": 0, "いいえ": 0, "不明": 0 };
 
   function changeEarCutCount(type, delta) {
     const maxAllowed = getSelectedTotalCatCount();
     if (delta > 0) {
       if (maxAllowed > 0 && getEarCutTotalCount() >= maxAllowed) return;
-      if (isEarCutUnknownSelected) isEarCutUnknownSelected = false;
     }
     earCutCounts[type] = Math.max(0, (earCutCounts[type] || 0) + delta);
     updateEarCutUI();
     updateEarCutValue();
   }
 
-  function toggleEarCutUnknown() {
-    isEarCutUnknownSelected = !isEarCutUnknownSelected;
-    if (isEarCutUnknownSelected) { earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; }
-    updateEarCutUI();
-    updateEarCutValue();
-  }
-
   function updateEarCutUI() {
-    ["はい", "いいえ"].forEach(key => {
+    ["はい", "いいえ", "不明"].forEach(key => {
       const numEl = document.getElementById('earCutCount_' + key);
       const rowEl = document.getElementById('rowEarCut_' + key);
       const checkEl = document.getElementById('checkEarCut_' + key);
@@ -1122,19 +1121,12 @@
       if (rowEl) rowEl.classList.toggle('selected', earCutCounts[key] > 0);
       if (checkEl) checkEl.innerText = earCutCounts[key] > 0 ? '✓' : '';
     });
-    const unkRow = document.getElementById('rowEarCut_わからない');
-    const unkCheck = document.getElementById('checkEarCut_わからない');
-    if (unkRow) unkRow.classList.toggle('selected', isEarCutUnknownSelected);
-    if (unkCheck) unkCheck.innerText = isEarCutUnknownSelected ? '✓' : '';
   }
 
   function updateEarCutValue() {
     let result = [];
-    if (isEarCutUnknownSelected) result.push("わからない");
-    else {
-      for (const key in earCutCounts) {
-        if (earCutCounts[key] > 0) result.push(`${key} (${earCutCounts[key]}頭)`);
-      }
+    for (const key in earCutCounts) {
+      if (earCutCounts[key] > 0) result.push(`${key} (${earCutCounts[key]}頭)`);
     }
     document.getElementById('hiddenEarCut').value = result.join(', ');
   }
@@ -1147,7 +1139,7 @@
     "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
     "複色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:44px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:44px; vertical-align:middle;'>" } ]
   };
-  const standalonePatterns = [ { id: "不明", icon: "" }, { id: "その他（記述）", icon: "" } ];
+  const standalonePatterns = [ { id: "不明", icon: "", isCountable: true }, { id: "その他（記述）", icon: "", isCountable: false } ];
   
   let patternCounts = new Map();
   let selectedStandalonePatterns = new Set();
@@ -1156,10 +1148,10 @@
   function changePatternCount(id, delta, event) {
     if (event) event.stopPropagation();
     
-    if (id === '不明' || id === 'その他（記述）') {
+    if (id === 'その他（記述）') {
       if (selectedStandalonePatterns.has(id)) selectedStandalonePatterns.delete(id);
       else selectedStandalonePatterns.add(id);
-      if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedStandalonePatterns.has('その他（記述）'));
+      document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedStandalonePatterns.has('その他（記述）'));
     } else {
       const maxAllowed = getSelectedTotalCatCount();
       if (delta > 0 && maxAllowed > 0 && getPatternTotalCount() >= maxAllowed) return;
@@ -1193,7 +1185,7 @@
         div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); }; 
         menu.appendChild(div);
       });
-      standalonePatterns.forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon, false)); });
+      standalonePatterns.forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon, item.isCountable)); });
     }
     updatePatternTags();
   }
@@ -1339,14 +1331,16 @@
         else { countSelect.value = "3頭以上"; document.getElementById('catCountNum').value = d.catCountResult; }
         toggleCatDetail();
 
-        earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; isEarCutUnknownSelected = false;
+        earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; earCutCounts["不明"] = 0;
         if (d.earCut) {
-          if (d.earCut === "わからない") isEarCutUnknownSelected = true;
+          if (d.earCut === "わからない") earCutCounts["不明"] = 1;
           else {
             d.earCut.split(', ').forEach(str => {
-              for (const key of ["はい", "いいえ"]) {
+              for (const key of ["はい", "いいえ", "不明"]) {
                 if (str.startsWith(key)) {
                   const match = str.match(/\((\d+)頭\)/); earCutCounts[key] = match ? parseInt(match[1], 10) : 1;
+                } else if (key === "不明" && str.startsWith("わからない")) {
+                  earCutCounts["不明"] = 1;
                 }
               }
             });
@@ -1404,7 +1398,7 @@
     document.getElementById("catForm").reset(); document.getElementById("editId").value = "";
     if(marker) map.removeLayer(marker); marker = null;
     document.getElementById('locationDisplay').innerText = "場所が選択されていません";
-    earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; isEarCutUnknownSelected = false; updateEarCutUI(); updateEarCutValue();
+    earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; earCutCounts["不明"] = 0; updateEarCutUI(); updateEarCutValue();
     patternCounts.clear(); selectedStandalonePatterns.clear(); currentPatternCategory = null; 
     document.getElementById('patternOtherInput').value = ""; document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu();
     document.getElementById('submitBtn').innerText = "送信する"; document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #FF7043 0%, #F4511E 100%)";
@@ -1433,7 +1427,7 @@
     if (targetTotalCount <= 0) { alert("ネコの頭数を選択してください。"); return; }
 
     const earCutTotal = getEarCutTotalCount(); const patternTotal = getPatternTotalCount();
-    const isEarCutValid = isEarCutUnknownSelected || (earCutTotal === targetTotalCount);
+    const isEarCutValid = (earCutTotal === targetTotalCount);
     const isPatternValid = selectedStandalonePatterns.size > 0 || (patternTotal === targetTotalCount);
 
     if (!isEarCutValid || !isPatternValid) { alert("ネコの頭数と耳カットの有無、もしくはネコの柄の頭数が合致しません"); return; }
