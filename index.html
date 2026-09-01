@@ -282,7 +282,7 @@
     .btn-reload-icon { background: var(--accent-soft); color: var(--text-main); border: 1px solid #FFCC80; width: 32px; height: 32px; min-width: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     .btn-reload-icon:active { transform: scale(0.9); }
 
-    /* サブヘッダー（件数＆フィルター） */
+    /* サブヘッダー（件数＆フィルター丸型ボタン） */
     .map-sub-header {
       position: absolute; top: 62px; left: 10px; right: 10px; z-index: 1000;
       display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
@@ -569,7 +569,7 @@
       <label for="catCount" class="required">🐈 ネコの頭数</label>
       <select id="catCount" onchange="toggleCatDetail()" required>
         <option value="">選択してください</option>
-        <option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option>
+        <option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option><option value="子ネコ">子ネコ</option>
       </select>
       <div id="catCountNumGroup" class="hidden" style="margin-top: 12px;">
         <label for="catCountNum" class="required">具体的な頭数</label>
@@ -580,6 +580,10 @@
           <div style="flex: 1;"><label for="catCountParent" class="required" style="font-size: 13px;">親の頭数</label><select id="catCountParent" onchange="updateTotalCatCount()"><option value="">親</option></select></div>
           <div style="flex: 1;"><label for="catCountChild" class="required" style="font-size: 13px;">子の頭数</label><select id="catCountChild" onchange="updateTotalCatCount()"><option value="">子</option></select></div>
         </div>
+      </div>
+      <div id="catChildOnlyGroup" class="hidden" style="margin-top: 12px;">
+        <label for="catCountChildOnly" class="required" style="font-size: 13px;">子ネコの頭数</label>
+        <select id="catCountChildOnly" onchange="updateTotalCatCount()"><option value="">選択してください</option></select>
       </div>
     </div>
 
@@ -668,7 +672,7 @@
       <div class="filter-item">
         <label>🐈 頭数</label>
         <select id="filterCount" style="width:100%;">
-          <option value="">すべて</option><option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option>
+          <option value="">すべて</option><option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option><option value="子ネコ">子ネコ</option>
         </select>
       </div>
       <div class="filter-item">
@@ -729,6 +733,8 @@
     for (let i = 1; i <= 10; i++) parentSelect.innerHTML += `<option value="${i}頭">親 ${i}頭</option>`;
     const childSelect = document.getElementById('catCountChild'); childSelect.innerHTML = '<option value="">子</option>';
     for (let i = 0; i <= 20; i++) childSelect.innerHTML += `<option value="${i}頭">子 ${i}頭</option>`;
+    const childOnlySelect = document.getElementById('catCountChildOnly'); childOnlySelect.innerHTML = '<option value="">選択してください</option>';
+    for (let i = 1; i <= 20; i++) childOnlySelect.innerHTML += `<option value="${i}頭">${i}頭</option>`;
   }
 
   let currentActiveModal = null;
@@ -807,7 +813,8 @@
         if (cutoffDate && itemDate < cutoffDate) return;
         if (fCount) {
           if (fCount === '3頭以上' && !item.catCount.match(/^\d+頭/)) return;
-          if (fCount === '親子' && !item.catCount.includes('親') && !item.catCount.includes('子')) return;
+          if (fCount === '親子' && !item.catCount.includes('親') && !item.catCount.includes('子') && !item.catCount.includes('親子')) return;
+          if (fCount === '子ネコ' && !item.catCount.includes('子ネコ')) return;
           if ((fCount === '1頭' || fCount === '2頭') && item.catCount !== fCount) return;
         }
         if (fEarCut && item.earCut) {
@@ -846,14 +853,18 @@
     document.getElementById('location').value = lat + ", " + lng; document.getElementById('locationDisplay').innerText = "緯度 " + lat + " / 経度 " + lng;
   }
   function toggleCatDetail() {
-    var val = document.getElementById('catCount').value; document.getElementById('catCountNumGroup').classList.toggle('hidden', val !== '3頭以上');
-    document.getElementById('catDetailGroup').classList.toggle('hidden', val !== '親子'); updateTotalCatCount();
+    var val = document.getElementById('catCount').value; 
+    document.getElementById('catCountNumGroup').classList.toggle('hidden', val !== '3頭以上');
+    document.getElementById('catDetailGroup').classList.toggle('hidden', val !== '親子'); 
+    document.getElementById('catChildOnlyGroup').classList.toggle('hidden', val !== '子ネコ');
+    updateTotalCatCount();
   }
   function getSelectedTotalCatCount() {
     const mainVal = document.getElementById('catCount').value; if (!mainVal) return 0;
     if (mainVal === '1頭') return 1; if (mainVal === '2頭') return 2;
     if (mainVal === '3頭以上') { const numVal = document.getElementById('catCountNum').value; return numVal ? parseInt(numVal.replace('頭', ''), 10) : 0; }
     if (mainVal === '親子') { const pVal = document.getElementById('catCountParent').value; const cVal = document.getElementById('catCountChild').value; const pNum = pVal ? parseInt(pVal.replace('頭', '').replace('親', '').trim(), 10) : 0; const cNum = cVal ? parseInt(cVal.replace('頭', '').replace('子', '').trim(), 10) : 0; return pNum + cNum; }
+    if (mainVal === '子ネコ') { const cOnlyVal = document.getElementById('catCountChildOnly').value; return cOnlyVal ? parseInt(cOnlyVal.replace('頭', ''), 10) : 0; }
     return 0;
   }
   function updateTotalCatCount() { }
@@ -1068,7 +1079,11 @@
         document.getElementById('hourInput').value = timePart.split(':')[0];
 
         const countSelect = document.getElementById('catCount');
-        if (d.catCountResult.includes('親') || d.catCountResult.includes('子')) {
+        if (d.catCountResult.includes('子ネコ')) {
+          countSelect.value = "子ネコ";
+          const cOnlyMatch = d.catCountResult.match(/子ネコ\s*(\d+)頭/);
+          if (cOnlyMatch) document.getElementById('catCountChildOnly').value = `${cOnlyMatch[1]}頭`;
+        } else if (d.catCountResult.includes('親') || d.catCountResult.includes('子')) {
           countSelect.value = "親子";
           const pMatch = d.catCountResult.match(/親\s*(\d+)頭/); const cMatch = d.catCountResult.match(/子\s*(\d+)頭/);
           if (pMatch) document.getElementById('catCountParent').value = `${pMatch[1]}頭`;
@@ -1205,6 +1220,8 @@
     else if (mainCountVal === '親子') {
       const pVal = document.getElementById('catCountParent').value || "親0頭"; const cVal = document.getElementById('catCountChild').value || "子0頭";
       catCountResultText = `${pVal}, ${cVal}`;
+    } else if (mainCountVal === '子ネコ') {
+      catCountResultText = `子ネコ ${document.getElementById('catCountChildOnly').value}`;
     } else catCountResultText = mainCountVal;
 
     var dataObj = {
