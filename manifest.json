@@ -1,6 +1,6 @@
 {
-  "name": "ねこログ",
-  "short_name": "ねこログ",
+  "name": "ねこログ（北大東）",
+  "short_name": "ねこログ（北大東）",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#FAF6F0",
