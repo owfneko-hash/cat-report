@@ -403,6 +403,165 @@
       filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
     }
 
+    /* --- 新規追加：記録完了モーダル（すりガラス背景） --- */
+    .modal-success {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(250, 246, 240, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-success.active { display: flex; }
+
+    .success-stage {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 地面の波紋 */
+    .success-ripple {
+      position: absolute;
+      bottom: 100px;
+      width: 50px;
+      height: 16px;
+      background: rgba(255, 122, 0, 0.3);
+      border-radius: 50%;
+      transform: scale(0);
+      opacity: 0;
+    }
+    .success-ripple.animate {
+      animation: ripple-effect 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.35s forwards;
+    }
+
+    /* ピン本体 */
+    .success-pin-wrapper {
+      position: absolute;
+      bottom: 105px;
+      transform: translateY(-250px);
+      opacity: 0;
+      z-index: 2;
+    }
+    .success-pin-wrapper.animate {
+      animation: drop-bounce 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* 弾けるエフェクト（ピン上部を中心に200度） */
+    .success-burst-wrapper {
+      position: absolute;
+      bottom: 148px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .flash-ring {
+      position: absolute;
+      top: -24px;
+      left: -24px;
+      width: 48px;
+      height: 48px;
+      border: 3px solid #ff7a00;
+      border-radius: 50%;
+      box-sizing: border-box;
+      opacity: 0;
+    }
+
+    .arm { position: absolute; top: 0; left: 0; width: 0; height: 0; }
+    .arm:nth-child(2)  { transform: rotate(-100deg); }
+    .arm:nth-child(3)  { transform: rotate(-75deg); }
+    .arm:nth-child(4)  { transform: rotate(-50deg); }
+    .arm:nth-child(5)  { transform: rotate(-25deg); }
+    .arm:nth-child(6)  { transform: rotate(0deg); }
+    .arm:nth-child(7)  { transform: rotate(25deg); }
+    .arm:nth-child(8)  { transform: rotate(50deg); }
+    .arm:nth-child(9)  { transform: rotate(75deg); }
+    .arm:nth-child(10) { transform: rotate(100deg); }
+
+    .dot {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #ff7a00;
+      opacity: 0;
+    }
+    .arm:nth-child(even) .dot {
+      background-color: #ffc107;
+      width: 8px;
+      height: 8px;
+      left: -4px;
+    }
+
+    .success-burst-wrapper.animate .flash-ring {
+      animation: ring-pop 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) 0.45s forwards;
+    }
+
+    .success-burst-wrapper.animate .dot {
+      animation: dot-pop 0.45s cubic-bezier(0.1, 0.8, 0.3, 1) 0.45s forwards;
+    }
+
+    /* 「記録完了」テキスト */
+    .success-status-text {
+      position: absolute;
+      bottom: 55px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ff7a00;
+      letter-spacing: 2px;
+      opacity: 0;
+      transform: translateY(10px);
+      z-index: 1;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.9);
+    }
+    .success-status-text.animate {
+      animation: text-appear 0.4s ease-out 0.55s forwards;
+    }
+
+    /* アニメーション用キーフレーム */
+    @keyframes drop-bounce {
+      0% { transform: translateY(-220px) scale(0.8); opacity: 0; }
+      35% { opacity: 1; }
+      55% { transform: translateY(0) scaleY(0.7) scaleX(1.3); }
+      72% { transform: translateY(-16px) scaleY(1.15) scaleX(0.88); }
+      85% { transform: translateY(0) scaleY(0.95) scaleX(1.05); }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes ripple-effect {
+      0% { transform: scale(0.2); opacity: 0.8; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    @keyframes ring-pop {
+      0% { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    @keyframes dot-pop {
+      0% { transform: translateY(0) scale(0.3); opacity: 1; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-55px) scale(1.1); opacity: 0; }
+    }
+
+    @keyframes text-appear {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes modalPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
   </style>
@@ -502,6 +661,36 @@
       データはねこログを使用している全ての人のデータが反映されます。
     </p>
     <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
+  </div>
+</div>
+
+<!-- 記録完了モーション モーダル（すりガラス背景） -->
+<div id="successModal" class="modal-success">
+  <div class="success-stage">
+    <div id="successRipple" class="success-ripple"></div>
+    <div id="successPin" class="success-pin-wrapper">
+      <svg width="64" height="80" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 80C32 80 58 48 58 32C58 17.6421 46.3579 6 32 6C17.6421 6 6 17.6421 6 32C6 48 32 80 32 80Z" fill="#FF7A00"/>
+        <ellipse cx="32" cy="37" rx="10.5" ry="8.5" fill="white" />
+        <circle cx="18.5" cy="23.5" r="3.8" fill="white" />
+        <circle cx="27" cy="17" r="3.8" fill="white" />
+        <circle cx="37" cy="17" r="3.8" fill="white" />
+        <circle cx="45.5" cy="23.5" r="3.8" fill="white" />
+      </svg>
+    </div>
+    <div id="successBurst" class="success-burst-wrapper">
+      <div class="flash-ring"></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+    </div>
+    <div id="successText" class="success-status-text">記録完了</div>
   </div>
 </div>
 
@@ -647,7 +836,7 @@
       <textarea id="remarks" rows="3" placeholder="その他、気づいたことなどがあればご記入ください"></textarea>
     </div>
 
-    <button type="submit" id="submitBtn">送信する</button>
+    <button type="submit" id="submitBtn">記録する</button>
   </form>
   <div id="output"></div>
 </div>
@@ -1295,7 +1484,7 @@
             <div class="history-item">
               <div style="font-weight:bold; color:var(--accent-primary);">送信日時: ${formattedDate}</div>
               <div style="font-size:14px; margin-top:5px; color:var(--text-main);">場所: ${d.location}<br>頭数: ${d.catCountResult}<br>耳カット: ${formatEarCutText(d.earCut)}<br>柄: ${d.catPattern}</div>
-              <button class="btn-edit" onclick="editHistory('${item.id}')">✏️ 修正して再送信する</button>
+              <button class="btn-edit" onclick="editHistory('${item.id}')">✏️ 修正して記録する</button>
             </div>`;
         });
       };
@@ -1363,7 +1552,7 @@
         renderPatternMenu(); document.getElementById('remarks').value = d.remarks || "";
         closeModal('historyModal'); window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        document.getElementById('submitBtn').innerText = "修正して送信する";
+        document.getElementById('submitBtn').innerText = "修正して記録する";
         document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #29B6F6 0%, #0288D1 100%)";
       };
     } catch(e) { console.error("履歴の復元に失敗しました", e); }
@@ -1375,21 +1564,43 @@
     return await fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" });
   }
 
+  // --- 新規追加：記録完了時のアニメーション実行関数 ---
+  function triggerSuccessAnimation() {
+    const modal = document.getElementById('successModal');
+    const elements = ['successPin', 'successRipple', 'successText', 'successBurst'].map(id => document.getElementById(id));
+
+    // アニメーションクラスを一旦リセット
+    elements.forEach(el => el.classList.remove('animate'));
+    modal.classList.add('active');
+
+    // 再描画をトリガー
+    void elements[0].offsetWidth;
+
+    // アニメーションを適用
+    elements.forEach(el => el.classList.add('animate'));
+
+    // モーション完了（約1.8秒後）に自動で閉じて画面最上部へ移動
+    setTimeout(() => {
+      modal.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1800);
+  }
+
   async function processSubmission(dataObj) {
     var output = document.getElementById('output');
     if (navigator.onLine) {
       try {
         await sendDataToGAS(dataObj); await saveToHistoryDB(dataObj); 
-        output.innerText = "送信完了しました！ご協力ありがとうございます。"; output.style.color = "var(--accent-primary)";
         resetFormUI();
+        triggerSuccessAnimation();
       } catch (error) {
         await saveToHistoryDB(dataObj); await saveToOfflineDB(dataObj);
         output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; output.style.color = "var(--accent-primary)";
       }
     } else {
       await saveToHistoryDB(dataObj); await saveToOfflineDB(dataObj);
-      output.innerText = "オフラインのため端末に保存しました。\nオンライン復帰時に自動送信されます。"; output.style.color = "var(--accent-primary)";
       resetFormUI();
+      triggerSuccessAnimation();
     }
     document.getElementById('submitBtn').disabled = false;
   }
@@ -1401,7 +1612,7 @@
     earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; earCutCounts["不明"] = 0; updateEarCutUI(); updateEarCutValue();
     patternCounts.clear(); selectedStandalonePatterns.clear(); currentPatternCategory = null; 
     document.getElementById('patternOtherInput').value = ""; document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu();
-    document.getElementById('submitBtn').innerText = "送信する"; document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #FF7043 0%, #F4511E 100%)";
+    document.getElementById('submitBtn').innerText = "記録する"; document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #FF7043 0%, #F4511E 100%)";
   }
 
   function resizeImage(file) {
@@ -1460,7 +1671,7 @@
         let base64 = await resizeImage(files[i]); photoArray.push({ data: base64, name: "photo_" + Date.now() + "_" + i + ".jpg" });
       }
       dataObj.photosArray = JSON.stringify(photoArray);
-      document.getElementById('output').innerText = "データを送信中です...";
+      document.getElementById('output').innerText = "データを記録中です...";
       processSubmission(dataObj);
     } else processSubmission(dataObj); 
   }
