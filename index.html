@@ -11,9 +11,12 @@
 
   <!-- フォント・地図ライブラリ読み込み -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
-  <!-- マーカークラスタリング用プラグイン（バージョンを明記して読み込みエラーを防止） -->
+  <!-- ▼ 必須：Leaflet（地図本体）の読み込み ▼ -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- ▼ マーカークラスタリング用プラグイン ▼ -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -110,7 +113,7 @@
     /* 中央の大きなボタン（上にはみ出させる） */
     .nav-center-wrapper {
       position: absolute; left: 50%; transform: translateX(-50%);
-      top: -25px; /* 上にはみ出させる */
+      top: -25px;
     }
     .nav-btn-main {
       background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
@@ -596,65 +599,6 @@
   <div id="output"></div>
 </div>
 
-<!-- みんなのねこマップ モーダル -->
-<div id="mapModal" class="modal">
-  <div class="modal-content" style="position:relative; overflow:hidden;">
-    <div id="mapLoadingOverlay" class="loading-overlay hidden">
-      <div class="spinner"></div><div class="loading-text">Loading...</div>
-    </div>
-
-    <div class="map-header">
-      <div class="map-title-group"><h3>みんなのねこマップ</h3></div>
-      <div class="map-controls-group">
-        <button type="button" class="btn-reload-icon" onclick="loadMapMarkers()" title="更新">🔄</button>
-        <button type="button" class="map-close-circle" onclick="closeModal('mapModal')">×</button>
-      </div>
-    </div>
-    
-    <div class="map-sub-header">
-      <div id="mapCountBadge" class="map-count-badge">0件</div>
-      <div style="display: flex; gap: 8px;">
-        <button type="button" id="btnTracking" class="btn-tracking" onclick="toggleTracking()">現在地追従</button>
-        <button type="button" class="btn-filter-wrap" onclick="toggleFilterPanel()"><span style="font-size:13px;">フィルター</span></button>
-      </div>
-    </div>
-    
-    <div id="mapFilterPanel">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:14px;">
-        <h4 style="margin:0; color:var(--accent-primary); font-size:16px;">詳細フィルター</h4>
-        <button type="button" class="btn-show-all" onclick="resetAndApplyFilters()">全て表示</button>
-      </div>
-      <div class="filter-item"><label>いつ以降のデータ？</label><input type="date" id="filterDate" style="width:100%;"></div>
-      <div class="filter-item">
-        <label>頭数</label>
-        <select id="filterCount" style="width:100%;">
-          <option value="">すべて</option><option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option><option value="子ネコ">子ネコ</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label>耳カット</label>
-        <select id="filterEarCut" style="width:100%;">
-          <option value="">すべて</option><option value="はい">あり</option><option value="いいえ">なし</option><option value="不明">不明</option>
-        </select>
-      </div>
-      <div class="filter-item"><label>報告者名</label><select id="filterName" style="width:100%;"><option value="">すべて</option></select></div>
-      <div style="display:flex; gap:10px; margin-top:20px;"><button type="button" class="btn-action" style="margin-bottom:0;" onclick="applyFilters()">適用する</button></div>
-    </div>
-    <div id="aggregatedMap"></div>
-  </div>
-</div>
-
-<!-- 送信履歴 モーダル -->
-<div id="historyModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('historyModal')">×</span>
-    <h3 style="color:var(--accent-primary); margin-top:0;">送信履歴（直近3日）</h3>
-    <div id="historyList">
-      <p style="color:var(--text-sub);">履歴を読み込んでいます...</p>
-    </div>
-  </div>
-</div>
-
 <script>
   // ==========================================
   // GASのURL
@@ -762,7 +706,6 @@
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
       L.control.zoom({ position: 'bottomright' }).addTo(aggMap);
       
-      // ▼ マーカークラスタリングの初期化
       markersLayer = L.markerClusterGroup({
         disableClusteringAtZoom: 17,
         maxClusterRadius: 40,
@@ -852,6 +795,7 @@
   }
 
   function openHistoryModal() { openModalWithHistory('historyModal'); loadHistoryList(); }
+  
   function setNowDatetime() { const now = new Date(); const roundedTime = new Date(now.getTime() + 29 * 60 * 1000); document.getElementById('dateInput').value = roundedTime.getFullYear() + '-' + String(roundedTime.getMonth()+1).padStart(2, '0') + '-' + String(roundedTime.getDate()).padStart(2, '0'); document.getElementById('hourInput').value = String(roundedTime.getHours()).padStart(2, '0'); }
   function goToCurrentLocation() {
     if (!navigator.geolocation) { alert("位置情報に対応していません。"); return; }
