@@ -11,12 +11,10 @@
 
   <!-- フォント・地図ライブラリ読み込み -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
-  
-  <!-- ▼ Leaflet（地図本体）の読み込み -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <!-- ▼ マーカークラスタリング用プラグイン -->
+  <!-- マーカークラスタリング用プラグイン -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -29,8 +27,6 @@
       --accent-hover: #F4511E;
       --accent-light: #FFE0B2;
       --accent-soft: #FFF3E0;
-      --btn-sub-bg: #E65100;
-      --btn-sub-hover: #BF360C;
       --text-main: #3E2723;
       --text-sub: #8D6E63;
       --border-color: #E0D5D0;
@@ -38,14 +34,13 @@
       --radius-m: 14px;
       --radius-s: 10px;
       --shadow-soft: 0 6px 20px rgba(230, 81, 0, 0.06);
-      --shadow-btn: 0 4px 12px rgba(255, 112, 67, 0.2);
     }
 
     body { 
       font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; 
       margin: 0; 
       padding: 6px; 
-      padding-bottom: 110px; /* ボトムナビ用の余白をしっかり確保 */
+      padding-bottom: 120px; /* ボトムナビ用の余白をしっかり確保 */
       background-color: var(--bg-color); 
       color: var(--text-main); 
       -webkit-tap-highlight-color: transparent;
@@ -63,35 +58,36 @@
       animation: fadeIn 0.4s ease-out;
     }
 
-    /* ヘッダー＆タイトル */
-    .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 18px; padding: 0 2px; }
-    .title-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    
+    /* ▼ ヘッダー＆タイトル（綺麗に並べるための改善） ▼ */
+    .header-container { 
+      display: flex; justify-content: center; align-items: center; 
+      margin-bottom: 22px; padding: 5px 0; 
+    }
+    .title-group { 
+      display: flex; align-items: center; gap: 10px; 
+    }
     .title-icon { 
-      height: 34px; width: auto; vertical-align: middle; 
-      filter: drop-shadow(0px 2px 3px rgba(74, 144, 226, 0.2)) hue-rotate(200deg) saturate(1.2);
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      flex-shrink: 0;
+      height: 38px; width: auto; vertical-align: middle; 
+      filter: drop-shadow(0px 2px 3px rgba(255, 112, 67, 0.2));
+      transition: transform 0.3s ease;
     }
-    .title-group:hover .title-icon { transform: rotate(-8deg) scale(1.1); }
-
+    .title-text-box {
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    }
     h2 { 
-      margin: 0; color: var(--accent-primary); font-size: 22px; 
-      font-weight: 900; letter-spacing: 0.5px; 
+      margin: 0; color: var(--accent-primary); font-size: 24px; 
+      font-weight: 900; letter-spacing: 0.5px; line-height: 1;
       text-shadow: 2px 2px 0px var(--accent-soft);
-      display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;
     }
-
     .title-sub-text {
-      font-size: 10px; font-weight: 700; color: var(--text-sub);
-      line-height: 1.25; margin-left: 6px; letter-spacing: 0.3px; 
-      white-space: nowrap; display: block; flex-shrink: 0;
+      font-size: 11px; font-weight: 700; color: var(--text-sub);
+      line-height: 1.2; margin-top: 4px; letter-spacing: 0.3px; 
     }
 
-    /* ▼ ボトムナビゲーション（洗練・はみ出しデザイン） */
+    /* ▼ ボトムナビゲーション（絵文字なし・はみ出しデザイン） ▼ */
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; width: 100%;
-      background: rgba(250, 246, 240, 0.85);
+      background: rgba(250, 246, 240, 0.95);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 20px 25px 20px; box-sizing: border-box; z-index: 1000;
@@ -101,26 +97,25 @@
     }
     .bottom-nav.nav-hidden { transform: translateY(120%); }
 
-    /* サイドボタン（控えめな枠線と色） */
+    /* サイドボタン（控えめで上品な枠線デザイン） */
     .nav-side-btn {
-      background: white; border: 1.5px solid #D7CCC8; color: #6D4C41;
+      background: transparent; border: 1.5px solid #C8B6B0; color: #5D4037;
       padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px;
-      cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-      transition: all 0.2s ease; min-width: 80px; text-align: center;
+      cursor: pointer; transition: all 0.2s ease;
     }
     .nav-side-btn:active { background: #EFEBE9; transform: scale(0.95); }
 
     /* 中央の大きなボタン（上にはみ出させる） */
     .nav-center-wrapper {
       position: absolute; left: 50%; transform: translateX(-50%);
-      top: -25px; /* 上にはみ出させる */
+      top: -28px; /* バーから上にはみ出す */
     }
     .nav-btn-main {
       background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
-      color: white; border: none; border-radius: 35px;
-      padding: 14px 26px; display: flex; flex-direction: column; 
-      justify-content: center; align-items: center; gap: 2px;
-      font-weight: 900; font-size: 14px; line-height: 1.2;
+      color: white; border: none; border-radius: 40px;
+      padding: 15px 22px; display: flex; flex-direction: column; 
+      justify-content: center; align-items: center; gap: 3px;
+      font-weight: 900; font-size: 14px; line-height: 1.15;
       box-shadow: 0 8px 24px rgba(244, 81, 30, 0.4);
       cursor: pointer; transition: transform 0.2s ease;
       white-space: nowrap;
@@ -158,7 +153,7 @@
     label { font-weight: 700; display: block; margin-bottom: 8px; color: #D84315; font-size: 15px; }
     .required::after { content: " *"; color: #FF3D00; }
     
-    #map { height: 350px; width: 100%; border-radius: var(--radius-s); border: 1.5px solid var(--border-color); box-sizing: border-box; }
+    #map { height: 400px; width: 100%; border-radius: var(--radius-s); border: 1.5px solid var(--border-color); box-sizing: border-box; }
     .hidden { display: none !important; }
     
     input[type="text"], select, input[type="date"], textarea { 
@@ -181,7 +176,7 @@
       margin-right: 10px; transition: background 0.2s ease;
     }
 
-    /* カウント入力用リスト */
+    /* カウントリスト */
     .count-list { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: var(--radius-s); border: 1.5px solid var(--border-color); }
     .count-row { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid var(--bg-color); cursor: pointer; user-select: none; }
     .count-row:last-child { border-bottom: none; }
@@ -205,8 +200,8 @@
       background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); 
       color: white; padding: 11px 14px; border: none; border-radius: var(--radius-m); 
       cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 10px; 
-      display: block; width: 100%; box-sizing: border-box; box-shadow: var(--shadow-btn); 
-      transition: all 0.2s ease; 
+      display: block; width: 100%; box-sizing: border-box; 
+      box-shadow: 0 4px 12px rgba(255, 112, 67, 0.2); transition: all 0.2s ease; 
     }
     .btn-action:active { transform: translateY(2px); box-shadow: none; }
     .btn-sub { background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(230, 81, 0, 0.3); margin-bottom: 8px; }
@@ -218,9 +213,9 @@
       box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; 
     }
     #submitBtn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(244, 81, 30, 0.3); }
-
     #output { margin-top: 18px; text-align: center; font-weight: bold; font-size: 15px; color: var(--accent-primary); line-height: 1.5; white-space: pre-wrap; }
 
+    /* タグ・メニュー設定 */
     .pattern-menu { border: 1.5px solid var(--border-color); border-radius: var(--radius-s); overflow: hidden; background: white; margin-bottom: 10px; }
     .pattern-item { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; color: var(--text-main); font-weight: bold;}
     .pattern-item.selected { background-color: var(--accent-soft); }
@@ -232,21 +227,21 @@
     .tag { background: var(--accent-light); color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #FFCC80;}
     .tag-close { margin-left: 6px; cursor: pointer; font-weight: bold; background: #A1887F; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
 
-    /* すりガラス風モーダル（背景ブラー強化） */
+    /* ▼ すりガラス風モーダル（背景ブラー強化） ▼ */
     .modal { 
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
       background: rgba(62, 39, 35, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       z-index: 9999; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; 
     }
     .modal-content { 
-      background: rgba(250, 246, 240, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(250, 246, 240, 0.98); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       width: 100%; max-width: 600px; max-height: 90vh; 
       border-radius: var(--radius-lg); padding: 22px 18px; box-sizing: border-box; 
       overflow-y: auto; border: 1px solid rgba(255,255,255,0.5); position: relative; 
       text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     }
-    .close-modal { position: absolute; top: 15px; right: 18px; font-size: 26px; color: var(--accent-primary); cursor: pointer; font-weight: bold; }
+    .close-modal { position: absolute; top: 15px; right: 18px; font-size: 26px; color: var(--accent-primary); cursor: pointer; font-weight: bold; z-index: 1002; }
     
     #mapModal { padding: 0; }
     #mapModal .modal-content { background: var(--bg-color); width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; padding: 0; border: none; display: flex; flex-direction: column; text-align: left; animation: none; }
@@ -260,15 +255,11 @@
       box-shadow: 0 6px 16px rgba(0,0,0,0.12); border: 1px solid var(--border-color); 
       gap: 6px; box-sizing: border-box;
     }
-    .map-title-group { display: flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0; }
-    .map-header h3 { margin: 0; font-size: 15px; color: var(--accent-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:flex; align-items:center; gap:6px; }
+    .map-header h3 { margin: 0; font-size: 15px; color: var(--accent-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:flex; align-items:center;}
     
-    .map-close-circle { width: 32px; height: 32px; min-width: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: white; color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.2s; }
+    .map-close-circle { width: 32px; height: 32px; min-width: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: white; color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.2s; }
     
-    .map-controls-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .btn-reload-icon { background: var(--accent-soft); color: var(--text-main); border: 1px solid #FFCC80; width: 32px; height: 32px; min-width: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-
-    /* サブヘッダー（件数・トラッキング・フィルター） */
+    /* サブヘッダー（トラッキング・フィルター） */
     .map-sub-header {
       position: absolute; top: 62px; left: 10px; right: 10px; z-index: 1000;
       display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
@@ -278,13 +269,7 @@
       padding: 8px 16px; border-radius: 30px; font-weight: bold; pointer-events: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
     }
-    .btn-filter-wrap {
-      pointer-events: auto; display: flex; align-items: center; gap: 6px;
-      background: var(--accent-soft); color: var(--accent-primary); border: 1.5px solid #FFCC80;
-      padding: 8px 16px; border-radius: 30px; font-weight: bold; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease;
-    }
-    .btn-tracking {
+    .btn-tracking, .btn-filter-wrap {
       pointer-events: auto; background: white; color: var(--text-main);
       border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 30px;
       font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -300,7 +285,7 @@
     }
     .filter-item { margin-bottom: 12px; }
     .filter-item label { font-size: 13px; margin-bottom: 4px; color: var(--text-main); }
-    .btn-show-all { background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: var(--shadow-btn); transition: all 0.2s ease; }
+    .btn-show-all { background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: var(--shadow-btn); }
 
     /* クラスターマーカーのカスタムスタイル */
     .custom-cluster {
@@ -312,27 +297,14 @@
     .custom-cluster-large { background: rgba(230, 81, 0, 0.95); transform: scale(1.1); }
 
     /* 記録完了モーション */
-    .modal-success {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.2); z-index: 10000; justify-content: center; align-items: center;
-    }
+    .modal-success { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); z-index: 10000; justify-content: center; align-items: center; }
     .modal-success.active { display: flex; }
-    .success-stage {
-      position: relative; width: 220px; height: 220px;
-      background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-    }
-    .success-ripple {
-      position: absolute; bottom: 70px; width: 50px; height: 16px;
-      background: rgba(255, 122, 0, 0.3); border-radius: 50%; transform: scale(0); opacity: 0;
-    }
+    .success-stage { position: relative; width: 220px; height: 220px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .success-ripple { position: absolute; bottom: 70px; width: 50px; height: 16px; background: rgba(255, 122, 0, 0.3); border-radius: 50%; transform: scale(0); opacity: 0; }
     .success-ripple.animate { animation: ripple-effect 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.25s forwards; }
     .success-pin-wrapper { position: absolute; bottom: 75px; transform: translateY(-250px); opacity: 0; z-index: 2; }
     .success-pin-wrapper.animate { animation: drop-bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    .success-status-text {
-      position: absolute; bottom: 30px; font-size: 20px; font-weight: bold; color: #ff7a00;
-      letter-spacing: 2px; opacity: 0; transform: translateY(10px); z-index: 1; text-shadow: 0 2px 8px rgba(255,255,255,0.9);
-    }
+    .success-status-text { position: absolute; bottom: 30px; font-size: 20px; font-weight: bold; color: #ff7a00; letter-spacing: 2px; opacity: 0; transform: translateY(10px); z-index: 1; text-shadow: 0 2px 8px rgba(255,255,255,0.9); }
     .success-status-text.animate { animation: text-appear 0.3s ease-out 0.4s forwards; }
 
     @keyframes drop-bounce { 0% { transform: translateY(-220px) scale(0.8); opacity: 0; } 35% { opacity: 1; } 55% { transform: translateY(0) scaleY(0.7) scaleX(1.3); } 72% { transform: translateY(-16px) scaleY(1.15) scaleX(0.88); } 85% { transform: translateY(0) scaleY(0.95) scaleX(1.05); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
@@ -340,13 +312,6 @@
     @keyframes text-appear { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); } 100% { transform: scale(1); } }
     @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-    /* マップロード画面 */
-    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(250, 246, 240, 0.85); backdrop-filter: blur(4px); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; transition: opacity 0.3s ease, visibility 0.3s ease; }
-    .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .spinner { width: 44px; height: 44px; border: 4px solid var(--accent-light); border-top: 4px solid var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
-    .loading-text { color: var(--accent-primary); font-weight: bold; font-size: 16px; letter-spacing: 1.5px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
 
@@ -358,7 +323,8 @@
     .os-guide-container { margin-bottom: 18px; text-align: left; }
     .os-toggle-btn { background: var(--accent-soft); color: var(--text-main); border: 1px solid #FFCC80; padding: 10px 12px; border-radius: var(--radius-s); width: 100%; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; margin-bottom: 6px; }
     .os-guide-content { background: white; padding: 12px 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); font-size: 13px; line-height: 1.6; color: var(--text-main); margin-bottom: 10px; }
-    .custom-neko-icon { width: auto !important; height: 38px !important; object-fit: contain; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3)) hue-rotate(200deg) saturate(1.2); }
+    .os-guide-content ol { margin: 0; padding-left: 18px; }
+    .custom-neko-icon { width: auto !important; height: 38px !important; object-fit: contain; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3)); }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes modalPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
@@ -378,16 +344,16 @@
       <button type="button" class="os-toggle-btn" onclick="toggleGuide('welcomeIos')"><span>iPhone (Safari) の手順</span> <span id="welcomeIosArrow">▼</span></button>
       <div id="welcomeIos" class="os-guide-content hidden">
         <ol>
-          <li>Safari画面下部の<strong>「共有ボタン（四角から上矢印）」</strong>をタップ</li>
-          <li>メニューを下にスクロールして<strong>「ホーム画面に追加」</strong>をタップ</li>
+          <li>Safari画面下部の<strong>「共有ボタン」</strong>をタップ</li>
+          <li><strong>「ホーム画面に追加」</strong>をタップ</li>
           <li>右上の<strong>「追加」</strong>をタップ</li>
         </ol>
       </div>
       <button type="button" class="os-toggle-btn" onclick="toggleGuide('welcomeAndroid')"><span>Android (Chrome) の手順</span> <span id="welcomeAndroidArrow">▼</span></button>
       <div id="welcomeAndroid" class="os-guide-content hidden">
         <ol>
-          <li>Chrome画面右上の<strong>「︙（3つの点）」</strong>をタップ</li>
-          <li><strong>「ホーム画面に追加」</strong>（または「アプリをインストール」）をタップ</li>
+          <li>Chrome画面右上の<strong>「︙」</strong>をタップ</li>
+          <li><strong>「ホーム画面に追加」</strong>をタップ</li>
           <li>画面に従って<strong>「追加」</strong>をタップ</li>
         </ol>
       </div>
@@ -397,7 +363,7 @@
   
   <div id="stepName" class="modal-content hidden" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); font-size: 22px;">はじめまして！</h3>
-    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。<br><span style="font-size:12px; color:var(--text-sub);">※データの仕分けに使用します。</span></p>
+    <p style="line-height:1.6; margin-bottom:17px;">ねこログへようこそ。<br>まずはあなたの名前を教えてください。</p>
     <input type="text" id="welcomeNameInput" placeholder="例: 猫 太郎" style="margin-bottom: 25px; text-align: center; font-size:18px;">
     <button class="btn-action" style="padding:16px; font-size:18px;" onclick="finishWelcome()">はじめる！</button>
   </div>
@@ -413,31 +379,10 @@
       <input type="text" id="settingsNameInput" style="margin-bottom: 20px;">
       <button class="btn-action" onclick="saveSettingsName()">変更を保存する</button>
     </div>
-    <div style="margin-top: 25px; text-align: left; border-top: 1px dashed var(--border-color); padding-top: 20px;">
-      <label>ホーム画面への追加方法</label>
-      <div class="os-guide-container" style="margin-top:10px;">
-        <button type="button" class="os-toggle-btn" onclick="toggleGuide('settingsIos')"><span>iPhone (Safari) の手順</span> <span id="settingsIosArrow">▼</span></button>
-        <div id="settingsIos" class="os-guide-content hidden">
-          <ol>
-            <li>Safari画面下部の<strong>「共有ボタン（四角から上矢印）」</strong>をタップ</li>
-            <li>メニューを下にスクロールして<strong>「ホーム画面に追加」</strong>をタップ</li>
-            <li>右上の<strong>「追加」</strong>をタップ</li>
-          </ol>
-        </div>
-        <button type="button" class="os-toggle-btn" onclick="toggleGuide('settingsAndroid')"><span>Android (Chrome) の手順</span> <span id="settingsAndroidArrow">▼</span></button>
-        <div id="settingsAndroid" class="os-guide-content hidden">
-          <ol>
-            <li>Chrome画面右上の<strong>「︙（3つの点）」</strong>をタップ</li>
-            <li><strong>「ホーム画面に追加」</strong>（または「アプリをインストール」）をタップ</li>
-            <li>画面に従って<strong>「追加」</strong>をタップ</li>
-          </ol>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
-<!-- みんなのねこマップ 初回案内用ポップアップモーダル -->
+<!-- みんなのねこマップ 初回案内用モーダル -->
 <div id="mapGuideModal" class="modal" style="z-index: 10000;">
   <div class="modal-content" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); margin-top:0; font-size:20px;">みんなのねこマップについて</h3>
@@ -446,24 +391,6 @@
       データはねこログを使用している全ての人のデータが反映されます。
     </p>
     <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
-  </div>
-</div>
-
-<!-- 記録完了モーション モーダル -->
-<div id="successModal" class="modal-success">
-  <div class="success-stage">
-    <div id="successRipple" class="success-ripple"></div>
-    <div id="successPin" class="success-pin-wrapper">
-      <svg width="64" height="80" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M32 80C32 80 58 48 58 32C58 17.6421 46.3579 6 32 6C17.6421 6 6 17.6421 6 32C6 48 32 80 32 80Z" fill="#FF7A00"/>
-        <ellipse cx="32" cy="37" rx="10.5" ry="8.5" fill="white" />
-        <circle cx="18.5" cy="23.5" r="3.8" fill="white" />
-        <circle cx="27" cy="17" r="3.8" fill="white" />
-        <circle cx="37" cy="17" r="3.8" fill="white" />
-        <circle cx="45.5" cy="23.5" r="3.8" fill="white" />
-      </svg>
-    </div>
-    <div id="successText" class="success-status-text">記録完了</div>
   </div>
 </div>
 
@@ -483,11 +410,14 @@
 <button type="button" id="navPullBtn" class="nav-pull-btn" onclick="showNav()">メニュー表示</button>
 
 <div class="container">
+  <!-- ▼ ヘッダー整理 ▼ -->
   <div class="header-container">
     <div class="title-group">
       <img src="icon-neko.png" alt="ネコアイコン" class="title-icon">
-      <h2>ねこログ</h2>
-      <span class="title-sub-text">ネコ目撃情報<br>記録webアプリ</span>
+      <div class="title-text-box">
+        <h2>ねこログ</h2>
+        <span class="title-sub-text">ネコ目撃情報記録webアプリ</span>
+      </div>
     </div>
   </div>
 
@@ -599,6 +529,58 @@
   <div id="output"></div>
 </div>
 
+<!-- みんなのねこマップ モーダル -->
+<div id="mapModal" class="modal">
+  <div class="modal-content" style="position:relative; overflow:hidden;">
+    <div class="map-header">
+      <div class="map-title-group"><h3>みんなのねこマップ</h3></div>
+      <button type="button" class="map-close-circle" onclick="closeModal('mapModal')">×</button>
+    </div>
+    
+    <div class="map-sub-header">
+      <div id="mapCountBadge" class="map-count-badge">0件</div>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btnTracking" class="btn-tracking" onclick="toggleTracking()">現在地追従</button>
+        <button type="button" class="btn-filter-wrap" onclick="toggleFilterPanel()">フィルター</button>
+      </div>
+    </div>
+    
+    <div id="mapFilterPanel">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:14px;">
+        <h4 style="margin:0; color:var(--accent-primary); font-size:16px;">詳細フィルター</h4>
+        <button type="button" class="btn-show-all" onclick="resetAndApplyFilters()">全て表示</button>
+      </div>
+      <div class="filter-item"><label>いつ以降のデータ？</label><input type="date" id="filterDate" style="width:100%;"></div>
+      <div class="filter-item">
+        <label>頭数</label>
+        <select id="filterCount" style="width:100%;">
+          <option value="">すべて</option><option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option><option value="子ネコ">子ネコ</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>耳カット</label>
+        <select id="filterEarCut" style="width:100%;">
+          <option value="">すべて</option><option value="はい">あり</option><option value="いいえ">なし</option><option value="不明">不明</option>
+        </select>
+      </div>
+      <div class="filter-item"><label>報告者名</label><select id="filterName" style="width:100%;"><option value="">すべて</option></select></div>
+      <div style="display:flex; gap:10px; margin-top:20px;"><button type="button" class="btn-action" style="margin-bottom:0;" onclick="applyFilters()">適用する</button></div>
+    </div>
+    <div id="aggregatedMap"></div>
+  </div>
+</div>
+
+<!-- 送信履歴 モーダル -->
+<div id="historyModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('historyModal')">×</span>
+    <h3 style="color:var(--accent-primary); margin-top:0;">送信履歴（直近3日）</h3>
+    <div id="historyList">
+      <p style="color:var(--text-sub);">履歴を読み込んでいます...</p>
+    </div>
+  </div>
+</div>
+
 <script>
   // ==========================================
   // GASのURL
@@ -613,14 +595,19 @@
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-  var map; 
-  var marker;
+  // ▼ 地図変数を1箇所で宣言 ▼
+  var map = null; 
+  var marker = null;
+  var aggMap = null; 
+  var markersLayer = null;
+  let isTracking = false; 
+  let trackingMarker = null;
 
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
   
   window.addEventListener('DOMContentLoaded', () => {
     // ▼ 北大東島がすっぽり入るように座標とズームを修正 ▼
-    map = L.map('map').setView([25.946, 131.308], 13); 
+    map = L.map('map').setView([25.946, 131.308], 14); 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
     map.on('click', function(e) { updateMarkerAndLocation(e.latlng); });
     setTimeout(() => { map.invalidateSize(); }, 300);
@@ -666,18 +653,14 @@
   let currentActiveModal = null;
   function openModalWithHistory(modalId) {
     document.getElementById(modalId).style.display = 'flex'; currentActiveModal = modalId;
-    // ▼ PC等でファイルを直接開いた際（file://）のエラー落ちを回避するための処理 ▼
-    try { history.pushState({ modalOpen: true, modalId: modalId }, ""); } catch(e) { console.warn("ローカル環境のため履歴操作をスキップしました"); }
+    try { history.pushState({ modalOpen: true, modalId: modalId }, ""); } catch(e) {}
   }
   window.addEventListener('popstate', (e) => {
     if (currentActiveModal) { document.getElementById(currentActiveModal).style.display = 'none'; currentActiveModal = null; }
   });
   function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
-    if (currentActiveModal === modalId) { 
-      currentActiveModal = null; 
-      try { if (history.state && history.state.modalOpen) history.back(); } catch(e) {} 
-    }
+    if (currentActiveModal === modalId) { currentActiveModal = null; try { if (history.state && history.state.modalOpen) history.back(); } catch(e) {} }
   }
 
   function openSettingsModal() { document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || ''; openModalWithHistory('settingsModal'); }
@@ -699,15 +682,11 @@
     localStorage.setItem('nekoLogName', name); document.getElementById('welcomeModal').style.display = 'none';
   }
 
-  var aggMap = null; var markersLayer = null;
-  let isTracking = false; let trackingMarker = null;
-
   async function openMapModal() {
     openModalWithHistory('mapModal');
-    const loader = document.getElementById('mapLoadingOverlay'); if (loader) loader.classList.remove('hidden');
     if (!aggMap) {
-      // ▼ 北大東島がすっぽり入るように座標とズームを修正 ▼
-      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 13);
+      // ▼ みんなのネコマップも北大東島がすっぽり入るように座標とズームを修正 ▼
+      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 14);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
       L.control.zoom({ position: 'bottomright' }).addTo(aggMap);
       
@@ -758,7 +737,6 @@
 
   async function loadMapMarkers() {
     if(!markersLayer) return;
-    const loader = document.getElementById('mapLoadingOverlay'); if (loader) loader.classList.remove('hidden');
     try {
       markersLayer.clearLayers();
       const response = await fetch(gasURL); const data = await response.json();
@@ -796,7 +774,7 @@
         L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
       });
       document.getElementById('mapCountBadge').innerText = `${displayCount}件`;
-    } catch (e) { console.error(e); } finally { if (loader) loader.classList.add('hidden'); }
+    } catch (e) { console.error(e); }
   }
 
   function openHistoryModal() { openModalWithHistory('historyModal'); loadHistoryList(); }
