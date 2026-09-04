@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ねこログ 南大東</title>
+  <title>ねこログ 北大東</title>
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FF8A65">
@@ -12,11 +12,11 @@
   <!-- フォント・地図ライブラリ読み込み -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
   
-  <!-- ▼ 必須：Leaflet（地図本体）の読み込み ▼ -->
+  <!-- ▼ Leaflet（地図本体）の読み込み -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <!-- ▼ マーカークラスタリング用プラグイン ▼ -->
+  <!-- ▼ マーカークラスタリング用プラグイン -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -113,7 +113,7 @@
     /* 中央の大きなボタン（上にはみ出させる） */
     .nav-center-wrapper {
       position: absolute; left: 50%; transform: translateX(-50%);
-      top: -25px;
+      top: -25px; /* 上にはみ出させる */
     }
     .nav-btn-main {
       background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
@@ -619,8 +619,8 @@
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
   
   window.addEventListener('DOMContentLoaded', () => {
-    // ▼ 確実に入力フォームのマップを表示させる
-    map = L.map('map').setView([25.844, 131.245], 13); 
+    // ▼ 北大東島がすっぽり入るように座標とズームを修正 ▼
+    map = L.map('map').setView([25.946, 131.308], 13); 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
     map.on('click', function(e) { updateMarkerAndLocation(e.latlng); });
     setTimeout(() => { map.invalidateSize(); }, 300);
@@ -635,7 +635,7 @@
     }
   });
 
-  // ▼ ボトムナビゲーション スクロール制御
+  // ボトムナビゲーション スクロール制御
   let lastScrollY = window.scrollY;
   window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
@@ -666,14 +666,18 @@
   let currentActiveModal = null;
   function openModalWithHistory(modalId) {
     document.getElementById(modalId).style.display = 'flex'; currentActiveModal = modalId;
-    history.pushState({ modalOpen: true, modalId: modalId }, "");
+    // ▼ PC等でファイルを直接開いた際（file://）のエラー落ちを回避するための処理 ▼
+    try { history.pushState({ modalOpen: true, modalId: modalId }, ""); } catch(e) { console.warn("ローカル環境のため履歴操作をスキップしました"); }
   }
   window.addEventListener('popstate', (e) => {
     if (currentActiveModal) { document.getElementById(currentActiveModal).style.display = 'none'; currentActiveModal = null; }
   });
   function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
-    if (currentActiveModal === modalId) { currentActiveModal = null; if (history.state && history.state.modalOpen) history.back(); }
+    if (currentActiveModal === modalId) { 
+      currentActiveModal = null; 
+      try { if (history.state && history.state.modalOpen) history.back(); } catch(e) {} 
+    }
   }
 
   function openSettingsModal() { document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || ''; openModalWithHistory('settingsModal'); }
@@ -702,7 +706,8 @@
     openModalWithHistory('mapModal');
     const loader = document.getElementById('mapLoadingOverlay'); if (loader) loader.classList.remove('hidden');
     if (!aggMap) {
-      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.844, 131.245], 13);
+      // ▼ 北大東島がすっぽり入るように座標とズームを修正 ▼
+      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
       L.control.zoom({ position: 'bottomright' }).addTo(aggMap);
       
