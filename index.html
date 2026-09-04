@@ -9,12 +9,10 @@
   <meta name="theme-color" content="#FF8A65">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- フォント・地図ライブラリ読み込み -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <!-- マーカークラスタリング用プラグイン -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -33,18 +31,14 @@
       --radius-lg: 20px;
       --radius-m: 14px;
       --radius-s: 10px;
-      --shadow-soft: 0 6px 20px rgba(230, 81, 0, 0.06);
-      /* ローディングネコの色設定 */
-      --cat-front: #3E2723; 
-      --cat-back: #8D6E63;
-      --speed: 0.45s;
+      --shadow-nav: 0 -4px 10px rgba(0,0,0,0.03); 
     }
 
     body { 
       font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; 
       margin: 0; 
       padding: 6px; 
-      padding-bottom: 120px; /* ボトムナビ用の余白をしっかり確保 */
+      padding-bottom: 120px;
       background-color: var(--bg-color); 
       color: var(--text-main); 
       -webkit-tap-highlight-color: transparent;
@@ -56,13 +50,13 @@
       background: var(--card-bg); 
       padding: 18px 10px; 
       border-radius: var(--radius-lg); 
-      box-shadow: var(--shadow-soft); 
+      box-shadow: 0 6px 20px rgba(230, 81, 0, 0.06); 
       border: 1px solid var(--border-color); 
       box-sizing: border-box; 
       animation: fadeIn 0.4s ease-out;
     }
 
-    /* ▼ ヘッダー＆タイトル（綺麗に並べるための改善） ▼ */
+    /* ▼ ヘッダー＆タイトル ▼ */
     .header-container { 
       display: flex; justify-content: center; align-items: center; 
       margin-bottom: 22px; padding: 5px 0; 
@@ -73,7 +67,6 @@
       filter: drop-shadow(0px 2px 3px rgba(255, 112, 67, 0.2));
       transition: transform 0.3s ease;
     }
-    .title-group:hover .title-icon { transform: rotate(-8deg) scale(1.1); }
     .title-text-box { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
     h2 { 
       margin: 0; color: var(--accent-primary); font-size: 24px; 
@@ -85,30 +78,36 @@
       line-height: 1.2; margin-top: 4px; letter-spacing: 0.3px; 
     }
 
-    /* ▼ ボトムナビゲーション（絵文字なし・はみ出しデザイン） ▼ */
+    /* ▼ ボトムナビゲーション（イラスト再現） ▼ */
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; width: 100%;
       background: rgba(250, 246, 240, 0.95);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 20px 25px 20px; box-sizing: border-box; z-index: 1000;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
-      border-top: 1px solid rgba(224, 213, 208, 0.5);
+      box-shadow: var(--shadow-nav); border-top: none; 
+      position: relative; overflow: visible; 
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
     }
     .bottom-nav.nav-hidden { transform: translateY(120%); }
 
-    /* サイドボタン（控えめで上品な枠線デザイン） */
+    .bottom-nav::after {
+      content: ""; position: absolute; top: -35px; left: 50%;
+      transform: translateX(-50%); width: 90px; height: 90px;
+      background: rgba(250, 246, 240, 0.95); border-radius: 50%;
+      z-index: 1001; box-shadow: var(--shadow-nav);
+    }
+
     .nav-side-btn {
       background: transparent; border: 1.5px solid #C8B6B0; color: #5D4037;
       padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px;
-      cursor: pointer; transition: all 0.2s ease;
+      cursor: pointer; transition: all 0.2s ease; z-index: 1003; 
     }
     .nav-side-btn:active { background: #EFEBE9; transform: scale(0.95); }
 
-    /* 中央の大きなボタン（上にはみ出させる） */
     .nav-center-wrapper {
-      position: absolute; left: 50%; transform: translateX(-50%); top: -28px;
+      position: absolute; left: 50%; transform: translateX(-50%); 
+      top: -28px; z-index: 1002; 
     }
     .nav-btn-main {
       background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
@@ -121,9 +120,8 @@
     }
     .nav-btn-main:active { transform: translateY(4px); box-shadow: 0 4px 12px rgba(244, 81, 30, 0.4); }
 
-    /* ナビゲーション引き出しボタン */
     .nav-pull-btn {
-      position: fixed; right: -5px; bottom: 30px; z-index: 1001;
+      position: fixed; right: -5px; bottom: 30px; z-index: 1004;
       background: var(--accent-primary); color: white;
       padding: 12px 16px 12px 12px; border-radius: 20px 0 0 20px;
       font-weight: bold; border: none; box-shadow: -2px 4px 12px rgba(0,0,0,0.15);
@@ -184,17 +182,6 @@
     #submitBtn { width: 100%; background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%); color: white; padding: 15px; border: none; border-radius: 18px; cursor: pointer; font-size: 18px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; }
     #submitBtn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(244, 81, 30, 0.3); }
     #output { margin-top: 18px; text-align: center; font-weight: bold; font-size: 15px; color: var(--accent-primary); line-height: 1.5; white-space: pre-wrap; }
-
-    .pattern-menu { border: 1.5px solid var(--border-color); border-radius: var(--radius-s); overflow: hidden; background: white; margin-bottom: 10px; }
-    .pattern-item { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; color: var(--text-main); font-weight: bold;}
-    .pattern-item.selected { background-color: var(--accent-soft); }
-    .pattern-item:last-child { border-bottom: none; }
-    .pattern-info { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
-    .pattern-icon { font-size: 20px; display: inline-block; width: 36px; text-align: center; }
-    .pattern-check { width: 20px; color: var(--accent-primary); font-weight: bold; font-size: 15px; display: inline-block; }
-    .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-    .tag { background: var(--accent-light); color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #FFCC80;}
-    .tag-close { margin-left: 6px; cursor: pointer; font-weight: bold; background: #A1887F; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
 
     /* すりガラス風モーダル */
     .modal { 
@@ -261,38 +248,19 @@
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); } 100% { transform: scale(1); } }
     @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-    /* ▼ リアルなネコ歩行 ローディング画面 ▼ */
+    /* ▼ ゲーム風ローディング画面 ▼ */
     .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(250, 246, 240, 0.95); backdrop-filter: blur(4px); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; transition: opacity 0.3s ease, visibility 0.3s ease; }
     .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .loading-text { color: var(--accent-primary); font-size: 18px; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
-    .cat-runner-container { position: relative; width: 180px; height: 100px; display: flex; justify-content: center; align-items: flex-end; }
-    .ground-shadow { position: absolute; bottom: 2px; width: 110px; height: 6px; background: rgba(0, 0, 0, 0.1); border-radius: 50%; animation: shadow-bound var(--speed) infinite ease-in-out; }
-    .fill-front { fill: var(--cat-front); }
-    .fill-back  { fill: var(--cat-back); }
-    .joint { animation-duration: var(--speed); animation-iteration-count: infinite; animation-timing-function: ease-in-out; transform-origin: 0px 0px; }
-    .cat-gallop { animation: body-bound var(--speed) infinite ease-in-out; }
-    .belly { animation: belly-bound var(--speed) infinite ease-in-out; }
-    .front-half { animation: front-half-bound var(--speed) infinite ease-in-out; }
-    .back-half { animation: back-half-bound var(--speed) infinite ease-in-out; }
-    .tail { animation: tail-bound var(--speed) infinite ease-in-out; }
-    .fr-up { animation-name: f-up; animation-delay: 0s; }
-    .fr-low { animation-name: f-low; animation-delay: 0s; }
-    .fl-up { animation-name: f-up; animation-delay: -0.06s; }
-    .fl-low { animation-name: f-low; animation-delay: -0.06s; }
-    .br-up { animation-name: b-up; animation-delay: 0s; }
-    .br-low { animation-name: b-low; animation-delay: 0s; }
-    .bl-up { animation-name: b-up; animation-delay: -0.06s; }
-    .bl-low { animation-name: b-low; animation-delay: -0.06s; }
-    @keyframes body-bound { 0%, 100% { transform: translateY(0px) scaleX(1.02); } 50% { transform: translateY(-16px) scaleX(0.95); } }
-    @keyframes belly-bound { 0%, 100% { transform: scaleX(1.3) scaleY(0.8); } 50% { transform: scaleX(0.8) scaleY(1.3); } }
-    @keyframes front-half-bound { 0%, 100% { transform: translate(125px, 45px) rotate(-8deg); } 50% { transform: translate(110px, 35px) rotate(15deg); } }
-    @keyframes back-half-bound { 0%, 100% { transform: translate(75px, 45px) rotate(10deg); } 50% { transform: translate(90px, 35px) rotate(-18deg); } }
-    @keyframes tail-bound { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(-25deg); } }
-    @keyframes f-up { 0%, 100% { transform: rotate(-60deg); } 50% { transform: rotate(45deg); } }
-    @keyframes f-low { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(0deg); } 50% { transform: rotate(-40deg); } 75% { transform: rotate(-80deg); } }
-    @keyframes b-up { 0%, 100% { transform: rotate(55deg); } 50% { transform: rotate(-65deg); } }
-    @keyframes b-low { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(70deg); } 50% { transform: rotate(45deg); } 75% { transform: rotate(0deg); } }
-    @keyframes shadow-bound { 0%, 100% { transform: scaleX(1); opacity: 0.2; } 50% { transform: scaleX(0.5); opacity: 0.05; } }
+
+    .spinner {
+      width: 50px; height: 50px;
+      border: 5px solid rgba(0, 0, 0, 0.1);
+      border-left-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
 
@@ -305,7 +273,16 @@
     .os-toggle-btn { background: var(--accent-soft); color: var(--text-main); border: 1px solid #FFCC80; padding: 10px 12px; border-radius: var(--radius-s); width: 100%; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; margin-bottom: 6px; }
     .os-guide-content { background: white; padding: 12px 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); font-size: 13px; line-height: 1.6; color: var(--text-main); margin-bottom: 10px; }
     .os-guide-content ol { margin: 0; padding-left: 18px; }
-    .custom-neko-icon { width: auto !important; height: 38px !important; object-fit: contain; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3)); }
+    .pattern-menu { border: 1.5px solid var(--border-color); border-radius: var(--radius-s); overflow: hidden; background: white; margin-bottom: 10px; }
+    .pattern-item { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; color: var(--text-main); font-weight: bold;}
+    .pattern-item.selected { background-color: var(--accent-soft); }
+    .pattern-item:last-child { border-bottom: none; }
+    .pattern-info { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
+    .pattern-icon { font-size: 20px; display: inline-block; width: 36px; text-align: center; }
+    .pattern-check { width: 20px; color: var(--accent-primary); font-weight: bold; font-size: 15px; display: inline-block; }
+    .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .tag { background: var(--accent-light); color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #FFCC80;}
+    .tag-close { margin-left: 6px; cursor: pointer; font-weight: bold; background: #A1887F; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes modalPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
@@ -313,10 +290,8 @@
 </head>
 <body>
 
-<!-- オフライン送信待ちバッジ -->
 <div id="offlineBadge" class="offline-badge">送信待ち: 0件</div>
 
-<!-- 初回起動用 ウェルカムモーダル -->
 <div id="welcomeModal" class="modal">
   <div id="stepInstall" class="modal-content hidden" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); font-size: 20px; margin-bottom:10px;">ホーム画面に追加</h3>
@@ -350,7 +325,6 @@
   </div>
 </div>
 
-<!-- 設定モーダル -->
 <div id="settingsModal" class="modal">
   <div class="modal-content" style="max-width: 400px;">
     <span class="close-modal" onclick="closeModal('settingsModal')">×</span>
@@ -363,7 +337,6 @@
   </div>
 </div>
 
-<!-- みんなのねこマップ 初回案内用モーダル -->
 <div id="mapGuideModal" class="modal" style="z-index: 10000;">
   <div class="modal-content" style="max-width: 400px;">
     <h3 style="color:var(--accent-primary); margin-top:0; font-size:20px;">みんなのねこマップについて</h3>
@@ -375,7 +348,6 @@
   </div>
 </div>
 
-<!-- 記録完了モーション モーダル -->
 <div id="successModal" class="modal-success">
   <div class="success-stage">
     <div id="successRipple" class="success-ripple"></div>
@@ -393,7 +365,6 @@
   </div>
 </div>
 
-<!-- ボトムナビゲーション -->
 <nav id="bottomNav" class="bottom-nav">
   <button type="button" class="nav-side-btn" onclick="openHistoryModal()">送信履歴</button>
   <div class="nav-center-wrapper">
@@ -405,11 +376,9 @@
   <button type="button" class="nav-side-btn" onclick="openSettingsModal()">設定</button>
 </nav>
 
-<!-- ボトムナビ引き出し用ボタン -->
 <button type="button" id="navPullBtn" class="nav-pull-btn" onclick="showNav()">メニュー表示</button>
 
 <div class="container">
-  <!-- ▼ ヘッダー整理 ▼ -->
   <div class="header-container">
     <div class="title-group">
       <img src="icon-neko.png" alt="ネコアイコン" class="title-icon">
@@ -528,27 +497,12 @@
   <div id="output"></div>
 </div>
 
-<!-- みんなのねこマップ モーダル -->
 <div id="mapModal" class="modal">
   <div class="modal-content" style="position:relative; overflow:hidden;">
     
-    <!-- ▼ リアルなネコ歩行 ローディング画面 ▼ -->
     <div id="mapLoadingOverlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
       <div class="loading-text">Now Loading...</div>
-      <div class="cat-runner-container">
-        <svg width="200" height="120" viewBox="0 0 200 120">
-          <g class="cat-gallop">
-            <ellipse cx="100" cy="45" rx="22" ry="16" class="fill-front belly" />
-            <g transform="translate(75, 45)" class="back-half"><g class="joint bl-up"><path d="M-7,0 C-7,15 -5,25 -2,28 L2,28 C5,25 7,15 7,0 Z" class="fill-back" /><g class="joint bl-low" transform="translate(0, 26)"><path d="M-3,0 L3,0 L1,26 L6,26 L6,30 L-5,30 Z" class="fill-back" /></g></g></g>
-            <g transform="translate(125, 45)" class="front-half"><g class="joint fl-up"><path d="M-5,0 C-5,10 -3,20 -1,22 L1,22 C3,20 5,10 5,0 Z" class="fill-back" /><g class="joint fl-low" transform="translate(0, 20)"><path d="M-2,0 L2,0 L1,22 L5,22 L5,26 L-3,26 Z" class="fill-back" /></g></g></g>
-            <g class="back-half"><circle cx="0" cy="0" r="18" class="fill-front" /><g transform="translate(-14, -12)"><g class="joint tail"><path d="M0,0 C-15,-20 -35,-20 -50,-5" fill="none" stroke="var(--cat-front)" stroke-width="7" stroke-linecap="round" /></g></g></g>
-            <g class="front-half"><circle cx="0" cy="0" r="16" class="fill-front" /><polygon points="0,-10 18,-20 24,-8 8,12" class="fill-front" /><circle cx="22" cy="-16" r="10" class="fill-front" /><polygon points="20,-22 36,-13 25,-5" class="fill-front" /><polygon points="16,-22 13,-35 24,-24" class="fill-front" /><polygon points="22,-22 24,-33 30,-20" class="fill-front" /></g>
-            <g transform="translate(75, 45)" class="back-half"><g class="joint br-up"><path d="M-7,0 C-7,15 -5,25 -2,28 L2,28 C5,25 7,15 7,0 Z" class="fill-front" /><g class="joint br-low" transform="translate(0, 26)"><path d="M-3,0 L3,0 L1,26 L6,26 L6,30 L-5,30 Z" class="fill-front" /></g></g></g>
-            <g transform="translate(125, 45)" class="front-half"><g class="joint fr-up"><path d="M-5,0 C-5,10 -3,20 -1,22 L1,22 C3,20 5,10 5,0 Z" class="fill-front" /><g class="joint fr-low" transform="translate(0, 20)"><path d="M-2,0 L2,0 L1,22 L5,22 L5,26 L-3,26 Z" class="fill-front" /></g></g></g>
-          </g>
-        </svg>
-        <div class="ground-shadow"></div>
-      </div>
     </div>
 
     <div class="map-header">
@@ -589,7 +543,6 @@
   </div>
 </div>
 
-<!-- 送信履歴 モーダル -->
 <div id="historyModal" class="modal">
   <div class="modal-content">
     <span class="close-modal" onclick="closeModal('historyModal')">×</span>
@@ -614,7 +567,6 @@
   const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-  // ▼ 地図変数を1箇所で宣言 ▼
   var map = null; 
   var marker = null;
   var aggMap = null; 
@@ -625,8 +577,7 @@
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
   
   window.addEventListener('DOMContentLoaded', () => {
-    // ▼ 北大東島がすっぽり入るように座標とズーム(13)を修正 ▼
-    map = L.map('map').setView([25.946, 131.308], 13); 
+    map = L.map('map').setView([25.946, 131.308], 14); 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
     map.on('click', function(e) { updateMarkerAndLocation(e.latlng); });
     setTimeout(() => { map.invalidateSize(); }, 300);
@@ -641,7 +592,6 @@
     }
   });
 
-  // ボトムナビゲーション スクロール制御
   let lastScrollY = window.scrollY;
   window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
@@ -654,9 +604,7 @@
     lastScrollY = currentScrollY;
   });
 
-  function showNav() {
-    document.getElementById('bottomNav').classList.remove('nav-hidden');
-  }
+  function showNav() { document.getElementById('bottomNav').classList.remove('nav-hidden'); }
 
   function initCatCountOptions() {
     const numSelect = document.getElementById('catCountNum'); numSelect.innerHTML = '<option value="">選択してください</option>';
@@ -706,14 +654,12 @@
     const loader = document.getElementById('mapLoadingOverlay'); if (loader) loader.classList.remove('hidden');
     
     if (!aggMap) {
-      // ▼ みんなのネコマップも北大東島がすっぽり入るように座標とズーム(13)を修正 ▼
-      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 13);
+      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 14);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
       L.control.zoom({ position: 'bottomright' }).addTo(aggMap);
       
       markersLayer = L.markerClusterGroup({
-        disableClusteringAtZoom: 17,
-        maxClusterRadius: 40,
+        disableClusteringAtZoom: 17, maxClusterRadius: 40,
         iconCreateFunction: function(cluster) {
           var count = cluster.getChildCount();
           var cName = count >= 5 ? 'custom-cluster custom-cluster-large' : 'custom-cluster';
@@ -724,11 +670,8 @@
       aggMap.addLayer(markersLayer);
 
       aggMap.on('locationfound', function(e) {
-        if (!trackingMarker) {
-          trackingMarker = L.circleMarker(e.latlng, {radius: 8, color: '#FFFFFF', weight: 2, fillColor: '#2196F3', fillOpacity: 1}).addTo(aggMap);
-        } else {
-          trackingMarker.setLatLng(e.latlng);
-        }
+        if (!trackingMarker) { trackingMarker = L.circleMarker(e.latlng, {radius: 8, color: '#FFFFFF', weight: 2, fillColor: '#2196F3', fillOpacity: 1}).addTo(aggMap); } 
+        else { trackingMarker.setLatLng(e.latlng); }
       });
     }
     setTimeout(() => { aggMap.invalidateSize(); }, 200);
@@ -784,7 +727,7 @@
           if ((fCount === '1頭' || fCount === '2頭') && item.catCount !== fCount) return;
         }
         if (fEarCut && item.earCut) {
-          if (fEarCut === '不明' && (item.earCut.includes('不明') || item.earCut.includes('わからない'))) { /* pass */ } else if (!item.earCut.includes(fEarCut)) return;
+          if (fEarCut === '不明' && (item.earCut.includes('不明') || item.earCut.includes('わからない'))) { } else if (!item.earCut.includes(fEarCut)) return;
         } else if (fEarCut && !item.earCut) { if (fEarCut !== '不明') return; }
         if (fName && item.nickname !== fName) return;
 
@@ -801,13 +744,11 @@
     } catch (e) { 
       console.error(e); 
     } finally { 
-      // ▼ ここが消えていたためロード画面が永遠に消えない不具合が起きていました！ ▼
       if (loader) loader.classList.add('hidden'); 
     }
   }
 
   function openHistoryModal() { openModalWithHistory('historyModal'); loadHistoryList(); }
-  
   function setNowDatetime() { const now = new Date(); const roundedTime = new Date(now.getTime() + 29 * 60 * 1000); document.getElementById('dateInput').value = roundedTime.getFullYear() + '-' + String(roundedTime.getMonth()+1).padStart(2, '0') + '-' + String(roundedTime.getDate()).padStart(2, '0'); document.getElementById('hourInput').value = String(roundedTime.getHours()).padStart(2, '0'); }
   function goToCurrentLocation() {
     if (!navigator.geolocation) { alert("位置情報に対応していません。"); return; }
@@ -829,8 +770,6 @@
     document.getElementById('catDetailGroup').classList.toggle('hidden', val !== '親子'); 
     document.getElementById('catChildOnlyGroup').classList.toggle('hidden', val !== '子ネコ');
     updateTotalCatCount();
-    
-    // スムーズな視線誘導
     setTimeout(() => {
       if(val === '3頭以上') document.getElementById('catCountNumGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
       else if(val === '親子') document.getElementById('catDetailGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
@@ -1100,7 +1039,7 @@
         closeModal('historyModal'); window.scrollTo({ top: 0, behavior: 'smooth' });
         
         document.getElementById('submitBtn').innerText = "修正して記録する";
-        document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #29B6F6 0%, #0288D1 100%)";
+        document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #FF7043 0%, #F4511E 100%)";
       };
     } catch(e) { console.error("履歴の復元に失敗しました", e); }
   }
