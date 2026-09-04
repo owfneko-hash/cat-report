@@ -34,6 +34,10 @@
       --radius-m: 14px;
       --radius-s: 10px;
       --shadow-soft: 0 6px 20px rgba(230, 81, 0, 0.06);
+      /* ローディングネコの色設定 */
+      --cat-front: #3E2723; 
+      --cat-back: #8D6E63;
+      --speed: 0.45s;
     }
 
     body { 
@@ -63,17 +67,14 @@
       display: flex; justify-content: center; align-items: center; 
       margin-bottom: 22px; padding: 5px 0; 
     }
-    .title-group { 
-      display: flex; align-items: center; gap: 10px; 
-    }
+    .title-group { display: flex; align-items: center; gap: 10px; }
     .title-icon { 
       height: 38px; width: auto; vertical-align: middle; 
       filter: drop-shadow(0px 2px 3px rgba(255, 112, 67, 0.2));
       transition: transform 0.3s ease;
     }
-    .title-text-box {
-      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
-    }
+    .title-group:hover .title-icon { transform: rotate(-8deg) scale(1.1); }
+    .title-text-box { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
     h2 { 
       margin: 0; color: var(--accent-primary); font-size: 24px; 
       font-weight: 900; letter-spacing: 0.5px; line-height: 1;
@@ -107,8 +108,7 @@
 
     /* 中央の大きなボタン（上にはみ出させる） */
     .nav-center-wrapper {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      top: -28px; /* バーから上にはみ出す */
+      position: absolute; left: 50%; transform: translateX(-50%); top: -28px;
     }
     .nav-btn-main {
       background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
@@ -117,8 +117,7 @@
       justify-content: center; align-items: center; gap: 3px;
       font-weight: 900; font-size: 14px; line-height: 1.15;
       box-shadow: 0 8px 24px rgba(244, 81, 30, 0.4);
-      cursor: pointer; transition: transform 0.2s ease;
-      white-space: nowrap;
+      cursor: pointer; transition: transform 0.2s ease; white-space: nowrap;
     }
     .nav-btn-main:active { transform: translateY(4px); box-shadow: 0 4px 12px rgba(244, 81, 30, 0.4); }
 
@@ -128,8 +127,7 @@
       background: var(--accent-primary); color: white;
       padding: 12px 16px 12px 12px; border-radius: 20px 0 0 20px;
       font-weight: bold; border: none; box-shadow: -2px 4px 12px rgba(0,0,0,0.15);
-      transition: transform 0.3s ease; display: none;
-      font-size: 12px; cursor: pointer;
+      transition: transform 0.3s ease; display: none; font-size: 12px; cursor: pointer;
     }
     .bottom-nav.nav-hidden ~ .nav-pull-btn { display: block; animation: slideInRight 0.3s ease-out; }
 
@@ -149,7 +147,6 @@
       transition: border-color 0.3s ease, background-color 0.3s ease;
     }
     .form-group:focus-within { border-color: var(--accent-primary); background: #FFF; }
-
     label { font-weight: 700; display: block; margin-bottom: 8px; color: #D84315; font-size: 15px; }
     .required::after { content: " *"; color: #FF3D00; }
     
@@ -161,20 +158,10 @@
       border-radius: var(--radius-s); box-sizing: border-box; font-size: 15px; 
       font-family: inherit; background: white; color: var(--text-main); transition: all 0.2s ease;
     }
-    input[type="text"]:focus, select:focus, input[type="date"]:focus, textarea:focus { 
-      outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.15); 
-    }
+    input[type="text"]:focus, select:focus, input[type="date"]:focus, textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.15); }
 
-    input[type="file"] { 
-      width: 100%; padding: 8px; border: 1.5px dashed #FFB74D; border-radius: var(--radius-s); 
-      box-sizing: border-box; font-size: 13px; font-family: inherit; background: white; 
-      color: var(--text-main); white-space: normal; word-break: break-all; 
-    }
-    input[type="file"]::file-selector-button { 
-      background: var(--accent-light); color: var(--text-main); border: none; 
-      border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; 
-      margin-right: 10px; transition: background 0.2s ease;
-    }
+    input[type="file"] { width: 100%; padding: 8px; border: 1.5px dashed #FFB74D; border-radius: var(--radius-s); box-sizing: border-box; font-size: 13px; font-family: inherit; background: white; color: var(--text-main); white-space: normal; word-break: break-all; }
+    input[type="file"]::file-selector-button { background: var(--accent-light); color: var(--text-main); border: none; border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; margin-right: 10px; transition: background 0.2s ease; }
 
     /* カウントリスト */
     .count-list { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: var(--radius-s); border: 1.5px solid var(--border-color); }
@@ -182,40 +169,22 @@
     .count-row:last-child { border-bottom: none; }
     .count-row.selected { background-color: var(--accent-soft); }
     .count-label { font-weight: bold; font-size: 15px; color: var(--text-main); display: flex; align-items: center; gap: 6px; flex-grow: 1; }
-    
     .stepper-control { display: flex; align-items: center; gap: 6px; }
-    .btn-step { 
-      width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border-color); 
-      background: var(--accent-soft); color: var(--accent-primary); font-size: 18px; 
-      font-weight: 900; display: flex; align-items: center; justify-content: center; 
-      cursor: pointer; padding: 0; user-select: none; transition: all 0.15s ease;
-    }
+    .btn-step { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border-color); background: var(--accent-soft); color: var(--accent-primary); font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; user-select: none; transition: all 0.15s ease; }
     .btn-step:active { transform: scale(0.88); background: var(--accent-light); }
     .btn-step.add { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
     .btn-step.add:active { background: var(--accent-hover); }
     .count-num { font-weight: 900; font-size: 16px; min-width: 24px; text-align: center; color: var(--text-main); }
     .count-num.active { color: var(--accent-primary); }
 
-    .btn-action { 
-      background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); 
-      color: white; padding: 11px 14px; border: none; border-radius: var(--radius-m); 
-      cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 10px; 
-      display: block; width: 100%; box-sizing: border-box; 
-      box-shadow: 0 4px 12px rgba(255, 112, 67, 0.2); transition: all 0.2s ease; 
-    }
+    .btn-action { background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); color: white; padding: 11px 14px; border: none; border-radius: var(--radius-m); cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: block; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(255, 112, 67, 0.2); transition: all 0.2s ease; }
     .btn-action:active { transform: translateY(2px); box-shadow: none; }
     .btn-sub { background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(230, 81, 0, 0.3); margin-bottom: 8px; }
 
-    #submitBtn { 
-      width: 100%; background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%); 
-      color: white; padding: 15px; border: none; border-radius: 18px; 
-      cursor: pointer; font-size: 18px; font-weight: 900; letter-spacing: 1px;
-      box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; 
-    }
+    #submitBtn { width: 100%; background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%); color: white; padding: 15px; border: none; border-radius: 18px; cursor: pointer; font-size: 18px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; }
     #submitBtn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(244, 81, 30, 0.3); }
     #output { margin-top: 18px; text-align: center; font-weight: bold; font-size: 15px; color: var(--accent-primary); line-height: 1.5; white-space: pre-wrap; }
 
-    /* タグ・メニュー設定 */
     .pattern-menu { border: 1.5px solid var(--border-color); border-radius: var(--radius-s); overflow: hidden; background: white; margin-bottom: 10px; }
     .pattern-item { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; color: var(--text-main); font-weight: bold;}
     .pattern-item.selected { background-color: var(--accent-soft); }
@@ -227,7 +196,7 @@
     .tag { background: var(--accent-light); color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; font-weight: bold; border: 1px solid #FFCC80;}
     .tag-close { margin-left: 6px; cursor: pointer; font-weight: bold; background: #A1887F; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
 
-    /* ▼ すりガラス風モーダル（背景ブラー強化） ▼ */
+    /* すりガラス風モーダル */
     .modal { 
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
       background: rgba(62, 39, 35, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -235,9 +204,8 @@
     }
     .modal-content { 
       background: rgba(250, 246, 240, 0.98); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      width: 100%; max-width: 600px; max-height: 90vh; 
-      border-radius: var(--radius-lg); padding: 22px 18px; box-sizing: border-box; 
-      overflow-y: auto; border: 1px solid rgba(255,255,255,0.5); position: relative; 
+      width: 100%; max-width: 600px; max-height: 90vh; border-radius: var(--radius-lg); padding: 22px 18px; 
+      box-sizing: border-box; overflow-y: auto; border: 1px solid rgba(255,255,255,0.5); position: relative; 
       text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     }
@@ -256,44 +224,24 @@
       gap: 6px; box-sizing: border-box;
     }
     .map-header h3 { margin: 0; font-size: 15px; color: var(--accent-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:flex; align-items:center;}
-    
     .map-close-circle { width: 32px; height: 32px; min-width: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: white; color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.2s; }
     
-    /* サブヘッダー（トラッキング・フィルター） */
-    .map-sub-header {
-      position: absolute; top: 62px; left: 10px; right: 10px; z-index: 1000;
-      display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
-    }
-    .map-count-badge {
-      background: rgba(255, 255, 255, 0.95); color: var(--accent-primary); font-size: 13px;
-      padding: 8px 16px; border-radius: 30px; font-weight: bold; pointer-events: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
-    }
-    .btn-tracking, .btn-filter-wrap {
-      pointer-events: auto; background: white; color: var(--text-main);
-      border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 30px;
-      font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.2s ease;
-    }
+    /* サブヘッダー */
+    .map-sub-header { position: absolute; top: 62px; left: 10px; right: 10px; z-index: 1000; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+    .map-count-badge { background: rgba(255, 255, 255, 0.95); color: var(--accent-primary); font-size: 13px; padding: 8px 16px; border-radius: 30px; font-weight: bold; pointer-events: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color); }
+    .btn-tracking, .btn-filter-wrap { pointer-events: auto; background: white; color: var(--text-main); border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 30px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease; }
     .btn-tracking.active { background: #FF7043; color: white; border-color: #FF7043; }
 
     #mapFilterPanel { 
       display: none; position: absolute; top: 110px; left: 10px; right: 10px; 
       background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px; border-radius: var(--radius-m); 
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 2px solid var(--accent-primary); 
-      z-index: 1001; animation: fadeIn 0.2s ease-out; max-height: calc(100vh - 130px); overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 2px solid var(--accent-primary); z-index: 1001; animation: fadeIn 0.2s ease-out; max-height: calc(100vh - 130px); overflow-y: auto;
     }
     .filter-item { margin-bottom: 12px; }
     .filter-item label { font-size: 13px; margin-bottom: 4px; color: var(--text-main); }
     .btn-show-all { background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: var(--shadow-btn); }
 
-    /* クラスターマーカーのカスタムスタイル */
-    .custom-cluster {
-      background: rgba(255, 112, 67, 0.9); border: 3px solid white;
-      color: white; font-weight: bold; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.3); font-size: 14px;
-    }
+    .custom-cluster { background: rgba(255, 112, 67, 0.9); border: 3px solid white; color: white; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,0.3); font-size: 14px; }
     .custom-cluster-large { background: rgba(230, 81, 0, 0.95); transform: scale(1.1); }
 
     /* 記録完了モーション */
@@ -312,6 +260,39 @@
     @keyframes text-appear { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); } 100% { transform: scale(1); } }
     @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    /* ▼ リアルなネコ歩行 ローディング画面 ▼ */
+    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(250, 246, 240, 0.95); backdrop-filter: blur(4px); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading-text { color: var(--accent-primary); font-size: 18px; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
+    .cat-runner-container { position: relative; width: 180px; height: 100px; display: flex; justify-content: center; align-items: flex-end; }
+    .ground-shadow { position: absolute; bottom: 2px; width: 110px; height: 6px; background: rgba(0, 0, 0, 0.1); border-radius: 50%; animation: shadow-bound var(--speed) infinite ease-in-out; }
+    .fill-front { fill: var(--cat-front); }
+    .fill-back  { fill: var(--cat-back); }
+    .joint { animation-duration: var(--speed); animation-iteration-count: infinite; animation-timing-function: ease-in-out; transform-origin: 0px 0px; }
+    .cat-gallop { animation: body-bound var(--speed) infinite ease-in-out; }
+    .belly { animation: belly-bound var(--speed) infinite ease-in-out; }
+    .front-half { animation: front-half-bound var(--speed) infinite ease-in-out; }
+    .back-half { animation: back-half-bound var(--speed) infinite ease-in-out; }
+    .tail { animation: tail-bound var(--speed) infinite ease-in-out; }
+    .fr-up { animation-name: f-up; animation-delay: 0s; }
+    .fr-low { animation-name: f-low; animation-delay: 0s; }
+    .fl-up { animation-name: f-up; animation-delay: -0.06s; }
+    .fl-low { animation-name: f-low; animation-delay: -0.06s; }
+    .br-up { animation-name: b-up; animation-delay: 0s; }
+    .br-low { animation-name: b-low; animation-delay: 0s; }
+    .bl-up { animation-name: b-up; animation-delay: -0.06s; }
+    .bl-low { animation-name: b-low; animation-delay: -0.06s; }
+    @keyframes body-bound { 0%, 100% { transform: translateY(0px) scaleX(1.02); } 50% { transform: translateY(-16px) scaleX(0.95); } }
+    @keyframes belly-bound { 0%, 100% { transform: scaleX(1.3) scaleY(0.8); } 50% { transform: scaleX(0.8) scaleY(1.3); } }
+    @keyframes front-half-bound { 0%, 100% { transform: translate(125px, 45px) rotate(-8deg); } 50% { transform: translate(110px, 35px) rotate(15deg); } }
+    @keyframes back-half-bound { 0%, 100% { transform: translate(75px, 45px) rotate(10deg); } 50% { transform: translate(90px, 35px) rotate(-18deg); } }
+    @keyframes tail-bound { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(-25deg); } }
+    @keyframes f-up { 0%, 100% { transform: rotate(-60deg); } 50% { transform: rotate(45deg); } }
+    @keyframes f-low { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(0deg); } 50% { transform: rotate(-40deg); } 75% { transform: rotate(-80deg); } }
+    @keyframes b-up { 0%, 100% { transform: rotate(55deg); } 50% { transform: rotate(-65deg); } }
+    @keyframes b-low { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(70deg); } 50% { transform: rotate(45deg); } 75% { transform: rotate(0deg); } }
+    @keyframes shadow-bound { 0%, 100% { transform: scaleX(1); opacity: 0.2; } 50% { transform: scaleX(0.5); opacity: 0.05; } }
 
     #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
 
@@ -391,6 +372,24 @@
       データはねこログを使用している全ての人のデータが反映されます。
     </p>
     <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="closeMapGuide()">分かった！</button>
+  </div>
+</div>
+
+<!-- 記録完了モーション モーダル -->
+<div id="successModal" class="modal-success">
+  <div class="success-stage">
+    <div id="successRipple" class="success-ripple"></div>
+    <div id="successPin" class="success-pin-wrapper">
+      <svg width="64" height="80" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 80C32 80 58 48 58 32C58 17.6421 46.3579 6 32 6C17.6421 6 6 17.6421 6 32C6 48 32 80 32 80Z" fill="#FF7A00"/>
+        <ellipse cx="32" cy="37" rx="10.5" ry="8.5" fill="white" />
+        <circle cx="18.5" cy="23.5" r="3.8" fill="white" />
+        <circle cx="27" cy="17" r="3.8" fill="white" />
+        <circle cx="37" cy="17" r="3.8" fill="white" />
+        <circle cx="45.5" cy="23.5" r="3.8" fill="white" />
+      </svg>
+    </div>
+    <div id="successText" class="success-status-text">記録完了</div>
   </div>
 </div>
 
@@ -532,6 +531,26 @@
 <!-- みんなのねこマップ モーダル -->
 <div id="mapModal" class="modal">
   <div class="modal-content" style="position:relative; overflow:hidden;">
+    
+    <!-- ▼ リアルなネコ歩行 ローディング画面 ▼ -->
+    <div id="mapLoadingOverlay" class="loading-overlay hidden">
+      <div class="loading-text">Now Loading...</div>
+      <div class="cat-runner-container">
+        <svg width="200" height="120" viewBox="0 0 200 120">
+          <g class="cat-gallop">
+            <ellipse cx="100" cy="45" rx="22" ry="16" class="fill-front belly" />
+            <g transform="translate(75, 45)" class="back-half"><g class="joint bl-up"><path d="M-7,0 C-7,15 -5,25 -2,28 L2,28 C5,25 7,15 7,0 Z" class="fill-back" /><g class="joint bl-low" transform="translate(0, 26)"><path d="M-3,0 L3,0 L1,26 L6,26 L6,30 L-5,30 Z" class="fill-back" /></g></g></g>
+            <g transform="translate(125, 45)" class="front-half"><g class="joint fl-up"><path d="M-5,0 C-5,10 -3,20 -1,22 L1,22 C3,20 5,10 5,0 Z" class="fill-back" /><g class="joint fl-low" transform="translate(0, 20)"><path d="M-2,0 L2,0 L1,22 L5,22 L5,26 L-3,26 Z" class="fill-back" /></g></g></g>
+            <g class="back-half"><circle cx="0" cy="0" r="18" class="fill-front" /><g transform="translate(-14, -12)"><g class="joint tail"><path d="M0,0 C-15,-20 -35,-20 -50,-5" fill="none" stroke="var(--cat-front)" stroke-width="7" stroke-linecap="round" /></g></g></g>
+            <g class="front-half"><circle cx="0" cy="0" r="16" class="fill-front" /><polygon points="0,-10 18,-20 24,-8 8,12" class="fill-front" /><circle cx="22" cy="-16" r="10" class="fill-front" /><polygon points="20,-22 36,-13 25,-5" class="fill-front" /><polygon points="16,-22 13,-35 24,-24" class="fill-front" /><polygon points="22,-22 24,-33 30,-20" class="fill-front" /></g>
+            <g transform="translate(75, 45)" class="back-half"><g class="joint br-up"><path d="M-7,0 C-7,15 -5,25 -2,28 L2,28 C5,25 7,15 7,0 Z" class="fill-front" /><g class="joint br-low" transform="translate(0, 26)"><path d="M-3,0 L3,0 L1,26 L6,26 L6,30 L-5,30 Z" class="fill-front" /></g></g></g>
+            <g transform="translate(125, 45)" class="front-half"><g class="joint fr-up"><path d="M-5,0 C-5,10 -3,20 -1,22 L1,22 C3,20 5,10 5,0 Z" class="fill-front" /><g class="joint fr-low" transform="translate(0, 20)"><path d="M-2,0 L2,0 L1,22 L5,22 L5,26 L-3,26 Z" class="fill-front" /></g></g></g>
+          </g>
+        </svg>
+        <div class="ground-shadow"></div>
+      </div>
+    </div>
+
     <div class="map-header">
       <div class="map-title-group"><h3>みんなのねこマップ</h3></div>
       <button type="button" class="map-close-circle" onclick="closeModal('mapModal')">×</button>
@@ -606,8 +625,8 @@
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
   
   window.addEventListener('DOMContentLoaded', () => {
-    // ▼ 北大東島がすっぽり入るように座標とズームを修正 ▼
-    map = L.map('map').setView([25.946, 131.308], 14); 
+    // ▼ 北大東島がすっぽり入るように座標とズーム(13)を修正 ▼
+    map = L.map('map').setView([25.946, 131.308], 13); 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
     map.on('click', function(e) { updateMarkerAndLocation(e.latlng); });
     setTimeout(() => { map.invalidateSize(); }, 300);
@@ -684,9 +703,11 @@
 
   async function openMapModal() {
     openModalWithHistory('mapModal');
+    const loader = document.getElementById('mapLoadingOverlay'); if (loader) loader.classList.remove('hidden');
+    
     if (!aggMap) {
-      // ▼ みんなのネコマップも北大東島がすっぽり入るように座標とズームを修正 ▼
-      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 14);
+      // ▼ みんなのネコマップも北大東島がすっぽり入るように座標とズーム(13)を修正 ▼
+      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
       L.control.zoom({ position: 'bottomright' }).addTo(aggMap);
       
@@ -737,6 +758,9 @@
 
   async function loadMapMarkers() {
     if(!markersLayer) return;
+    const loader = document.getElementById('mapLoadingOverlay'); 
+    if (loader) loader.classList.remove('hidden');
+
     try {
       markersLayer.clearLayers();
       const response = await fetch(gasURL); const data = await response.json();
@@ -774,7 +798,12 @@
         L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
       });
       document.getElementById('mapCountBadge').innerText = `${displayCount}件`;
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e); 
+    } finally { 
+      // ▼ ここが消えていたためロード画面が永遠に消えない不具合が起きていました！ ▼
+      if (loader) loader.classList.add('hidden'); 
+    }
   }
 
   function openHistoryModal() { openModalWithHistory('historyModal'); loadHistoryList(); }
