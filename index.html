@@ -85,14 +85,13 @@
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       width: calc(100% - 32px); max-width: 400px; height: 64px;
       z-index: 1000;
-      /* 全体に綺麗な影を落とす（カットアウトの形状にも追従） */
       filter: drop-shadow(0 6px 16px rgba(0,0,0,0.08)); 
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-      pointer-events: none; /* 余白のゴーストクリック防止 */
+      pointer-events: none;
     }
-    /* スクロールで隠れる時の位置 */
+    /* スクロールで隠れる時の位置（中央の丸みも見えないよう150px下に完全に下げる） */
     .nav-wrapper.nav-hidden {
-      transform: translate(-50%, 150%);
+      transform: translate(-50%, 150px);
     }
 
     .bottom-nav {
@@ -102,9 +101,7 @@
       border-radius: 32px;
       display: flex; justify-content: space-between; align-items: center;
       padding: 0 10px; box-sizing: border-box; pointer-events: auto;
-      
-      /* ★ 画像の凹みを再現するマスク処理 ★ */
-      /* 中央部分を透明な円でくり抜き、残りを黒（表示）にする */
+      /* 中央部分を透明な円でくり抜くマスク処理 */
       -webkit-mask-image: radial-gradient(circle at 50% 10px, transparent 40px, black 40.5px);
       mask-image: radial-gradient(circle at 50% 10px, transparent 40px, black 40.5px);
     }
@@ -112,15 +109,17 @@
     /* 左右ボタンの隙間確保用（中央の凹み部分） */
     .nav-spacer { width: 84px; flex-shrink: 0; pointer-events: none; }
 
-    /* 送信履歴・設定ボタン（画像の雰囲気に合わせたプレーンな文字） */
+    /* 送信履歴・設定ボタン（薄いグレー背景＋オレンジ文字） */
     .nav-side-btn {
-      background: transparent; border: none; color: var(--text-sub);
-      font-weight: 900; font-size: 13px; height: 100%; flex: 1;
-      cursor: pointer; transition: color 0.2s, background 0.2s; 
+      background: #F2EFEA; /* 背景を白と同化しない薄いグレーに */
+      border: 1.5px solid rgba(255, 112, 67, 0.15); /* ほんのりオレンジの枠線 */
+      color: var(--accent-primary); /* 文字を見やすいオレンジに */
+      font-weight: 900; font-size: 13px; height: 44px; flex: 1; margin: 0 4px;
+      cursor: pointer; transition: all 0.2s ease; 
       display: flex; justify-content: center; align-items: center; 
-      letter-spacing: 0.5px; border-radius: 32px;
+      letter-spacing: 0.5px; border-radius: 22px;
     }
-    .nav-side-btn:active { color: var(--accent-primary); background: rgba(0,0,0,0.04); }
+    .nav-side-btn:active { background: #E6E2DC; transform: scale(0.95); }
 
     /* 中央のメインボタン（凹みにピタッとハマる円形ボタン） */
     .nav-fab {
