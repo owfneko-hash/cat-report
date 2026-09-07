@@ -119,7 +119,6 @@
 
     .nav-spacer { width: 90px; flex-shrink: 0; pointer-events: none; }
 
-    /* 送信履歴・設定ボタン（背景白、文字オレンジ） */
     .nav-side-btn {
       background: #FFFFFF; 
       border: 1.5px solid rgba(244, 81, 30, 0.2); 
@@ -131,7 +130,6 @@
     }
     .nav-side-btn:active { background: #FFF3E0; transform: scale(0.95); }
 
-    /* 中央のメインボタン（オレンジグラデーション） */
     .nav-fab {
       position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
       width: 68px; height: 68px; border-radius: 50%; border: none;
@@ -264,20 +262,49 @@
     .loading-text { color: var(--accent-primary); font-size: 18px; font-weight: 900; letter-spacing: 2px; margin-top: 10px; }
     .spinner { width: 50px; height: 50px; border: 6px solid rgba(255, 112, 67, 0.15); border-left-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
     
-    /* 記録完了モーション（最適化サイズ版・オレンジテーマ） */
+    /* =========================================
+       記録完了モーション（上部200度エフェクト統合版）
+       ========================================= */
     .modal-success { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 10000; justify-content: center; align-items: center; }
     .modal-success.active { display: flex; }
-    .success-stage { position: relative; width: 300px; height: 300px; max-width: 90%; background: white; border-radius: 36px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    .success-ripple { position: absolute; bottom: 95px; width: 100px; height: 26px; background: rgba(255, 112, 67, 0.3); border-radius: 50%; transform: scale(0); opacity: 0; }
-    .success-ripple.animate { animation: ripple-effect 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.25s forwards; }
-    .success-pin-wrapper { position: absolute; bottom: 105px; transform: translateY(-300px); opacity: 0; z-index: 2; }
-    .success-pin-wrapper.animate { animation: drop-bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    .success-status-text { position: absolute; bottom: 35px; font-size: 32px; font-weight: 900; color: var(--accent-primary); letter-spacing: 4px; opacity: 0; transform: translateY(20px); z-index: 1; text-shadow: 0 4px 12px rgba(255, 112, 67, 0.25); }
-    .success-status-text.animate { animation: text-appear 0.3s ease-out 0.4s forwards; }
+    .success-stage { position: relative; width: 280px; height: 280px; background: white; border-radius: 36px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
-    @keyframes drop-bounce { 0% { transform: translateY(-300px) scale(0.8); opacity: 0; } 35% { opacity: 1; } 55% { transform: translateY(0) scaleY(0.7) scaleX(1.3); } 72% { transform: translateY(-30px) scaleY(1.15) scaleX(0.88); } 85% { transform: translateY(0) scaleY(0.95) scaleX(1.05); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-    @keyframes ripple-effect { 0% { transform: scale(0.2); opacity: 0.8; } 100% { transform: scale(3.5); opacity: 0; } }
-    @keyframes text-appear { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+    .success-ripple { position: absolute; bottom: 100px; width: 50px; height: 16px; background: rgba(255, 122, 0, 0.25); border-radius: 50%; transform: scale(0); opacity: 0; }
+    .success-ripple.animate { animation: ripple-effect 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.35s forwards; }
+
+    .success-pin-wrapper { position: absolute; bottom: 105px; transform: translateY(-250px); opacity: 0; z-index: 2; }
+    .success-pin-wrapper.animate { animation: drop-bounce 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+    /* --- 弾けるエフェクト（ピン上部に配置） --- */
+    .burst-wrapper { position: absolute; bottom: 148px; left: 50%; transform: translateX(-50%); width: 0; height: 0; z-index: 3; pointer-events: none; }
+    .flash-ring { position: absolute; top: -24px; left: -24px; width: 48px; height: 48px; border: 3px solid #ff7a00; border-radius: 50%; box-sizing: border-box; opacity: 0; }
+    .arm { position: absolute; top: 0; left: 0; width: 0; height: 0; }
+    
+    /* 放射アーム（中心軸） */
+    .arm:nth-child(2)  { transform: rotate(-100deg); }
+    .arm:nth-child(3)  { transform: rotate(-75deg); }
+    .arm:nth-child(4)  { transform: rotate(-50deg); }
+    .arm:nth-child(5)  { transform: rotate(-25deg); }
+    .arm:nth-child(6)  { transform: rotate(0deg); }
+    .arm:nth-child(7)  { transform: rotate(25deg); }
+    .arm:nth-child(8)  { transform: rotate(50deg); }
+    .arm:nth-child(9)  { transform: rotate(75deg); }
+    .arm:nth-child(10) { transform: rotate(100deg); }
+    
+    .dot { position: absolute; top: -5px; left: -5px; width: 10px; height: 10px; border-radius: 50%; background-color: #ff7a00; opacity: 0; }
+    .arm:nth-child(even) .dot { background-color: #ffc107; width: 8px; height: 8px; left: -4px; }
+
+    .burst-wrapper.animate .flash-ring { animation: ring-pop 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) 0.45s forwards; }
+    .burst-wrapper.animate .dot { animation: dot-pop 0.45s cubic-bezier(0.1, 0.8, 0.3, 1) 0.45s forwards; }
+
+    .success-status-text { position: absolute; bottom: 55px; font-size: 20px; font-weight: 900; color: #ff7a00; letter-spacing: 2px; opacity: 0; transform: translateY(10px); z-index: 1; text-shadow: 0 4px 12px rgba(255, 122, 0, 0.2); }
+    .success-status-text.animate { animation: text-appear 0.4s ease-out 0.55s forwards; }
+
+    @keyframes drop-bounce { 0% { transform: translateY(-220px) scale(0.8); opacity: 0; } 35% { opacity: 1; } 55% { transform: translateY(0) scaleY(0.7) scaleX(1.3); } 72% { transform: translateY(-16px) scaleY(1.15) scaleX(0.88); } 85% { transform: translateY(0) scaleY(0.95) scaleX(1.05); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    @keyframes ripple-effect { 0% { transform: scale(0.2); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
+    @keyframes ring-pop { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+    @keyframes dot-pop { 0% { transform: translateY(0) scale(0.3); opacity: 1; } 50% { opacity: 1; } 100% { transform: translateY(-55px) scale(1.1); opacity: 0; } }
+    @keyframes text-appear { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
 
     #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
     .history-item { background: white; padding: 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); margin-bottom: 12px; text-align: left; box-shadow: 0 2px 6px rgba(0,0,0,0.03); position: relative; }
@@ -310,10 +337,32 @@
 <div id="successModal" class="modal-success">
   <div class="success-stage">
     <div id="successRipple" class="success-ripple"></div>
+    
     <div id="successPin" class="success-pin-wrapper">
-      <!-- オレンジ色のシャドウに変更 -->
-      <img src="icon-neko.png" style="width: 160px; height: auto; filter: drop-shadow(0px 12px 24px rgba(255, 112, 67, 0.7));">
+      <svg width="64" height="80" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 80C32 80 58 48 58 32C58 17.6421 46.3579 6 32 6C17.6421 6 6 17.6421 6 32C6 48 32 80 32 80Z" fill="#FF7A00"/>
+        <ellipse cx="32" cy="37" rx="10.5" ry="8.5" fill="white" />
+        <circle cx="18.5" cy="23.5" r="3.8" fill="white" />
+        <circle cx="27" cy="17" r="3.8" fill="white" />
+        <circle cx="37" cy="17" r="3.8" fill="white" />
+        <circle cx="45.5" cy="23.5" r="3.8" fill="white" />
+      </svg>
     </div>
+
+    <!-- ピン頭部を中心に広がるエフェクト -->
+    <div id="successBurst" class="burst-wrapper">
+      <div class="flash-ring"></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+      <div class="arm"><div class="dot"></div></div>
+    </div>
+    
     <div id="successText" class="success-status-text">記録完了！</div>
   </div>
 </div>
@@ -1070,10 +1119,12 @@
     try {
       const params = new URLSearchParams(); params.append('action', 'delete'); params.append('editId', id);
       
+      // 削除エラーを無視して強行
       fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" }).catch(e => console.log(e));
       
       await deleteFromHistoryDB(id); 
       
+      // 送信待ちキューに同じIDがあれば消す
       const offlineData = await getFromOfflineDB();
       for (const item of offlineData) {
         if (item.data.editId === id) await deleteFromOfflineDB(item.key);
@@ -1160,23 +1211,26 @@
     const modal = document.getElementById('successModal');
     if (!modal) return;
     
-    const elements = ['successPin', 'successRipple', 'successText'].map(id => document.getElementById(id));
+    const elements = ['successPin', 'successRipple', 'successText', 'successBurst'].map(id => document.getElementById(id));
     elements.forEach(el => { if(el) el.classList.remove('animate'); });
     
     modal.classList.add('active');
-    void modal.offsetWidth; 
+    void modal.offsetWidth; // reflow
     
     elements.forEach(el => { if(el) el.classList.add('animate'); });
     
     setTimeout(() => {
       modal.classList.remove('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1200);
+    }, 1600);
   }
 
+  // ▼ 通信処理（エラー時はthrowして呼び出し元で再送キューに入れる） ▼
   async function sendDataToGAS(dataObj) {
     const params = new URLSearchParams(); 
     for (const key in dataObj) { params.append(key, dataObj[key]); }
+    
+    // fetchが通信エラーで失敗した場合は例外が飛び、catch側で拾われます
     await fetch(gasURL, { 
       method: "POST", 
       headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
@@ -1223,10 +1277,12 @@
       resetFormUI();
       triggerSuccessAnimation();
 
+      // awaitで待たずに裏で送信させることで、UI操作をブロックしません
       sendDataToGAS(dataObj).then(() => {
         saveToHistoryDB(dataObj);
         setTimeout(() => { loadMapMarkers(); }, 1500);
       }).catch(async (e) => {
+        // もし途中で通信が切れたりした場合のみ、オフラインDBへ退避します
         await saveToOfflineDB(dataObj);
         await saveToHistoryDB(dataObj);
         updateOfflineCount();
