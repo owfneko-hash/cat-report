@@ -409,3 +409,819 @@
 
     <div class="form-group">
       <label class="required">目撃場所</label>
+      <button type="button" id="currentLocationBtn" class="btn-action btn-sub" onclick="goToCurrentLocation()">現在地を取得する</button>
+      <div id="map"></div>
+      <p id="locationDisplay" style="color: var(--accent-primary); font-size: 0.9em; margin-top: 8px; font-weight:bold;">場所が選択されていません</p>
+    </div>
+
+    <div class="form-group">
+      <label class="required">目撃日時</label>
+      <button type="button" id="setNowBtn" class="btn-action btn-sub" onclick="setNowDatetime()">現在日時を自動入力</button>
+      <div style="display: flex; gap: 8px;">
+        <input type="date" id="dateInput" style="flex: 2;" required>
+        <select id="hourInput" style="flex: 1;" required>
+          <option value="">時頃</option>
+          <option value="00">0時頃</option><option value="01">1時頃</option><option value="02">2時頃</option>
+          <option value="03">3時頃</option><option value="04">4時頃</option><option value="05">5時頃</option>
+          <option value="06">6時頃</option><option value="07">7時頃</option><option value="08">8時頃</option>
+          <option value="09">9時頃</option><option value="10">10時頃</option><option value="11">11時頃</option>
+          <option value="12">12時頃</option><option value="13">13時頃</option><option value="14">14時頃</option>
+          <option value="15">15時頃</option><option value="16">16時頃</option><option value="17">17時頃</option>
+          <option value="18">18時頃</option><option value="19">19時頃</option><option value="20">20時頃</option>
+          <option value="21">21時頃</option><option value="22">22時頃</option><option value="23">23時頃</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="catCount" class="required">ネコの頭数</label>
+      <select id="catCount" onchange="toggleCatDetail()" required>
+        <option value="">選択してください</option>
+        <option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option><option value="子ネコ">子ネコ</option>
+      </select>
+      <div id="catCountNumGroup" class="hidden" style="margin-top: 12px;">
+        <label for="catCountNum" class="required">具体的な頭数</label>
+        <select id="catCountNum" onchange="updateTotalCatCount()"><option value="">選択してください</option></select>
+      </div>
+      <div id="catDetailGroup" class="hidden" style="margin-top: 12px;">
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;"><label for="catCountParent" class="required" style="font-size: 13px;">親の頭数</label><select id="catCountParent" onchange="updateTotalCatCount()"><option value="">親</option></select></div>
+          <div style="flex: 1;"><label for="catCountChild" class="required" style="font-size: 13px;">子の頭数</label><select id="catCountChild" onchange="updateTotalCatCount()"><option value="">子</option></select></div>
+        </div>
+      </div>
+      <div id="catChildOnlyGroup" class="hidden" style="margin-top: 12px;">
+        <label for="catCountChildOnly" class="required" style="font-size: 13px;">子ネコの頭数</label>
+        <select id="catCountChildOnly" onchange="updateTotalCatCount()"><option value="">選択してください</option></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="required">耳カットされている個体か（頭数内訳）</label>
+      <div class="count-list">
+        <div class="count-row" id="rowEarCut_はい" onclick="changeEarCutCount('はい', 1)">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_はい"></span>はい</span>
+          <div class="stepper-control" onclick="event.stopPropagation()">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('はい', -1)">ー</button>
+            <span id="earCutCount_はい" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('はい', 1)">＋</button>
+          </div>
+        </div>
+        <div class="count-row" id="rowEarCut_いいえ" onclick="changeEarCutCount('いいえ', 1)">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_いいえ"></span>いいえ</span>
+          <div class="stepper-control" onclick="event.stopPropagation()">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('いいえ', -1)">ー</button>
+            <span id="earCutCount_いいえ" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('いいえ', 1)">＋</button>
+          </div>
+        </div>
+        <div class="count-row" id="rowEarCut_不明" onclick="changeEarCutCount('不明', 1)">
+          <span class="count-label"><span class="pattern-check" id="checkEarCut_不明"></span>不明</span>
+          <div class="stepper-control" onclick="event.stopPropagation()">
+            <button type="button" class="btn-step" onclick="changeEarCutCount('不明', -1)">ー</button>
+            <span id="earCutCount_不明" class="count-num">0</span>
+            <button type="button" class="btn-step add" onclick="changeEarCutCount('不明', 1)">＋</button>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="hiddenEarCut" name="earCut">
+    </div>
+
+    <div class="form-group">
+      <label>ネコの柄（複数選択・カウント可）</label>
+      <div id="selectedPatternTags" class="tag-container"></div>
+      <div id="patternMenu" class="pattern-menu"></div>
+      <div id="otherPatternContainer" class="hidden">
+        <input type="text" id="patternOtherInput" placeholder="その他の柄を具体的に入力" oninput="updatePatternValue()">
+      </div>
+      <input type="hidden" id="hiddenCatPattern" name="catPattern">
+    </div>
+
+    <div class="form-group">
+      <label for="photo">目撃写真（複数選択可）</label>
+      <input type="file" id="photo" accept="image/*" multiple>
+    </div>
+
+    <div class="form-group">
+      <label for="remarks">備考</label>
+      <textarea id="remarks" rows="3" placeholder="その他、気づいたことなどがあればご記入ください"></textarea>
+    </div>
+
+    <button type="submit" id="submitBtn">記録する</button>
+  </form>
+  <div id="output"></div>
+</div>
+
+<div id="mapModal" class="modal">
+  <div class="modal-content" style="position:relative; overflow:hidden;">
+    
+    <div id="mapLoadingOverlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
+      <div class="loading-text">Now Loading...</div>
+    </div>
+
+    <div class="map-floating-title">
+      <h3>みんなのねこマップ</h3>
+      <button type="button" class="btn-help-circle" onclick="openMapGuide()">?</button>
+    </div>
+
+    <button type="button" class="map-floating-close" onclick="closeModal('mapModal')">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+
+    <div id="mapCountBadge" class="map-floating-count" onclick="alert('現在地図上で表示されている件数です。\nフィルターに応じて件数は変わります。')">0件</div>
+
+    <div class="map-floating-actions">
+      <button type="button" id="btnTracking" class="map-action-btn" onclick="toggleTracking()" title="現在地追従">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19 12c0-3.87-3.13-7-7-7s-7 3.13-7 7m14 0c0 3.87-3.13 7-7 7s-7-3.13-7-7m7-9V1m0 22v-2m9-9h2M1 12h2"></path></svg>
+      </button>
+      <button type="button" id="btnFilterMap" class="map-action-btn" onclick="toggleFilterPanel()" title="フィルター">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+      </button>
+    </div>
+
+    <div id="mapFilterPanel">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:14px;">
+        <h4 style="margin:0; color:var(--accent-primary); font-size:16px;">詳細フィルター</h4>
+        <button type="button" class="btn-show-all" onclick="resetAndApplyFilters()">全て表示</button>
+      </div>
+      <div class="filter-item"><label>いつ以降のデータ？</label><input type="date" id="filterDate" style="width:100%;"></div>
+      <div class="filter-item">
+        <label>頭数</label>
+        <select id="filterCount" style="width:100%;">
+          <option value="">すべて</option><option value="1頭">1頭</option><option value="2頭">2頭</option><option value="3頭以上">3頭以上</option><option value="親子">親子</option><option value="子ネコ">子ネコ</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>耳カット</label>
+        <select id="filterEarCut" style="width:100%;">
+          <option value="">すべて</option><option value="はい">あり</option><option value="いいえ">なし</option><option value="不明">不明</option>
+        </select>
+      </div>
+      <div class="filter-item"><label>報告者名</label><select id="filterName" style="width:100%;"><option value="">すべて</option></select></div>
+      <div style="display:flex; gap:10px; margin-top:20px;"><button type="button" class="btn-action" style="margin-bottom:0;" onclick="applyFilters()">適用する</button></div>
+    </div>
+    <div id="aggregatedMap"></div>
+  </div>
+</div>
+
+<div id="historyModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('historyModal')">×</span>
+    <h3 style="color:var(--accent-primary); margin-top:0;">送信履歴（直近3日）</h3>
+    <div id="historyList">
+      <p style="color:var(--text-sub);">履歴を読み込んでいます...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==========================================
+  // GASのURL
+  // ==========================================
+  const gasURL = "https://script.google.com/macros/s/AKfycbxxNvrgs0vTWNF5W8SWpSoaeFRFF5fK0iypGjDB427Y8e9SPZn84eqma7GV8mGOzHJSIA/exec";
+
+  function createDynamicNekoIcon() {
+    return L.icon({ iconUrl: 'icon-neko.png', className: 'custom-neko-icon', iconAnchor: [19, 38], popupAnchor: [0, -38] });
+  }
+  const nekoIcon = createDynamicNekoIcon();
+
+  const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+  var map = null; 
+  var marker = null;
+  var aggMap = null; 
+  var markersLayer = null;
+  let isTracking = false; 
+  let trackingMarker = null;
+
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
+  
+  window.addEventListener('DOMContentLoaded', () => {
+    map = L.map('map').setView([25.946, 131.308], 13); 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
+    map.on('click', function(e) { updateMarkerAndLocation(e.latlng); });
+    setTimeout(() => { map.invalidateSize(); }, 300);
+
+    initCatCountOptions();
+    updateOfflineCount();
+    const savedName = localStorage.getItem('nekoLogName');
+    if (!savedName) {
+      document.getElementById('welcomeModal').style.display = 'flex';
+      if (!isStandalone) { document.getElementById('stepInstall').classList.remove('hidden'); if (isIos) { toggleGuide('welcomeIos'); } else { toggleGuide('welcomeAndroid'); } } 
+      else { document.getElementById('stepName').classList.remove('hidden'); }
+    }
+  });
+
+  let lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const navWrapper = document.getElementById('navWrapper');
+    if (currentScrollY > lastScrollY && currentScrollY > 60) {
+      navWrapper.classList.add('nav-hidden');
+    } else if (currentScrollY < lastScrollY) {
+      navWrapper.classList.remove('nav-hidden');
+    }
+    lastScrollY = currentScrollY;
+  });
+
+  function showNav() {
+    document.getElementById('navWrapper').classList.remove('nav-hidden');
+  }
+
+  function initCatCountOptions() {
+    const numSelect = document.getElementById('catCountNum'); numSelect.innerHTML = '<option value="">選択してください</option>';
+    for (let i = 3; i <= 30; i++) numSelect.innerHTML += `<option value="${i}頭">${i}頭</option>`;
+    const parentSelect = document.getElementById('catCountParent'); parentSelect.innerHTML = '<option value="">親</option>';
+    for (let i = 1; i <= 10; i++) parentSelect.innerHTML += `<option value="${i}頭">親 ${i}頭</option>`;
+    const childSelect = document.getElementById('catCountChild'); childSelect.innerHTML = '<option value="">子</option>';
+    for (let i = 0; i <= 20; i++) childSelect.innerHTML += `<option value="${i}頭">子 ${i}頭</option>`;
+    const childOnlySelect = document.getElementById('catCountChildOnly'); childOnlySelect.innerHTML = '<option value="">選択してください</option>';
+    for (let i = 1; i <= 20; i++) childOnlySelect.innerHTML += `<option value="${i}頭">${i}頭</option>`;
+  }
+
+  let currentActiveModal = null;
+  function openModalWithHistory(modalId) {
+    document.getElementById(modalId).style.display = 'flex'; currentActiveModal = modalId;
+    try { history.pushState({ modalOpen: true, modalId: modalId }, ""); } catch(e) {}
+  }
+  window.addEventListener('popstate', (e) => {
+    if (currentActiveModal) { document.getElementById(currentActiveModal).style.display = 'none'; currentActiveModal = null; }
+  });
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    if (currentActiveModal === modalId) { currentActiveModal = null; try { if (history.state && history.state.modalOpen) history.back(); } catch(e) {} }
+  }
+
+  function openSettingsModal() { document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || ''; openModalWithHistory('settingsModal'); }
+  function saveSettingsName() {
+    const name = document.getElementById('settingsNameInput').value.trim();
+    if (!name) { alert('名前を入力してください。'); return; }
+    localStorage.setItem('nekoLogName', name); closeModal('settingsModal');
+  }
+
+  function toggleGuide(guideId) {
+    const content = document.getElementById(guideId); const arrow = document.getElementById(guideId + 'Arrow');
+    if (content.classList.contains('hidden')) { content.classList.remove('hidden'); if (arrow) arrow.innerText = '▲'; } 
+    else { content.classList.add('hidden'); if (arrow) arrow.innerText = '▼'; }
+  }
+  function nextWelcomeStep() { document.getElementById('stepInstall').classList.add('hidden'); document.getElementById('stepName').classList.remove('hidden'); }
+  function finishWelcome() {
+    const name = document.getElementById('welcomeNameInput').value.trim();
+    if (!name) { alert('名前を入力してください。'); return; }
+    localStorage.setItem('nekoLogName', name); document.getElementById('welcomeModal').style.display = 'none';
+  }
+
+  function openMapGuide() {
+    document.getElementById('mapGuideModal').style.display = 'flex';
+  }
+
+  async function openMapModal() {
+    openModalWithHistory('mapModal');
+    const loader = document.getElementById('mapLoadingOverlay'); if (loader) loader.classList.remove('hidden');
+    
+    if (!aggMap) {
+      aggMap = L.map('aggregatedMap', { zoomControl: false }).setView([25.946, 131.308], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aggMap);
+      L.control.zoom({ position: 'bottomleft' }).addTo(aggMap);
+      
+      markersLayer = L.markerClusterGroup({
+        disableClusteringAtZoom: 16, 
+        maxClusterRadius: 25,
+        iconCreateFunction: function(cluster) {
+          var count = cluster.getChildCount();
+          var cName = count >= 5 ? 'custom-cluster custom-cluster-large' : 'custom-cluster';
+          var size = count >= 5 ? 44 : 36;
+          return L.divIcon({ html: `<div>${count}</div>`, className: cName, iconSize: L.point(size, size) });
+        }
+      });
+      aggMap.addLayer(markersLayer);
+
+      aggMap.on('locationfound', function(e) {
+        if (!trackingMarker) { trackingMarker = L.circleMarker(e.latlng, {radius: 8, color: '#FFFFFF', weight: 2, fillColor: '#2196F3', fillOpacity: 1}).addTo(aggMap); } 
+        else { trackingMarker.setLatLng(e.latlng); }
+      });
+    }
+    setTimeout(() => { aggMap.invalidateSize(); }, 200);
+    document.getElementById('filterDate').value = ""; document.getElementById('filterCount').value = "";
+    document.getElementById('filterEarCut').value = ""; document.getElementById('filterName').value = "";
+    applyFilters(); // 初期状態でフィルターボタンのオレンジ色をリセットするため
+    const mapGuideSeen = localStorage.getItem('nekoLogMapGuideSeen');
+    if (!mapGuideSeen) document.getElementById('mapGuideModal').style.display = 'flex';
+  }
+
+  function toggleTracking() {
+    const btn = document.getElementById('btnTracking');
+    if (!isTracking) {
+      aggMap.locate({setView: true, watch: true, maxZoom: 16});
+      isTracking = true; btn.classList.add('active');
+    } else {
+      aggMap.stopLocate();
+      isTracking = false; btn.classList.remove('active');
+    }
+  }
+
+  function closeMapGuide() { document.getElementById('mapGuideModal').style.display = 'none'; localStorage.setItem('nekoLogMapGuideSeen', 'true'); }
+  function toggleFilterPanel() { const panel = document.getElementById('mapFilterPanel'); panel.style.display = panel.style.display === 'block' ? 'none' : 'block'; }
+  
+  function resetAndApplyFilters() { 
+    document.getElementById('filterDate').value = ""; 
+    document.getElementById('filterCount').value = ""; 
+    document.getElementById('filterEarCut').value = ""; 
+    document.getElementById('filterName').value = ""; 
+    applyFilters(); 
+  }
+  
+  // ▼ フィルター適用状態に応じてアイコン色を変える処理 ▼
+  function applyFilters() { 
+    document.getElementById('mapFilterPanel').style.display = 'none'; 
+    loadMapMarkers(); 
+    
+    const fDate = document.getElementById('filterDate').value;
+    const fCount = document.getElementById('filterCount').value;
+    const fEarCut = document.getElementById('filterEarCut').value;
+    const fName = document.getElementById('filterName').value;
+    const btnFilter = document.getElementById('btnFilterMap');
+
+    if (fDate || fCount || fEarCut || fName) {
+      btnFilter.classList.add('active');
+    } else {
+      btnFilter.classList.remove('active');
+    }
+  }
+  
+  function formatEarCutText(earCutStr) { if (!earCutStr) return '不明'; return earCutStr.replace(/はい/g, 'あり').replace(/いいえ/g, 'なし').replace(/わからない/g, '不明'); }
+
+  async function loadMapMarkers() {
+    if(!markersLayer) return;
+    const loader = document.getElementById('mapLoadingOverlay'); 
+    if (loader) loader.classList.remove('hidden');
+
+    try {
+      markersLayer.clearLayers();
+      const response = await fetch(gasURL); const data = await response.json();
+      
+      window.serverInternalIds = data.map(item => item.internalId).filter(Boolean);
+
+      const fDate = document.getElementById('filterDate').value; const fCount = document.getElementById('filterCount').value;
+      const fEarCut = document.getElementById('filterEarCut').value; const filterNameSelect = document.getElementById('filterName'); const fName = filterNameSelect.value;
+      const namesSet = new Set(); data.forEach(item => { if (item.nickname) namesSet.add(item.nickname); });
+      const namesList = Array.from(namesSet).sort(); filterNameSelect.innerHTML = '<option value="">すべて</option>';
+      namesList.forEach(name => { const opt = document.createElement('option'); opt.value = name; opt.innerText = name; if (name === fName) opt.selected = true; filterNameSelect.appendChild(opt); });
+
+      let cutoffDate = fDate ? new Date(fDate) : null; let displayCount = 0;
+      data.forEach(item => {
+        if (!item.location || !item.datetime) return; const itemDate = new Date(item.datetime);
+        if (cutoffDate && itemDate < cutoffDate) return;
+        if (fCount) {
+          if (fCount === '3頭以上' && !item.catCount.match(/^\d+頭/)) return;
+          if (fCount === '親子' && !item.catCount.includes('親') && !item.catCount.includes('子') && !item.catCount.includes('親子')) return;
+          if (fCount === '子ネコ' && !item.catCount.includes('子ネコ')) return;
+          if ((fCount === '1頭' || fCount === '2頭') && item.catCount !== fCount) return;
+        }
+        if (fEarCut && item.earCut) {
+          if (fEarCut === '不明' && (item.earCut.includes('不明') || item.earCut.includes('わからない'))) { } else if (!item.earCut.includes(fEarCut)) return;
+        } else if (fEarCut && !item.earCut) { if (fEarCut !== '不明') return; }
+        if (fName && item.nickname !== fName) return;
+
+        displayCount++;
+        const [lat, lng] = item.location.split(',').map(Number);
+        const dateStr = itemDate.toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
+        let popupHtml = `<div style="font-size:14px; color:var(--text-main); line-height:1.6;">`;
+        popupHtml += `<strong style="color:var(--accent-primary);"> ${dateStr}</strong><br>頭数: ${item.catCount}<br>耳カット: ${formatEarCutText(item.earCut)}<br>柄: ${item.pattern}<br>報告者: ${item.nickname}`;
+        if (item.photoUrl) popupHtml += `<br><a href="${item.photoUrl}" target="_blank" style="color:#0288D1; text-decoration:none;">写真を見る</a>`;
+        popupHtml += `</div>`;
+        L.marker([lat, lng], { icon: nekoIcon }).addTo(markersLayer).bindPopup(popupHtml);
+      });
+      document.getElementById('mapCountBadge').innerText = displayCount + "件";
+    } catch (e) { 
+      console.error(e); 
+    } finally { 
+      if (loader) loader.classList.add('hidden'); 
+    }
+  }
+
+  function openHistoryModal() { openModalWithHistory('historyModal'); loadHistoryList(); }
+  function setNowDatetime() { const now = new Date(); const roundedTime = new Date(now.getTime() + 29 * 60 * 1000); document.getElementById('dateInput').value = roundedTime.getFullYear() + '-' + String(roundedTime.getMonth()+1).padStart(2, '0') + '-' + String(roundedTime.getDate()).padStart(2, '0'); document.getElementById('hourInput').value = String(roundedTime.getHours()).padStart(2, '0'); }
+  function goToCurrentLocation() {
+    if (!navigator.geolocation) { alert("位置情報に対応していません。"); return; }
+    var locBtn = document.getElementById('currentLocationBtn'); locBtn.disabled = true; locBtn.innerText = "取得中...";
+    navigator.geolocation.getCurrentPosition(
+      function(position) { var latlng = L.latLng(position.coords.latitude, position.coords.longitude); map.setView(latlng, 16); updateMarkerAndLocation(latlng); locBtn.disabled = false; locBtn.innerText = "現在地を取得する"; },
+      function() { alert("位置情報の取得に失敗しました。"); locBtn.disabled = false; locBtn.innerText = "現在地を取得する"; }, { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+  function updateMarkerAndLocation(latlng) {
+    var lat = latlng.lat.toFixed(6); var lng = latlng.lng.toFixed(6);
+    if (marker) { marker.setLatLng(latlng); } else { marker = L.marker(latlng, { icon: nekoIcon }).addTo(map); }
+    document.getElementById('location').value = lat + ", " + lng; document.getElementById('locationDisplay').innerText = "緯度 " + lat + " / 経度 " + lng;
+  }
+  
+  function toggleCatDetail() {
+    var val = document.getElementById('catCount').value; 
+    document.getElementById('catCountNumGroup').classList.toggle('hidden', val !== '3頭以上');
+    document.getElementById('catDetailGroup').classList.toggle('hidden', val !== '親子'); 
+    document.getElementById('catChildOnlyGroup').classList.toggle('hidden', val !== '子ネコ');
+    updateTotalCatCount();
+    setTimeout(() => {
+      if(val === '3頭以上') document.getElementById('catCountNumGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
+      else if(val === '親子') document.getElementById('catDetailGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
+      else if(val === '子ネコ') document.getElementById('catChildOnlyGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
+    }, 100);
+  }
+
+  function getSelectedTotalCatCount() {
+    const mainVal = document.getElementById('catCount').value; if (!mainVal) return 0;
+    if (mainVal === '1頭') return 1; if (mainVal === '2頭') return 2;
+    if (mainVal === '3頭以上') { const numVal = document.getElementById('catCountNum').value; return numVal ? parseInt(numVal.replace('頭', ''), 10) : 0; }
+    if (mainVal === '親子') { const pVal = document.getElementById('catCountParent').value; const cVal = document.getElementById('catCountChild').value; const pNum = pVal ? parseInt(pVal.replace('頭', '').replace('親', '').trim(), 10) : 0; const cNum = cVal ? parseInt(cVal.replace('頭', '').replace('子', '').trim(), 10) : 0; return pNum + cNum; }
+    if (mainVal === '子ネコ') { const cOnlyVal = document.getElementById('catCountChildOnly').value; return cOnlyVal ? parseInt(cOnlyVal.replace('頭', ''), 10) : 0; }
+    return 0;
+  }
+  function updateTotalCatCount() { }
+  function getEarCutTotalCount() { return (earCutCounts["はい"] || 0) + (earCutCounts["いいえ"] || 0) + (earCutCounts["不明"] || 0); }
+  function getPatternTotalCount() { let total = 0; patternCounts.forEach((count) => { total += count; }); return total; }
+
+  const earCutCounts = { "はい": 0, "いいえ": 0, "不明": 0 };
+  function changeEarCutCount(type, delta) {
+    const maxAllowed = getSelectedTotalCatCount();
+    if (delta > 0 && maxAllowed > 0 && getEarCutTotalCount() >= maxAllowed) return;
+    earCutCounts[type] = Math.max(0, (earCutCounts[type] || 0) + delta); updateEarCutUI(); updateEarCutValue();
+  }
+  function updateEarCutUI() {
+    ["はい", "いいえ", "不明"].forEach(key => {
+      const numEl = document.getElementById('earCutCount_' + key); const rowEl = document.getElementById('rowEarCut_' + key); const checkEl = document.getElementById('checkEarCut_' + key);
+      if (numEl) { numEl.innerText = earCutCounts[key]; numEl.classList.toggle('active', earCutCounts[key] > 0); }
+      if (rowEl) rowEl.classList.toggle('selected', earCutCounts[key] > 0);
+      if (checkEl) checkEl.innerText = earCutCounts[key] > 0 ? '✓' : '';
+    });
+  }
+  function updateEarCutValue() {
+    let result = []; for (const key in earCutCounts) { if (earCutCounts[key] > 0) result.push(`${key} (${earCutCounts[key]}頭)`); }
+    document.getElementById('hiddenEarCut').value = result.join(', ');
+  }
+
+  const patternCategories = {
+    "トラ柄系": [ { id: "キジトラ", icon: "<img src='kijitora.png' style='height:44px; vertical-align:middle;'>" }, { id: "キジ白", icon: "<img src='kijisiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバトラ", icon: "<img src='sabatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "サバ白", icon: "<img src='sabasiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ", icon: "<img src='tyatora.png' style='height:44px; vertical-align:middle;'>" }, { id: "茶トラ白", icon: "<img src='tyasiro.png' style='height:44px; vertical-align:middle;'>" } ],
+    "単色": [ { id: "黒", icon: "<img src='kuro.png' style='height:44px; vertical-align:middle;'>" }, { id: "白", icon: "<img src='siro.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー", icon: "<img src='gray.png' style='height:44px; vertical-align:middle;'>" } ],
+    "複色": [ { id: "黒白", icon: "<img src='kurosiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "シャム系", icon: "<img src='syamu.png' style='height:44px; vertical-align:middle;'>" }, { id: "グレー白", icon: "<img src='graysiro.png' style='height:44px; vertical-align:middle;'>" }, { id: "サビ", icon: "<img src='sabi.png' style='height:44px; vertical-align:middle;'>" }, { id: "三毛", icon: "<img src='mike.png' style='height:44px; vertical-align:middle;'>" } ]
+  };
+  const standalonePatterns = [ { id: "不明", icon: "", isCountable: true }, { id: "その他（記述）", icon: "", isCountable: false } ];
+  let patternCounts = new Map(); let selectedStandalonePatterns = new Set(); let currentPatternCategory = null;
+
+  function changePatternCount(id, delta, event) {
+    if (event) event.stopPropagation();
+    if (id === 'その他（記述）') {
+      if (selectedStandalonePatterns.has(id)) selectedStandalonePatterns.delete(id); else selectedStandalonePatterns.add(id);
+      document.getElementById('otherPatternContainer').classList.toggle('hidden', !selectedStandalonePatterns.has('その他（記述）'));
+    } else {
+      const maxAllowed = getSelectedTotalCatCount();
+      if (delta > 0 && maxAllowed > 0 && getPatternTotalCount() >= maxAllowed) return;
+      let current = patternCounts.get(id) || 0; let updated = Math.max(0, current + delta);
+      if (updated === 0) patternCounts.delete(id); else patternCounts.set(id, updated);
+    }
+    renderPatternMenu();
+  }
+  function renderPatternMenu() {
+    const menu = document.getElementById('patternMenu'); menu.innerHTML = '';
+    if (currentPatternCategory) {
+      const backBtn = document.createElement('div'); backBtn.className = 'pattern-item'; backBtn.style.backgroundColor = 'var(--accent-soft)'; 
+      backBtn.innerHTML = '<strong>◀ 戻る</strong>'; backBtn.onclick = () => { currentPatternCategory = null; renderPatternMenu(); }; menu.appendChild(backBtn);
+      patternCategories[currentPatternCategory].forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon, true)); });
+    } else {
+      Object.keys(patternCategories).forEach(cat => {
+        const div = document.createElement('div'); div.className = 'pattern-item'; 
+        div.innerHTML = `<span class="pattern-info"><span class="pattern-check"></span><span>${cat}</span></span><span style="color:var(--text-sub);">▶</span>`; 
+        div.onclick = () => { currentPatternCategory = cat; renderPatternMenu(); }; menu.appendChild(div);
+      });
+      standalonePatterns.forEach(item => { menu.appendChild(createPatternItem(item.id, item.icon, item.isCountable)); });
+    }
+    updatePatternTags();
+  }
+  function createPatternItem(id, icon, isCountable) {
+    const div = document.createElement('div'); 
+    if (isCountable) {
+      const count = patternCounts.get(id) || 0; const isSelected = count > 0;
+      div.className = 'pattern-item' + (isSelected ? ' selected' : ''); const iconHtml = icon ? `<span class="pattern-icon">${icon}</span>` : '';
+      div.innerHTML = `
+        <div class="pattern-info" onclick="changePatternCount('${id}', 1)">
+          <span class="pattern-check">${isSelected ? '✓' : ''}</span>${iconHtml}<span>${id}</span>
+        </div>
+        <div class="stepper-control">
+          <button type="button" class="btn-step" onclick="changePatternCount('${id}', -1, event)">ー</button>
+          <span class="count-num ${isSelected ? 'active' : ''}">${count}</span>
+          <button type="button" class="btn-step add" onclick="changePatternCount('${id}', 1, event)">＋</button>
+        </div>`;
+    } else {
+      const isSelected = selectedStandalonePatterns.has(id); div.className = 'pattern-item' + (isSelected ? ' selected' : ''); 
+      div.onclick = () => changePatternCount(id, 0);
+      div.innerHTML = `<div class="pattern-info"><span class="pattern-check">${isSelected ? '✓' : ''}</span><span>${id}</span></div>`;
+    }
+    return div;
+  }
+  function updatePatternTags() {
+    const container = document.getElementById('selectedPatternTags'); container.innerHTML = '';
+    patternCounts.forEach((count, id) => { const tag = document.createElement('span'); tag.className = 'tag'; tag.innerHTML = `${id} (${count}頭) <span class="tag-close" onclick="removePatternTag('${id}')">×</span>`; container.appendChild(tag); });
+    selectedStandalonePatterns.forEach(id => { const tag = document.createElement('span'); tag.className = 'tag'; tag.innerHTML = `${id} <span class="tag-close" onclick="removePatternTag('${id}')">×</span>`; container.appendChild(tag); });
+    updatePatternValue();
+  }
+  function removePatternTag(id) { patternCounts.delete(id); selectedStandalonePatterns.delete(id); if (id === 'その他（記述）') document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu(); }
+  function updatePatternValue() {
+    let vals = [];
+    patternCounts.forEach((count, id) => { vals.push(`${id} (${count}頭)`); });
+    selectedStandalonePatterns.forEach(id => {
+      if (id === 'その他（記述）') { const otherVal = document.getElementById('patternOtherInput').value.trim(); vals.push(otherVal ? `その他(${otherVal})` : 'その他'); } 
+      else vals.push(id);
+    });
+    document.getElementById('hiddenCatPattern').value = vals.join(', ');
+  }
+
+  renderPatternMenu();
+
+  const dbName = "CatReportDB"; const storeName = "offlineReports"; const historyStoreName = "myHistory"; 
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(dbName, 2); 
+      request.onupgradeneeded = (e) => { 
+        const db = e.target.result; 
+        if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName, { autoIncrement: true }); 
+        if (!db.objectStoreNames.contains(historyStoreName)) db.createObjectStore(historyStoreName, { keyPath: "id" }); 
+      };
+      request.onsuccess = (e) => resolve(e.target.result); request.onerror = (e) => reject(e.target.error);
+    });
+  }
+  
+  async function saveToOfflineDB(data) { const db = await openDB(); const tx = db.transaction(storeName, "readwrite"); tx.objectStore(storeName).add(data); return tx.complete; }
+  async function getFromOfflineDB() { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(storeName, "readonly"); const req = tx.objectStore(storeName).getAllKeys(); const valReq = tx.objectStore(storeName).getAll(); tx.oncomplete = () => resolve(req.result.map((key, i) => ({ key: key, data: valReq.result[i] }))); }); }
+  async function deleteFromOfflineDB(key) { const db = await openDB(); const tx = db.transaction(storeName, "readwrite"); tx.objectStore(storeName).delete(key); }
+  async function saveToHistoryDB(data) {
+    const db = await openDB(); const tx = db.transaction(historyStoreName, "readwrite");
+    tx.objectStore(historyStoreName).put({ id: data.editId, timestamp: new Date().getTime(), data: data });
+  }
+  async function deleteFromHistoryDB(id) {
+    const db = await openDB(); const tx = db.transaction(historyStoreName, "readwrite");
+    tx.objectStore(historyStoreName).delete(id); return tx.complete;
+  }
+  
+  async function updateOfflineCount() {
+    const data = await getFromOfflineDB();
+    const badge = document.getElementById('offlineBadge');
+    if (data.length > 0) {
+      badge.innerText = `送信待ち: ${data.length}件`;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  async function loadHistoryList() {
+    const listDiv = document.getElementById('historyList');
+    try {
+      const db = await openDB();
+      const tx = db.transaction(historyStoreName, "readonly");
+      const request = tx.objectStore(historyStoreName).getAll();
+      request.onsuccess = async () => {
+        let results = request.result;
+
+        if (window.serverInternalIds && window.serverInternalIds.length > 0) {
+          const validResults = [];
+          for (const item of results) {
+            if (window.serverInternalIds.includes(item.id)) {
+              validResults.push(item);
+            } else {
+              await deleteFromHistoryDB(item.id);
+            }
+          }
+          results = validResults;
+        }
+
+        const threeDaysAgo = new Date().getTime() - (3 * 24 * 60 * 60 * 1000);
+        const recent = results.filter(item => item.timestamp > threeDaysAgo).sort((a,b) => b.timestamp - a.timestamp);
+        if(recent.length === 0) { listDiv.innerHTML = '<p style="text-align:center; color:var(--text-sub);">直近3日の送信履歴はありません。</p>'; return; }
+        
+        listDiv.innerHTML = '';
+        recent.forEach(item => {
+          const d = item.data; const date = new Date(item.timestamp);
+          const formattedDate = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+          listDiv.innerHTML += `
+            <div class="history-item">
+              <button type="button" class="btn-delete-history" onclick="deleteHistoryItem('${item.id}')" title="削除">
+                <img src="icon-trash.png" alt="削除">
+              </button>
+              <div style="font-weight:bold; color:var(--accent-primary); padding-right: 30px;">送信日時: ${formattedDate}</div>
+              <div style="font-size:14px; margin-top:5px; color:var(--text-main);">場所: ${d.location}<br>頭数: ${d.catCountResult}<br>耳カット: ${formatEarCutText(d.earCut)}<br>柄: ${d.catPattern}</div>
+              <button class="btn-edit" onclick="editHistory('${item.id}')">修正して再送信する</button>
+            </div>`;
+        });
+      };
+    } catch(e) { listDiv.innerHTML = '<p>エラーが発生しました。</p>'; }
+  }
+
+  async function deleteHistoryItem(id) {
+    if (!confirm("この記録を削除しますか？\n（サーバー上からも完全に削除されます）")) return;
+    try {
+      const params = new URLSearchParams(); params.append('action', 'delete'); params.append('editId', id);
+      fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" });
+      await deleteFromHistoryDB(id); loadHistoryList(); loadMapMarkers();
+    } catch(e) { console.error(e); alert("削除中にエラーが発生しました。"); }
+  }
+
+  async function editHistory(id) {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(historyStoreName, "readonly");
+      const request = tx.objectStore(historyStoreName).get(id);
+      
+      request.onsuccess = () => {
+        const record = request.result; if(!record) return;
+        const d = record.data;
+        document.getElementById('editId').value = d.editId;
+        document.getElementById('location').value = d.location;
+        const [lat, lng] = d.location.split(',').map(Number);
+        const latlng = L.latLng(lat, lng);
+        map.setView(latlng, 16); updateMarkerAndLocation(latlng);
+
+        const [datePart, timePart] = d.datetime.split('T');
+        document.getElementById('dateInput').value = datePart;
+        document.getElementById('hourInput').value = timePart.split(':')[0];
+
+        const countSelect = document.getElementById('catCount');
+        if (d.catCountResult.includes('子ネコ')) {
+          countSelect.value = "子ネコ";
+          const cOnlyMatch = d.catCountResult.match(/子ネコ\s*(\d+)頭/);
+          if (cOnlyMatch) document.getElementById('catCountChildOnly').value = `${cOnlyMatch[1]}頭`;
+        } else if (d.catCountResult.includes('親') || d.catCountResult.includes('子')) {
+          countSelect.value = "親子";
+          const pMatch = d.catCountResult.match(/親\s*(\d+)頭/); const cMatch = d.catCountResult.match(/子\s*(\d+)頭/);
+          if (pMatch) document.getElementById('catCountParent').value = `${pMatch[1]}頭`;
+          if (cMatch) document.getElementById('catCountChild').value = `${cMatch[1]}頭`;
+        } else if (["1頭","2頭"].includes(d.catCountResult)) { countSelect.value = d.catCountResult; } 
+        else { countSelect.value = "3頭以上"; document.getElementById('catCountNum').value = d.catCountResult; }
+        toggleCatDetail();
+
+        earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; earCutCounts["不明"] = 0;
+        if (d.earCut) {
+          if (d.earCut === "わからない") earCutCounts["不明"] = 1;
+          else {
+            d.earCut.split(', ').forEach(str => {
+              for (const key of ["はい", "いいえ", "不明"]) {
+                if (str.startsWith(key)) {
+                  const match = str.match(/\((\d+)頭\)/); earCutCounts[key] = match ? parseInt(match[1], 10) : 1;
+                } else if (key === "不明" && str.startsWith("わからない")) {
+                  earCutCounts["不明"] = 1;
+                }
+              }
+            });
+          }
+        }
+        updateEarCutUI(); updateEarCutValue();
+
+        patternCounts.clear(); selectedStandalonePatterns.clear();
+        if (d.catPattern) {
+          d.catPattern.split(', ').forEach(p => {
+            const match = p.match(/(.+?)\s*\((\d+)頭\)/);
+            if (match) patternCounts.set(match[1], parseInt(match[2], 10));
+            else if (p.startsWith('その他(')) {
+              selectedStandalonePatterns.add('その他（記述）');
+              document.getElementById('patternOtherInput').value = p.replace('その他(','').replace(')','');
+              document.getElementById('otherPatternContainer').classList.remove('hidden');
+            } else selectedStandalonePatterns.add(p);
+          });
+        }
+        renderPatternMenu(); document.getElementById('remarks').value = d.remarks || "";
+        closeModal('historyModal'); window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        document.getElementById('submitBtn').innerText = "修正して記録する";
+        document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #FF7043 0%, #F4511E 100%)";
+      };
+    } catch(e) { console.error("履歴の復元に失敗しました", e); }
+  }
+
+  function triggerSuccessAnimation() {
+    const modal = document.getElementById('successModal');
+    const elements = ['successPin', 'successRipple', 'successText'].map(id => document.getElementById(id));
+    elements.forEach(el => el.classList.remove('animate'));
+    modal.classList.add('active');
+    void elements[0].offsetWidth; 
+    elements.forEach(el => el.classList.add('animate'));
+    
+    setTimeout(() => {
+      modal.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1200);
+  }
+
+  async function sendDataToGAS(dataObj) {
+    const params = new URLSearchParams(); 
+    for (const key in dataObj) { params.append(key, dataObj[key]); }
+    return await fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" });
+  }
+
+  async function processSubmission(dataObj) {
+    var output = document.getElementById('output');
+    if (navigator.onLine) {
+      try {
+        await sendDataToGAS(dataObj); 
+        await saveToHistoryDB(dataObj); 
+        resetFormUI();
+        triggerSuccessAnimation();
+        loadMapMarkers();
+      } catch (error) {
+        await saveToHistoryDB(dataObj); await saveToOfflineDB(dataObj);
+        output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; output.style.color = "var(--accent-primary)";
+      }
+    } else {
+      await saveToHistoryDB(dataObj); await saveToOfflineDB(dataObj);
+      resetFormUI();
+      triggerSuccessAnimation();
+    }
+    updateOfflineCount();
+    document.getElementById('submitBtn').disabled = false;
+  }
+
+  function resetFormUI() {
+    document.getElementById("catForm").reset(); document.getElementById("editId").value = "";
+    if(marker) map.removeLayer(marker); marker = null;
+    document.getElementById('locationDisplay').innerText = "場所が選択されていません";
+    earCutCounts["はい"] = 0; earCutCounts["いいえ"] = 0; earCutCounts["不明"] = 0; updateEarCutUI(); updateEarCutValue();
+    patternCounts.clear(); selectedStandalonePatterns.clear(); currentPatternCategory = null; 
+    document.getElementById('patternOtherInput').value = ""; document.getElementById('otherPatternContainer').classList.add('hidden'); renderPatternMenu();
+    document.getElementById('submitBtn').innerText = "記録する"; document.getElementById('submitBtn').style.background = "linear-gradient(135deg, #FF7043 0%, #F4511E 100%)";
+  }
+
+  function resizeImage(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas'); let MAX_WIDTH = 800, MAX_HEIGHT = 800; let width = img.width, height = img.height;
+          if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+          else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+          canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        }; img.src = e.target.result;
+      }; reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    if(!document.getElementById('location').value) { alert("地図上で場所を選択してください。"); return; }
+    const targetTotalCount = getSelectedTotalCatCount();
+    if (targetTotalCount <= 0) { alert("ネコの頭数を選択してください。"); return; }
+
+    const earCutTotal = getEarCutTotalCount(); const patternTotal = getPatternTotalCount();
+    const isEarCutValid = (earCutTotal === targetTotalCount);
+    const isPatternValid = selectedStandalonePatterns.size > 0 || (patternTotal === targetTotalCount);
+
+    if (!isEarCutValid || !isPatternValid) { alert("ネコの頭数と耳カットの有無、もしくはネコの柄の頭数が合致しません"); return; }
+    
+    document.getElementById('submitBtn').disabled = true; document.getElementById('submitBtn').innerText = "処理中..."; document.getElementById('output').innerText = "";
+    
+    let currentEditId = document.getElementById('editId').value;
+    if (!currentEditId) currentEditId = "req_" + Date.now();
+
+    let catCountResultText = "";
+    const mainCountVal = document.getElementById('catCount').value;
+    if (mainCountVal === '3頭以上') catCountResultText = document.getElementById('catCountNum').value;
+    else if (mainCountVal === '親子') {
+      const pVal = document.getElementById('catCountParent').value || "親0頭"; const cVal = document.getElementById('catCountChild').value || "子0頭";
+      catCountResultText = `${pVal}, ${cVal}`;
+    } else if (mainCountVal === '子ネコ') {
+      catCountResultText = `子ネコ ${document.getElementById('catCountChildOnly').value}`;
+    } else catCountResultText = mainCountVal;
+
+    var dataObj = {
+      editId: currentEditId, nickname: localStorage.getItem('nekoLogName') || "名無し",
+      location: document.getElementById('location').value,
+      datetime: document.getElementById('dateInput').value + 'T' + document.getElementById('hourInput').value + ':00',
+      catCountResult: catCountResultText, earCut: document.getElementById('hiddenEarCut').value,
+      catPattern: document.getElementById('hiddenCatPattern').value, remarks: document.getElementById('remarks').value, photosArray: "[]"
+    };
+    
+    var files = document.getElementById('photo').files;
+    if (files.length > 0) {
+      document.getElementById('output').innerText = "写真を圧縮中です..."; let photoArray = [];
+      for (let i = 0; i < files.length; i++) {
+        let base64 = await resizeImage(files[i]); photoArray.push({ data: base64, name: "photo_" + Date.now() + "_" + i + ".jpg" });
+      }
+      dataObj.photosArray = JSON.stringify(photoArray);
+      document.getElementById('output').innerText = "データを記録中です...";
+      processSubmission(dataObj);
+    } else processSubmission(dataObj); 
+  }
+
+  window.addEventListener('online', async () => {
+    const savedData = await getFromOfflineDB();
+    if (savedData.length > 0) {
+      for (const item of savedData) {
+        try { await sendDataToGAS(item.data); await deleteFromOfflineDB(item.key); } 
+        catch (e) { console.error("同期失敗", e); }
+      }
+      updateOfflineCount();
+    }
+  });
+</script>
+</body>
+</html>
