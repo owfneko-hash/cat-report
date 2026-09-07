@@ -264,25 +264,20 @@
     .loading-text { color: var(--accent-primary); font-size: 18px; font-weight: 900; letter-spacing: 2px; margin-top: 10px; }
     .spinner { width: 50px; height: 50px; border: 6px solid rgba(255, 112, 67, 0.15); border-left-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
     
-    /* 記録完了モーション */
-    .modal-success { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); z-index: 10000; justify-content: center; align-items: center; }
+    /* 記録完了モーション（最適化サイズ版・オレンジテーマ） */
+    .modal-success { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 10000; justify-content: center; align-items: center; }
     .modal-success.active { display: flex; }
-    .success-stage { position: relative; width: 220px; height: 220px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    .success-ripple { position: absolute; bottom: 70px; width: 50px; height: 16px; background: rgba(255, 122, 0, 0.3); border-radius: 50%; transform: scale(0); opacity: 0; }
+    .success-stage { position: relative; width: 300px; height: 300px; max-width: 90%; background: white; border-radius: 36px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .success-ripple { position: absolute; bottom: 95px; width: 100px; height: 26px; background: rgba(255, 112, 67, 0.3); border-radius: 50%; transform: scale(0); opacity: 0; }
     .success-ripple.animate { animation: ripple-effect 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.25s forwards; }
-    .success-pin-wrapper { position: absolute; bottom: 75px; transform: translateY(-250px); opacity: 0; z-index: 2; }
+    .success-pin-wrapper { position: absolute; bottom: 105px; transform: translateY(-300px); opacity: 0; z-index: 2; }
     .success-pin-wrapper.animate { animation: drop-bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    .success-status-text { position: absolute; bottom: 30px; font-size: 20px; font-weight: bold; color: #ff7a00; letter-spacing: 2px; opacity: 0; transform: translateY(10px); z-index: 1; text-shadow: 0 2px 8px rgba(255,255,255,0.9); }
+    .success-status-text { position: absolute; bottom: 35px; font-size: 32px; font-weight: 900; color: var(--accent-primary); letter-spacing: 4px; opacity: 0; transform: translateY(20px); z-index: 1; text-shadow: 0 4px 12px rgba(255, 112, 67, 0.25); }
     .success-status-text.animate { animation: text-appear 0.3s ease-out 0.4s forwards; }
 
-    @keyframes drop-bounce { 0% { transform: translateY(-220px) scale(0.8); opacity: 0; } 35% { opacity: 1; } 55% { transform: translateY(0) scaleY(0.7) scaleX(1.3); } 72% { transform: translateY(-16px) scaleY(1.15) scaleX(0.88); } 85% { transform: translateY(0) scaleY(0.95) scaleX(1.05); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-    @keyframes ripple-effect { 0% { transform: scale(0.2); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
-    @keyframes text-appear { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); } 100% { transform: scale(1); } }
-    @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes modalPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+    @keyframes drop-bounce { 0% { transform: translateY(-300px) scale(0.8); opacity: 0; } 35% { opacity: 1; } 55% { transform: translateY(0) scaleY(0.7) scaleX(1.3); } 72% { transform: translateY(-30px) scaleY(1.15) scaleX(0.88); } 85% { transform: translateY(0) scaleY(0.95) scaleX(1.05); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    @keyframes ripple-effect { 0% { transform: scale(0.2); opacity: 0.8; } 100% { transform: scale(3.5); opacity: 0; } }
+    @keyframes text-appear { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
 
     #aggregatedMap { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
     .history-item { background: white; padding: 14px; border-radius: var(--radius-s); border: 1px solid var(--border-color); margin-bottom: 12px; text-align: left; box-shadow: 0 2px 6px rgba(0,0,0,0.03); position: relative; }
@@ -310,6 +305,18 @@
 
 <!-- オフライン送信待ちバッジ -->
 <div id="offlineBadge" class="offline-badge">送信待ち: 0件</div>
+
+<!-- ▼ 記録完了モーション用モーダル ▼ -->
+<div id="successModal" class="modal-success">
+  <div class="success-stage">
+    <div id="successRipple" class="success-ripple"></div>
+    <div id="successPin" class="success-pin-wrapper">
+      <!-- オレンジ色のシャドウに変更 -->
+      <img src="icon-neko.png" style="width: 160px; height: auto; filter: drop-shadow(0px 12px 24px rgba(255, 112, 67, 0.7));">
+    </div>
+    <div id="successText" class="success-status-text">記録完了！</div>
+  </div>
+</div>
 
 <!-- 初回起動用 ウェルカムモーダル -->
 <div id="welcomeModal" class="modal">
@@ -644,6 +651,16 @@
       if (!isStandalone) { document.getElementById('stepInstall').classList.remove('hidden'); if (isIos) { toggleGuide('welcomeIos'); } else { toggleGuide('welcomeAndroid'); } } 
       else { document.getElementById('stepName').classList.remove('hidden'); }
     }
+
+    // ▼ 起動時にオフライン残存データを自動で裏側送信 ▼
+    if (navigator.onLine) {
+      setTimeout(() => { syncOfflineData(); }, 1000);
+    }
+  });
+
+  // ▼ オンライン復帰時にも自動送信 ▼
+  window.addEventListener('online', () => {
+    syncOfflineData();
   });
 
   let lastScrollY = window.scrollY;
@@ -703,6 +720,10 @@
     const name = document.getElementById('welcomeNameInput').value.trim();
     if (!name) { alert('名前を入力してください。'); return; }
     localStorage.setItem('nekoLogName', name); document.getElementById('welcomeModal').style.display = 'none';
+  }
+
+  function openMapGuide() {
+    document.getElementById('mapGuideModal').style.display = 'flex';
   }
 
   async function openMapModal() {
@@ -1048,8 +1069,19 @@
     if (!confirm("この記録を削除しますか？\n（サーバー上からも完全に削除されます）")) return;
     try {
       const params = new URLSearchParams(); params.append('action', 'delete'); params.append('editId', id);
-      fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" });
-      await deleteFromHistoryDB(id); loadHistoryList(); loadMapMarkers();
+      
+      fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" }).catch(e => console.log(e));
+      
+      await deleteFromHistoryDB(id); 
+      
+      const offlineData = await getFromOfflineDB();
+      for (const item of offlineData) {
+        if (item.data.editId === id) await deleteFromOfflineDB(item.key);
+      }
+
+      updateOfflineCount();
+      loadHistoryList(); 
+      loadMapMarkers();
     } catch(e) { console.error(e); alert("削除中にエラーが発生しました。"); }
   }
 
@@ -1126,11 +1158,15 @@
 
   function triggerSuccessAnimation() {
     const modal = document.getElementById('successModal');
+    if (!modal) return;
+    
     const elements = ['successPin', 'successRipple', 'successText'].map(id => document.getElementById(id));
-    elements.forEach(el => el.classList.remove('animate'));
+    elements.forEach(el => { if(el) el.classList.remove('animate'); });
+    
     modal.classList.add('active');
-    void elements[0].offsetWidth; 
-    elements.forEach(el => el.classList.add('animate'));
+    void modal.offsetWidth; 
+    
+    elements.forEach(el => { if(el) el.classList.add('animate'); });
     
     setTimeout(() => {
       modal.classList.remove('active');
@@ -1141,29 +1177,70 @@
   async function sendDataToGAS(dataObj) {
     const params = new URLSearchParams(); 
     for (const key in dataObj) { params.append(key, dataObj[key]); }
-    return await fetch(gasURL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params, mode: "no-cors" });
+    await fetch(gasURL, { 
+      method: "POST", 
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
+      body: params, 
+      mode: "no-cors" 
+    });
   }
 
-  async function processSubmission(dataObj) {
-    var output = document.getElementById('output');
-    if (navigator.onLine) {
+  // ▼ バックグラウンドで溜まったデータを送信する関数 ▼
+  async function syncOfflineData() {
+    if (!navigator.onLine) {
+      updateOfflineCount();
+      return;
+    }
+    const savedData = await getFromOfflineDB();
+    if (savedData.length === 0) {
+      updateOfflineCount();
+      return;
+    }
+    
+    let isUpdated = false;
+    for (const item of savedData) {
       try {
-        await sendDataToGAS(dataObj); 
-        await saveToHistoryDB(dataObj); 
-        resetFormUI();
-        triggerSuccessAnimation();
-        loadMapMarkers();
-      } catch (error) {
-        await saveToHistoryDB(dataObj); await saveToOfflineDB(dataObj);
-        output.innerText = "通信エラーが発生しました。一時保存し、後で自動送信します。"; output.style.color = "var(--accent-primary)";
+        await sendDataToGAS(item.data); 
+        await deleteFromOfflineDB(item.key);
+        isUpdated = true;
+      } catch (e) {
+        console.error("同期失敗", e);
       }
-    } else {
-      await saveToHistoryDB(dataObj); await saveToOfflineDB(dataObj);
-      resetFormUI();
-      triggerSuccessAnimation();
     }
     updateOfflineCount();
+    if (isUpdated) {
+      loadMapMarkers();
+    }
+  }
+
+  // ▼ 状況に応じた送信処理とUI表示 ▼
+  async function processSubmission(dataObj) {
+    document.getElementById('output').innerText = ""; 
     document.getElementById('submitBtn').disabled = false;
+
+    if (navigator.onLine) {
+      // --- オンライン時：即完了モーション＆裏側送信 ---
+      resetFormUI();
+      triggerSuccessAnimation();
+
+      sendDataToGAS(dataObj).then(() => {
+        saveToHistoryDB(dataObj);
+        setTimeout(() => { loadMapMarkers(); }, 1500);
+      }).catch(async (e) => {
+        await saveToOfflineDB(dataObj);
+        await saveToHistoryDB(dataObj);
+        updateOfflineCount();
+      });
+      
+    } else {
+      // --- オフライン時：送信待ちとして保存 ---
+      resetFormUI();
+      alert("現在オフラインです。\nデータは一時保存され、オンライン復帰後に自動で送信されます。");
+      
+      await saveToOfflineDB(dataObj);
+      await saveToHistoryDB(dataObj);
+      updateOfflineCount();
+    }
   }
 
   function resetFormUI() {
@@ -1234,21 +1311,9 @@
         let base64 = await resizeImage(files[i]); photoArray.push({ data: base64, name: "photo_" + Date.now() + "_" + i + ".jpg" });
       }
       dataObj.photosArray = JSON.stringify(photoArray);
-      document.getElementById('output').innerText = "データを記録中です...";
       processSubmission(dataObj);
     } else processSubmission(dataObj); 
   }
-
-  window.addEventListener('online', async () => {
-    const savedData = await getFromOfflineDB();
-    if (savedData.length > 0) {
-      for (const item of savedData) {
-        try { await sendDataToGAS(item.data); await deleteFromOfflineDB(item.key); } 
-        catch (e) { console.error("同期失敗", e); }
-      }
-      updateOfflineCount();
-    }
-  });
 </script>
 </body>
 </html>
