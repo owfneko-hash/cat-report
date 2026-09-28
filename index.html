@@ -197,7 +197,9 @@
     .btn-action { background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); color: white; padding: 11px 14px; border: none; border-radius: var(--radius-m); cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: block; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(255, 112, 67, 0.2); transition: all 0.2s ease; }
     .btn-action:active { transform: translateY(2px); box-shadow: none; }
     .btn-sub { background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(230, 81, 0, 0.3); margin-bottom: 8px; }
-    .btn-exif { background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3); margin-bottom: 15px; }
+    
+    /* ▼▼ ここを変更（薄い青色） ▼▼ */
+    .btn-exif { background: linear-gradient(135deg, #81D4FA 0%, #29B6F6 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(41, 182, 246, 0.3); margin-bottom: 15px; }
     
     #submitBtn { width: 100%; background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%); color: white; padding: 15px; border: none; border-radius: 18px; cursor: pointer; font-size: 18px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; }
     #submitBtn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(244, 81, 30, 0.3); }
@@ -520,7 +522,7 @@
     <input type="file" id="exifPhotoInput" accept="image/*" style="display:none;">
 
     <div class="form-group">
-      <!-- ▼ 追加：写真から位置と日時を取得ボタン ▼ -->
+      <!-- ▼ 写真から位置と日時を取得ボタン ▼ -->
       <button type="button" class="btn-action btn-exif" onclick="openExifGuide()">📷 写真から位置と日時を取得</button>
 
       <label class="required">目撃場所</label>
