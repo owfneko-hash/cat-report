@@ -198,7 +198,7 @@
     .btn-action:active { transform: translateY(2px); box-shadow: none; }
     .btn-sub { background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(230, 81, 0, 0.3); margin-bottom: 8px; }
     
-    /* ▼▼ ここを変更（薄い青色） ▼▼ */
+    /* ▼ 写真から取得ボタン（薄い青色） ▼ */
     .btn-exif { background: linear-gradient(135deg, #81D4FA 0%, #29B6F6 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(41, 182, 246, 0.3); margin-bottom: 15px; }
     
     #submitBtn { width: 100%; background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%); color: white; padding: 15px; border: none; border-radius: 18px; cursor: pointer; font-size: 18px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; }
@@ -812,16 +812,21 @@
       return;
     }
 
-    exifr.parse(file).then(output => {
+    // ★追加: 明示的に gps と exif の読み込みを指定してより確実にデータを取得
+    exifr.parse(file, { gps: true, exif: true }).then(output => {
       let hasData = false;
       if (output) {
-        // 緯度経度の取得とマップへの反映
-        if (output.latitude && output.longitude) {
+        
+        // 緯度経度の取得とマップへの反映（スムーズにピンが飛んでいくアニメーションを追加）
+        if (output.latitude != null && output.longitude != null) {
           var latlng = L.latLng(output.latitude, output.longitude);
-          map.setView(latlng, 16);
+          
+          // アニメーション付きで地図を移動
+          map.flyTo(latlng, 16, { animate: true, duration: 1.0 });
           updateMarkerAndLocation(latlng);
           hasData = true;
         }
+
         // 撮影日時の取得とフォームへの反映
         if (output.DateTimeOriginal) {
           var d = new Date(output.DateTimeOriginal);
@@ -837,12 +842,15 @@
 
       if (!hasData) {
         alert("選択された写真から位置情報や日時を取得できませんでした。GPSがオフになっている可能性があります。");
+      } else {
+        // ピンが落ちた後、地図サイズを確実に更新
+        setTimeout(() => { map.invalidateSize(); }, 500);
       }
 
-      // 値取得の成否に関わらず、入力の動線を止めないためネコの頭数グループへ自動スクロール
+      // 地図移動アニメーションを少し見せてからネコの頭数入力画面へスクロール
       setTimeout(() => {
         document.getElementById('catCountGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
-      }, 400);
+      }, 800);
 
     }).catch(err => {
       console.error("EXIF取得エラー:", err);
