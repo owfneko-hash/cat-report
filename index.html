@@ -19,6 +19,9 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
+  <!-- Exif解析ライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+
   <style>
     :root {
       --bg-color: #FAF6F0;
@@ -194,6 +197,8 @@
     .btn-action { background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%); color: white; padding: 11px 14px; border: none; border-radius: var(--radius-m); cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: block; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(255, 112, 67, 0.2); transition: all 0.2s ease; }
     .btn-action:active { transform: translateY(2px); box-shadow: none; }
     .btn-sub { background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(230, 81, 0, 0.3); margin-bottom: 8px; }
+    .btn-exif { background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%); color: white; border: none; box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3); margin-bottom: 15px; }
+    
     #submitBtn { width: 100%; background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%); color: white; padding: 15px; border: none; border-radius: 18px; cursor: pointer; font-size: 18px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(244, 81, 30, 0.3); transition: all 0.2s ease; margin-top: 10px; }
     #submitBtn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(244, 81, 30, 0.3); }
     #output { margin-top: 18px; text-align: center; font-weight: bold; font-size: 15px; color: var(--accent-primary); line-height: 1.5; white-space: pre-wrap; }
@@ -461,6 +466,23 @@
   </div>
 </div>
 
+<!-- ▼ 写真から取得時の注意案内モーダル ▼ -->
+<div id="exifGuideModal" class="modal" style="z-index: 10000;">
+  <div class="modal-content" style="max-width: 400px; text-align: left;">
+    <h3 style="color:var(--accent-primary); margin-top:0; font-size:20px; text-align:center;">写真から情報を取得</h3>
+    <p style="font-size:14px; color:var(--text-main); line-height:1.7; margin: 20px 0;">
+      この機能を使うためには位置情報（GPS）が記録された写真が必要です。<br>
+      GPS許可がオフの場合は、お使いの端末（カメラアプリ等）で設定を行ってください。
+    </p>
+    <div style="margin-bottom: 20px; font-size:14px; text-align:center;">
+      <label style="display:inline-flex; align-items:center; cursor:pointer; font-weight:normal; color:var(--text-main);">
+        <input type="checkbox" id="hideExifGuideCb" style="width:auto; margin-right:8px; transform: scale(1.2);"> 以降このメッセージを表示しない
+      </label>
+    </div>
+    <button class="btn-action" style="padding:14px; font-size:16px; margin-bottom:0;" onclick="proceedExifFileSelect()">OK</button>
+  </div>
+</div>
+
 <!-- =========================================
      ▼ ボトムナビゲーション ▼
      ========================================= -->
@@ -493,8 +515,14 @@
   <form id="catForm" onsubmit="handleFormSubmit(event)">
     <input type="hidden" id="editId" name="editId" value="">
     <input type="hidden" id="location" required>
+    
+    <!-- Exif解析用の非表示インプット -->
+    <input type="file" id="exifPhotoInput" accept="image/*" style="display:none;">
 
     <div class="form-group">
+      <!-- ▼ 追加：写真から位置と日時を取得ボタン ▼ -->
+      <button type="button" class="btn-action btn-exif" onclick="openExifGuide()">📷 写真から位置と日時を取得</button>
+
       <label class="required">目撃場所</label>
       <button type="button" id="currentLocationBtn" class="btn-action btn-sub" onclick="goToCurrentLocation()">現在地を取得する</button>
       <div id="map"></div>
@@ -520,7 +548,8 @@
       </div>
     </div>
 
-    <div class="form-group">
+    <!-- 自動スクロールのターゲット用 id="catCountGroup" -->
+    <div class="form-group" id="catCountGroup">
       <label for="catCount" class="required">ネコの頭数</label>
       <select id="catCount" onchange="toggleCatDetail()" required>
         <option value="">選択してください</option>
@@ -752,6 +781,75 @@
     document.getElementById(modalId).style.display = 'none';
     if (currentActiveModal === modalId) { currentActiveModal = null; try { if (history.state && history.state.modalOpen) history.back(); } catch(e) {} }
   }
+
+  // =========================================
+  // 写真のExifから位置・日時を取得する処理
+  // =========================================
+  function openExifGuide() {
+    if (localStorage.getItem('nekoLogExifGuideSeen') === 'true') {
+      document.getElementById('exifPhotoInput').click();
+    } else {
+      openModalWithHistory('exifGuideModal');
+    }
+  }
+
+  function proceedExifFileSelect() {
+    if (document.getElementById('hideExifGuideCb').checked) {
+      localStorage.setItem('nekoLogExifGuideSeen', 'true');
+    }
+    closeModal('exifGuideModal');
+    document.getElementById('exifPhotoInput').click();
+  }
+
+  document.getElementById('exifPhotoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (typeof exifr === 'undefined') {
+      alert("ライブラリを読み込み中です。少し待ってから再度お試しください。");
+      return;
+    }
+
+    exifr.parse(file).then(output => {
+      let hasData = false;
+      if (output) {
+        // 緯度経度の取得とマップへの反映
+        if (output.latitude && output.longitude) {
+          var latlng = L.latLng(output.latitude, output.longitude);
+          map.setView(latlng, 16);
+          updateMarkerAndLocation(latlng);
+          hasData = true;
+        }
+        // 撮影日時の取得とフォームへの反映
+        if (output.DateTimeOriginal) {
+          var d = new Date(output.DateTimeOriginal);
+          var yyyy = d.getFullYear();
+          var mm = String(d.getMonth() + 1).padStart(2, '0');
+          var dd = String(d.getDate()).padStart(2, '0');
+          var hh = String(d.getHours()).padStart(2, '0');
+          document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+          document.getElementById('hourInput').value = hh;
+          hasData = true;
+        }
+      }
+
+      if (!hasData) {
+        alert("選択された写真から位置情報や日時を取得できませんでした。GPSがオフになっている可能性があります。");
+      }
+
+      // 値取得の成否に関わらず、入力の動線を止めないためネコの頭数グループへ自動スクロール
+      setTimeout(() => {
+        document.getElementById('catCountGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
+      }, 400);
+
+    }).catch(err => {
+      console.error("EXIF取得エラー:", err);
+      alert("写真の解析中にエラーが発生しました。");
+    });
+    
+    // 同じファイルを選び直せるようにリセット
+    e.target.value = '';
+  });
 
   function openSettingsModal() { document.getElementById('settingsNameInput').value = localStorage.getItem('nekoLogName') || ''; openModalWithHistory('settingsModal'); }
   function saveSettingsName() {
