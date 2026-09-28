@@ -518,8 +518,8 @@
     <input type="hidden" id="editId" name="editId" value="">
     <input type="hidden" id="location" required>
     
-    <!-- Exif解析用の非表示インプット -->
-    <input type="file" id="exifPhotoInput" accept="image/*" style="display:none;">
+    <!-- ★変更点：HEIC/HEIF形式を許可することでスマホ側の自動変換(データ削除)を防止 -->
+    <input type="file" id="exifPhotoInput" accept="image/jpeg, image/png, image/heic, image/heif, image/*" style="display:none;">
 
     <div class="form-group">
       <!-- ▼ 写真から位置と日時を取得ボタン ▼ -->
@@ -616,7 +616,8 @@
 
     <div class="form-group">
       <label for="photo">目撃写真（複数選択可）</label>
-      <input type="file" id="photo" accept="image/*" multiple>
+      <!-- 通常の写真アップロードもHEICを許可 -->
+      <input type="file" id="photo" accept="image/jpeg, image/png, image/heic, image/heif, image/*" multiple>
     </div>
 
     <div class="form-group">
@@ -785,7 +786,7 @@
   }
 
   // =========================================
-  // ★改良版: 写真のExifから位置・日時を取得
+  // ★さらに改良版: エラー回避と確実な取得
   // =========================================
   function openExifGuide() {
     if (localStorage.getItem('nekoLogExifGuideSeen') === 'true') {
@@ -813,27 +814,28 @@
     }
 
     try {
-      // 制限をかけず、全体のメタデータをパースすることでエラー落ちを防ぎます
-      const output = await exifr.parse(file);
+      // 1つのファイルから、GPSとEXIF(日時)を別々に、必要な部分だけ安全に抽出する
+      // これにより、HEIC等の解析で発生しやすいメモリクラッシュを防ぎます
+      let latlngData = await exifr.gps(file).catch(() => null);
+      let exifData = await exifr.parse(file, { pick: ['DateTimeOriginal', 'CreateDate', 'ModifyDate'] }).catch(() => null);
       
       let hasData = false;
-      
-      if (output) {
-        // --- 緯度経度の取得とマップへの反映 ---
-        if (output.latitude != null && output.longitude != null) {
-          var latlng = L.latLng(output.latitude, output.longitude);
-          
-          // アニメーション付きで地図を移動
-          map.flyTo(latlng, 16, { animate: true, duration: 1.0 });
-          updateMarkerAndLocation(latlng);
-          hasData = true;
-        }
 
-        // --- 撮影日時の取得（複数タグにフォールバック） ---
-        const photoDate = output.DateTimeOriginal || output.CreateDate || output.ModifyDate;
+      // --- 緯度経度の取得とマップへの反映 ---
+      if (latlngData && latlngData.latitude != null && latlngData.longitude != null) {
+        var latlng = L.latLng(latlngData.latitude, latlngData.longitude);
+        // アニメーション付きで地図を移動
+        map.flyTo(latlng, 16, { animate: true, duration: 1.0 });
+        updateMarkerAndLocation(latlng);
+        hasData = true;
+      }
+
+      // --- 撮影日時の取得 ---
+      if (exifData) {
+        const photoDate = exifData.DateTimeOriginal || exifData.CreateDate || exifData.ModifyDate;
         if (photoDate) {
           var d = new Date(photoDate);
-          if (!isNaN(d.getTime())) { // 日付として正しいかチェック
+          if (!isNaN(d.getTime())) { // 日付が正しいかチェック
             var yyyy = d.getFullYear();
             var mm = String(d.getMonth() + 1).padStart(2, '0');
             var dd = String(d.getDate()).padStart(2, '0');
@@ -846,21 +848,20 @@
       }
 
       if (!hasData) {
-        alert("選択した写真に「位置情報」や「撮影日時」が含まれていませんでした。\n\n※LINE等のSNSから保存した写真や、スクリーンショットには記録されません。スマートフォンの設定で位置情報(GPS)をオンにして撮影した写真をお使いください。");
+        // 取れなかった場合の詳しい案内ダイアログ
+        alert("写真から位置情報や日時を取得できませんでした。\n\n【よくある原因】\n① iPhoneなどの場合、ブラウザのプライバシー保護機能によって位置情報が自動的に消去されることがあります。\n※写真選択画面の上部にある「オプション」から「位置情報」をオンにしてお試しください。\n\n② LINEやSNSから保存した写真、スクリーンショットには元々データが記録されていません。");
       } else {
-        // ピンが落ちた後、地図の表示崩れを防ぐ
         setTimeout(() => { map.invalidateSize(); }, 500);
       }
 
-      // 処理が終わったら、スムーズに下の「ネコの頭数」へスクロール
+      // 処理終了後、下の「ネコの頭数」へスクロール
       setTimeout(() => {
         document.getElementById('catCountGroup').scrollIntoView({behavior: 'smooth', block: 'center'});
       }, 800);
 
     } catch (err) {
       console.error("EXIF解析エラー:", err);
-      // スクリーンショットや完全な非対応画像でクラッシュした場合のメッセージ
-      alert("写真の読み込みができませんでした。\n非対応の画像形式か、データが完全に削除されている可能性があります。別の写真でお試しください。");
+      alert("写真の読み込み中にエラーが発生しました。\n一部のスマホ独自の保存形式（HEIC等）が原因の可能性があります。\n\n【対策】\niPhoneの場合は、写真選択画面の上部にある「オプション」をタップし、「すべての写真データ」をオンにしてから再度お試しください。");
     }
     
     // 同じファイルを選び直せるようにリセット
